@@ -271,6 +271,22 @@ var_separator_keywords = KeywordsList('VAR_SEPARATOR')
 unit_type_keywords = KeywordsList('EXTENDED_SI',
                                   'DERIVED')
 
+a2ml_block_definition_keywords = KeywordsList('block')
+
+a2ml_type_name_keywords = KeywordsList('struct',
+                                       'taggedstruct',
+                                       'taggedunion',
+                                       'enum')
+
+a2ml_predefined_type_name_keywords = KeywordsList('char',
+                                                  'int',
+                                                  'long',
+                                                  'uchar',
+                                                  'uint',
+                                                  'ulong',
+                                                  'double',
+                                                  'float')
+
 reserved_keywords = dict(top_level_keywords.items() + \
                          primary_keywords.items() + \
                          secondary_keywords.items() + \
@@ -289,7 +305,11 @@ reserved_keywords = dict(top_level_keywords.items() + \
                          compu_vtab_conversion_type_keywords.items() + \
                          fnc_values_index_mode_keywords.items() + \
                          var_separator_keywords.items() + \
-                         unit_type_keywords.items())
+                         unit_type_keywords.items() + \
+ \
+                         a2ml_block_definition_keywords.items() + \
+                         a2ml_type_name_keywords.items() + \
+                         a2ml_predefined_type_name_keywords.items())
 
 tokens = reserved_keywords.values() + [
     r'C_COMMENT',
@@ -299,7 +319,16 @@ tokens = reserved_keywords.values() + [
     r'IDENT',
     r'begin',
     r'end',
-    r'RAW_TEXT'
+    r'PARENTHESE_OPEN',
+    r'PARENTHESE_CLOSE',
+    r'CURLY_OPEN',
+    r'CURLY_CLOSE',
+    r'BRACE_OPEN',
+    r'BRACE_CLOSE',
+    r'SEMICOLON',
+    r'ASTERISK',
+    r'EQUAL',
+    r'COMMA'
 ]
 
 t_ignore = ' \t\r\n'
@@ -313,6 +342,18 @@ def t_ignore_C_COMMENT(token):
 @lex.TOKEN(r'(\/{2}.+\n)')
 def t_ignore_CPP_COMMENT(token):
     pass
+
+
+t_PARENTHESE_OPEN = r'\('
+t_PARENTHESE_CLOSE = r'\)'
+t_CURLY_OPEN = r'\{'
+t_CURLY_CLOSE = r'\}'
+t_BRACE_OPEN = r'\['
+t_BRACE_CLOSE = r'\]'
+t_SEMICOLON = r';'
+t_ASTERISK = r'\*'
+t_EQUAL = r'='
+t_COMMA = r','
 
 
 @lex.TOKEN(r'(\/begin)')
@@ -352,7 +393,7 @@ def t_NUMERIC(token):
     return token
 
 
-@lex.TOKEN(r'[A-Za-z0-9_]{1}[^\s]{0,}')
+@lex.TOKEN(r'[A-Za-z0-9_]{1}[^\s;\[\]\(\)]{0,}')
 def t_IDENT(token):
     try:
         token.type = reserved_keywords[token.value]
@@ -360,11 +401,6 @@ def t_IDENT(token):
         pass
     except:
         raise
-    return token
-
-
-@lex.TOKEN(r'.+')
-def t_RAW_TEXT(token):
     return token
 
 
