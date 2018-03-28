@@ -13,7 +13,7 @@ class A2lFormatException(Exception):
     def __init__(self, message, position, string=None):
         self.value = str(message) + str(position)
         if string:
-            delta = 20
+            delta = 120
             s = position - delta if position >= delta else 0
             e = position + delta if len(string) >= position + delta else -1
             substring = string[s:e].replace('\r', ' ').replace('\n', ' ')
@@ -26,42 +26,47 @@ class A2lFormatException(Exception):
 class A2lParser(object):
     tokens = lexer.tokens
 
+    precedence = (('right', 'char', 'IDENT'),)
+
     def __init__(self, string):
-        yacc.yacc(module=self)
-        yacc.parse(string)
+        self._yacc = yacc.yacc(module=self)
+        self._yacc.parse(string, debug=False)
 
-    @staticmethod
-    def p_error(p):
-        print A2lFormatException('invalid sequence at position ', p.lexpos, string=p.lexer.lexdata)
-        p.lexer.skip(1)
+    def p_error(self, p):
+        raise A2lFormatException('invalid sequence at position ', p.lexpos, string=p.lexer.lexdata)
+
+        try:
+            skip_len = len(p.value)
+            p.lexer.skip(skip_len)
+        except Exception as e:
+            p.lexer.skip(1)
         pass
 
     @staticmethod
-    def p_root(p):
+    def p_a2l(p):
         """a2l : version_list project"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_declaration(p):
         """a2ml_declaration : a2ml_type_definition SEMICOLON
                             | a2ml_block_definition SEMICOLON"""
-
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_declaration_list(p):
         """a2ml_declaration_list : a2ml_declaration
                                  | a2ml_declaration a2ml_declaration_list"""
-
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_a2ml_type_definition(p):
         """a2ml_type_definition : a2ml_type_name"""
+        p[0] = p[1]
 
-    # a2ml_predefined_type_name
-    # | a2ml_struct_type_name
-    # | a2ml_taggedstruct_type_name
-    # | a2ml_taggedunion_type_name
-    # | a2ml_enum_type_name
     @staticmethod
     def p_a2ml_type_name(p):
         """a2ml_type_name : a2ml_predefined_type_name
@@ -81,6 +86,7 @@ class A2lParser(object):
                                      | ulong
                                      | double
                                      | float"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_block_definition(p):
@@ -90,6 +96,10 @@ class A2lParser(object):
     def p_a2ml_enum_type_name(p):
         """a2ml_enum_type_name : enum a2ml_identifier_optional CURLY_OPEN a2ml_enumerator_list CURLY_CLOSE
                                | enum a2ml_identifier"""
+        try:
+            p[0] = [p[2]] + p[4]
+        except IndexError:
+            p[0] = [p[2]]
 
     @staticmethod
     def p_a2ml_enumerator_list(p):
@@ -104,54 +114,69 @@ class A2lParser(object):
     def p_a2ml_enumerator(p):
         """a2ml_enumerator : a2ml_keyword EQUAL a2ml_constant
                            | a2ml_keyword"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_struct_type_name(p):
         """a2ml_struct_type_name : struct a2ml_identifier_optional CURLY_OPEN a2ml_struct_member_list_optional CURLY_CLOSE
                                  | struct a2ml_identifier"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_struct_member_list_optional(p):
         """a2ml_struct_member_list_optional : empty
                                             | a2ml_struct_member_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_struct_member_list(p):
         """a2ml_struct_member_list : a2ml_struct_member
                                    | a2ml_struct_member a2ml_struct_member_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_a2ml_struct_member(p):
         """a2ml_struct_member : a2ml_member SEMICOLON"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_member(p):
         """a2ml_member : a2ml_type_name a2ml_array_specifier_optional"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_member_optional(p):
         """a2ml_member_optional : empty
                                 | a2ml_member"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_array_specifier_optional(p):
         """a2ml_array_specifier_optional : empty
                                          | a2ml_array_specifier"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_array_specifier(p):
         """a2ml_array_specifier : BRACE_OPEN a2ml_constant BRACE_CLOSE
                                 | BRACE_OPEN a2ml_constant BRACE_CLOSE a2ml_array_specifier"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_taggedstruct_type_name(p):
         """a2ml_taggedstruct_type_name : taggedstruct a2ml_identifier_optional CURLY_OPEN a2ml_taggedstruct_member_list_optional CURLY_CLOSE
                                        | taggedstruct a2ml_identifier"""
+        p[0] = p[1]
 
     @staticmethod
     def p_a2ml_taggedstruct_member_list_optional(p):
         """a2ml_taggedstruct_member_list_optional : empty
                                                   | a2ml_taggedstruct_member_list"""
+        p[0] = p[1]
+
     @staticmethod
     def p_a2ml_taggedstruct_member_list(p):
         """a2ml_taggedstruct_member_list : a2ml_taggedstruct_member
@@ -169,9 +194,10 @@ class A2lParser(object):
                                     | PARENTHESE_OPEN a2ml_block_definition PARENTHESE_CLOSE ASTERISK SEMICOLON"""
 
     @staticmethod
-    def p_a2ml_taggedstruct_definition(p): # TODO: check if the optional member is really optional (seems to be optional in example).
+    def p_a2ml_taggedstruct_definition(
+            p):  # TODO: check if the optional member is really optional (seems to be optional in example).
         """a2ml_taggedstruct_definition : a2ml_tag a2ml_member_optional
-                                        | a2ml_tag PARENTHESE_OPEN a2ml_member PARENTHESE_CLOSE ASTERISK SEMICOLON"""
+                                        | a2ml_tag PARENTHESE_OPEN a2ml_member PARENTHESE_CLOSE ASTERISK"""
 
     @staticmethod
     def p_a2ml_taggedunion_type_name(p):
@@ -182,6 +208,10 @@ class A2lParser(object):
     def p_a2ml_taggedunion_member_list(p):
         """a2ml_taggedunion_member_list : a2ml_taggedunion_member
                                         | a2ml_taggedunion_member a2ml_taggedunion_member_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_a2ml_taggedunion_member(p):
@@ -248,17 +278,40 @@ class A2lParser(object):
     def p_version_list(p):
         """version_list : version
                         | version version_list"""
-        pass
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_version(p):
         """version : version_asap2_a2ml number_list"""
-        pass
 
     @staticmethod
     def p_version_asap2_a2ml(p):
         """version_asap2_a2ml : ASAP2_VERSION
                               | A2ML_VERSION"""
+
+    @staticmethod
+    def p_generic_parameter(p):
+        """generic_parameter : IDENT
+                             | STRING
+                             | NUMERIC
+                             | begin IDENT generic_parameter_list_optional end IDENT"""
+
+    @staticmethod
+    def p_generic_parameter_list(p):
+        """generic_parameter_list : generic_parameter
+                                  | generic_parameter generic_parameter_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_generic_parameter_list_optional(p):
+        """generic_parameter_list_optional : empty
+                                           | generic_parameter_list"""
 
     @staticmethod
     def p_number_list(p):
@@ -289,13 +342,8 @@ class A2lParser(object):
 
     @staticmethod
     def p_project(p):
-        """project : begin PROJECT IDENT STRING optional_header module_list end PROJECT"""
-        pass
-
-    @staticmethod
-    def p_optional_header(p):
-        """optional_header : empty
-                           | header"""
+        """project : begin PROJECT IDENT STRING header module_list end PROJECT
+                   | begin PROJECT IDENT STRING module_list end PROJECT"""
         p[0] = p[1]
 
     @staticmethod
@@ -316,31 +364,29 @@ class A2lParser(object):
 
     @staticmethod
     def p_module(p):
-        """module : begin MODULE IDENT STRING optional_a2ml optional_module_parameter_list end MODULE"""
+        """module : begin MODULE IDENT STRING optional_module_parameter_list end MODULE
+                  | begin MODULE IDENT STRING a2ml optional_module_parameter_list end MODULE"""
         pass
 
     @staticmethod
     def p_module_list(p):
         """module_list : module
                        | module module_list"""
-        pass
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_a2ml(p):
         """a2ml : begin A2ML a2ml_declaration_list end A2ML"""
-        pass
-
-    @staticmethod
-    def p_optional_a2ml(p):
-        """optional_a2ml : empty
-                         | a2ml"""
         p[0] = p[1]
 
     @staticmethod
     def p_module_parameter(p):
         """module_parameter : mod_par
                             | mod_common
-                            | if_data
+                            | if_data_module
                             | characteristic
                             | axis_pts
                             | measurement
@@ -358,31 +404,420 @@ class A2lParser(object):
         p[0] = p[1]
 
     @staticmethod
+    def p_if_data_module(p):
+        """if_data_module : begin IF_DATA IDENT if_data_module_optional_parameter_list_optional end IF_DATA"""
+
+    @staticmethod
+    def p_if_data_module_optional_parameter(
+            p):  # TODO: protocol_layer, daq and xcp_on_can are not available in rev.1.51...
+        """if_data_module_optional_parameter : source
+                                             | raster
+                                             | event_group
+                                             | seed_key
+                                             | checksum
+                                             | tp_blob tp_data
+                                             | if_data_module_unsupported_element"""
+
+    @staticmethod
+    def p_if_data_module_unsupported_element(p):
+        """if_data_module_unsupported_element : generic_parameter_list"""
+
+    @staticmethod
+    def p_if_data_module_optional_parameter_list(p):
+        """if_data_module_optional_parameter_list : if_data_module_optional_parameter
+                                                  | if_data_module_optional_parameter if_data_module_optional_parameter_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_module_optional_parameter_list_optional(p):
+        """if_data_module_optional_parameter_list_optional : empty
+                                                           | if_data_module_optional_parameter_list"""
+
+    @staticmethod
+    def p_raster(p):
+        """raster : begin RASTER STRING STRING NUMERIC NUMERIC NUMERIC end RASTER"""
+
+    @staticmethod
+    def p_event_group(p):
+        """event_group : begin EVENT_GROUP STRING STRING NUMERIC end EVENT_GROUP"""
+
+    @staticmethod
+    def p_seed_key(p):
+        """seed_key : begin SEED_KEY STRING STRING STRING end SEED_KEY"""
+
+    @staticmethod  # TODO: ident ident numeric pattern is not part of the specification, check...
+    def p_checksum(p):
+        """checksum : begin CHECKSUM STRING end CHECKSUM
+                    | begin CHECKSUM IDENT IDENT NUMERIC end CHECKSUM"""
+
+    @staticmethod
+    def p_tp_blob(p):
+        """tp_blob : TP_BLOB"""
+
+    @staticmethod
+    def p_tp_data(p):
+        """tp_data : generic_parameter_list"""
+
+    @staticmethod
+    def p_source(p):
+        """source : begin SOURCE IDENT NUMERIC NUMERIC source_optional_parameter_list_optional end SOURCE"""
+
+    @staticmethod
+    def p_source_optional_parameter(p):
+        """source_optional_parameter : display_identifier
+                                     | qp_blob"""
+
+    @staticmethod
+    def p_source_optional_parameter_list(p):
+        """source_optional_parameter_list : source_optional_parameter
+                                          | source_optional_parameter source_optional_parameter_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_source_optional_parameter_list_optional(p):
+        """source_optional_parameter_list_optional : empty
+                                                   | source_optional_parameter_list"""
+
+    @staticmethod
+    def p_qp_blob(p):
+        """qp_blob : QP_BLOB IDENT"""
+
+    @staticmethod
     def p_module_parameter_list(p):
         """module_parameter_list : module_parameter
                                  | module_parameter module_parameter_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
         pass
 
     @staticmethod
     def p_optional_module_parameter_list(p):
         """optional_module_parameter_list : empty
                                           | module_parameter_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
         pass
 
     @staticmethod
     def p_mod_par(p):
-        """mod_par : begin MOD_PAR end MOD_PAR"""
+        """mod_par : begin MOD_PAR STRING mod_par_optional_list_optional end MOD_PAR"""
         pass
+
+    @staticmethod
+    def p_mod_par_optional(p):
+        """mod_par_optional : version
+                            | addr_epk
+                            | epk
+                            | supplier
+                            | customer
+                            | customer_no
+                            | user
+                            | phone_no
+                            | ecu
+                            | cpu_type
+                            | no_of_interfaces
+                            | ecu_calibration_offset
+                            | calibration_method
+                            | memory_layout
+                            | memory_segment
+                            | system_constant"""
+
+    @staticmethod
+    def p_mod_par_optional_list(p):
+        """mod_par_optional_list : mod_par_optional
+                                 | mod_par_optional mod_par_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_mod_par_optional_list_optional(p):
+        """mod_par_optional_list_optional : empty
+                                          | mod_par_optional_list"""
+
+    @staticmethod
+    def p_addr_epk(p):
+        """addr_epk : ADDR_EPK NUMERIC"""
+
+    @staticmethod
+    def p_epk(p):
+        """epk : EPK STRING"""
+
+    @staticmethod
+    def p_supplier(p):
+        """supplier : SUPPLIER STRING"""
+
+    @staticmethod
+    def p_customer(p):
+        """customer : CUSTOMER STRING"""
+
+    @staticmethod
+    def p_customer_no(p):
+        """customer_no : CUSTOMER_NO STRING"""
+
+    @staticmethod
+    def p_user(p):
+        """user : USER STRING"""
+
+    @staticmethod
+    def p_phone_no(p):
+        """phone_no : PHONE_NO STRING"""
 
     @staticmethod
     def p_mod_common(p):
-        """mod_common : begin MOD_COMMON end MOD_COMMON"""
-        pass
+        """mod_common : begin MOD_COMMON STRING mod_common_optional_parameter_list_optional end MOD_COMMON"""
 
     @staticmethod
-    def p_if_data(p):
-        """if_data : begin IF_DATA IDENT end IF_DATA"""
-        pass
+    def p_mod_common_optional_parameter(p):
+        """mod_common_optional_parameter : s_rec_layout
+                                         | deposit
+                                         | byte_order
+                                         | data_size
+                                         | alignment_byte
+                                         | alignment_word
+                                         | alignment_long
+                                         | alignment_float32_ieee
+                                         | alignment_float64_ieee"""
+
+    @staticmethod
+    def p_mod_common_optional_parameter_list(p):
+        """mod_common_optional_parameter_list : mod_common_optional_parameter
+                                              | mod_common_optional_parameter mod_common_optional_parameter_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_mod_common_optional_parameter_list_optional(p):
+        """mod_common_optional_parameter_list_optional : empty
+                                                       | mod_common_optional_parameter_list"""
+
+    @staticmethod
+    def p_s_rec_layout(p):
+        """s_rec_layout : S_REC_LAYOUT IDENT"""
+
+    @staticmethod
+    def p_data_size(p):
+        """data_size : DATA_SIZE NUMERIC"""
+
+    @staticmethod
+    def p_ecu(p):
+        """ecu : ECU STRING"""
+
+    @staticmethod
+    def p_cpu_type(p):
+        """cpu_type : CPU_TYPE STRING"""
+
+    @staticmethod
+    def p_no_of_interfaces(p):
+        """no_of_interfaces : NO_OF_INTERFACES NUMERIC"""
+
+    @staticmethod
+    def p_ecu_calibration_offset(p):
+        """ecu_calibration_offset : ECU_CALIBRATION_OFFSET NUMERIC"""
+
+    @staticmethod
+    def p_calibration_method(p):
+        """calibration_method : begin CALIBRATION_METHOD number_list end CALIBRATION_METHOD"""
+
+    @staticmethod
+    def p_memory_layout(p):
+        """memory_layout : begin MEMORY_LAYOUT memory_layout_prg_type NUMERIC NUMERIC number_list memory_layout_parameter_optional end MEMORY_LAYOUT"""
+
+    @staticmethod
+    def p_memory_layout_prg_type(p):
+        """memory_layout_prg_type : PRG_CODE
+                                  | PRG_DATA
+                                  | PRG_RESERVED"""
+
+    @staticmethod
+    def p_memory_layout_parameter_optional(p):
+        """memory_layout_parameter_optional : empty
+                                            | if_data_memory_layout"""
+
+    @staticmethod
+    def p_if_data_memory_layout(p):
+        """if_data_memory_layout : begin IF_DATA IDENT if_data_memory_layout_optional_parameter_list_optional end IF_DATA"""
+
+    @staticmethod
+    def p_if_data_memory_layout_optional_parameter(p):
+        """if_data_memory_layout_optional_parameter : dp_blob dp_data
+                                                    | ba_blob pa_data"""
+
+    @staticmethod
+    def p_if_data_memory_layout_optional_parameter_list(p):
+        """if_data_memory_layout_optional_parameter_list : if_data_memory_layout_optional_parameter
+                                                         | if_data_memory_layout_optional_parameter if_data_memory_layout_optional_parameter_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_memory_layout_optional_parameter_list_optional(p):
+        """if_data_memory_layout_optional_parameter_list_optional : empty
+                                                                  | if_data_memory_layout_optional_parameter_list"""
+
+    @staticmethod
+    def p_dp_blob(p):
+        """dp_blob : DP_BLOB"""
+
+    @staticmethod
+    def p_ba_blob(p):
+        """ba_blob : BA_BLOB"""
+
+    @staticmethod
+    def p_dp_data(p):
+        """dp_data : generic_parameter_list"""
+
+    @staticmethod
+    def p_pa_data(p):
+        """pa_data : generic_parameter_list"""
+
+    @staticmethod
+    def p_memory_segment(p):
+        """memory_segment : begin MEMORY_SEGMENT IDENT STRING memory_segment_prg_type memory_segment_memory_type memory_segment_attributes NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC memory_segment_optional_parameter_list_optional end MEMORY_SEGMENT"""
+
+    @staticmethod
+    def p_memory_segment_prg_type(p):
+        """memory_segment_prg_type : CODE
+                                   | DATA
+                                   | OFFLINE_DATA
+                                   | VARIABLES
+                                   | SERAM
+                                   | RESERVED
+                                   | CALIBRATION_VARIABLES
+                                   | EXCLUDE_FROM_FLASH"""
+
+    @staticmethod
+    def p_memory_segment_memory_type(p):
+        """memory_segment_memory_type : RAM
+                                      | EEPROM
+                                      | EPROM
+                                      | ROM
+                                      | REGISTER
+                                      | FLASH"""
+
+    @staticmethod
+    def p_memory_segment_attributes(p):
+        """memory_segment_attributes : INTERN
+                                     | EXTERN"""
+
+    @staticmethod
+    def p_memory_segment_optional_parameter_list_optional(p):
+        """memory_segment_optional_parameter_list_optional : empty
+                                                           | memory_segment_optional_parameter_list"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_memory_segment_optional_list(p):
+        """memory_segment_optional_parameter_list : memory_segment_optional_parameter
+                                                  | memory_segment_optional_parameter memory_segment_optional_parameter_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_memory_segment_optional(p):
+        """memory_segment_optional_parameter : if_data_memory_segment"""
+
+    @staticmethod
+    def p_system_constant(p):
+        """system_constant : SYSTEM_CONSTANT STRING STRING"""
+
+    @staticmethod
+    def p_if_data_memory_segment(p):
+        """if_data_memory_segment : begin IF_DATA IDENT if_data_memory_segment_optional_parameter_list_optional end IF_DATA"""
+
+    @staticmethod
+    def p_if_data_memory_segment_optional_list_optional(p):
+        """if_data_memory_segment_optional_parameter_list_optional : empty
+                                                                   | if_data_memory_segment_optional_parameter_list"""
+
+    @staticmethod
+    def p_if_data_memory_segment_optional_parameter_list(p):
+        """if_data_memory_segment_optional_parameter_list : if_data_memory_segment_optional_parameter
+                                                          | if_data_memory_segment_optional_parameter if_data_memory_segment_optional_parameter_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_memory_segment_optional_parameter(p):
+        """if_data_memory_segment_optional_parameter : address_mapping
+                                                     | segment"""
+
+    @staticmethod  # TODO: segment is not defined in the specification, check...
+    def p_segment(p):
+        """segment : begin SEGMENT NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC segment_optional_parameter_list_optional end SEGMENT"""
+
+    @staticmethod
+    def p_segment_optional_parameter(p):
+        """segment_optional_parameter : page
+                                      | checksum"""
+
+    @staticmethod
+    def p_segment_optional_parameter_list(p):
+        """segment_optional_parameter_list : segment_optional_parameter
+                                           | segment_optional_parameter segment_optional_parameter_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_segment_optional_parameter_list_optional(p):
+        """segment_optional_parameter_list_optional : empty
+                                                    | segment_optional_parameter_list"""
+
+    @staticmethod
+    def p_page(p):
+        """page : begin PAGE NUMERIC IDENT IDENT IDENT page_optional_parameter_list_optional end PAGE"""
+
+    @staticmethod
+    def p_page_optional_parameter(p):
+        """page_optional_parameter : init_segment"""
+
+    @staticmethod
+    def p_page_optional_parameter_list(p):
+        """page_optional_parameter_list : page_optional_parameter
+                                        | page_optional_parameter page_optional_parameter_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_page_optional_parameter_list_optional(p):
+        """page_optional_parameter_list_optional : empty
+                                                 | page_optional_parameter_list"""
+
+    @staticmethod
+    def p_init_segment(p):
+        """init_segment : INIT_SEGMENT NUMERIC"""
+
+    @staticmethod
+    def p_address_mapping(p):
+        """address_mapping : ADDRESS_MAPPING NUMERIC NUMERIC NUMERIC"""
 
     @staticmethod
     def p_characteristic(p):
@@ -457,8 +892,27 @@ class A2lParser(object):
 
     @staticmethod
     def p_virtual_characteristic(p):
-        """virtual_characteristic : begin VIRTUAL_CHARACTERISTIC STRING ident_list end VIRTUAL_CHARACTERISTIC"""
+        """virtual_characteristic : begin VIRTUAL_CHARACTERISTIC STRING virtual_characteristic_optional_list_optional end VIRTUAL_CHARACTERISTIC"""
         pass
+
+    @staticmethod
+    def p_virtual_characteristic_optional(p):
+        """virtual_characteristic_optional : IDENT"""
+
+    @staticmethod
+    def p_virtual_characteristic_optional_list(p):
+        """virtual_characteristic_optional_list : virtual_characteristic_optional
+                                                | virtual_characteristic_optional virtual_characteristic_optional_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_virtual_characteristic_optional_list_optional(p):
+        """virtual_characteristic_optional_list_optional : empty
+                                                         | virtual_characteristic_optional_list"""
 
     @staticmethod
     def p_ref_memory_segment(p):
@@ -514,8 +968,75 @@ class A2lParser(object):
 
     @staticmethod
     def p_axis_descr(p):
-        """axis_descr : begin AXIS_DESCR axis_descr_attribute IDENT IDENT NUMERIC NUMERIC NUMERIC end AXIS_DESCR"""
+        """axis_descr : begin AXIS_DESCR axis_descr_attribute IDENT IDENT NUMERIC NUMERIC NUMERIC axis_descr_optional_list_optional end AXIS_DESCR"""
         p[0] = p[4]
+
+    @staticmethod
+    def p_axis_descr_optional(p):
+        """axis_descr_optional : READ_ONLY
+                               | format
+                               | annotation
+                               | axis_pts_ref
+                               | max_grad
+                               | monotony
+                               | byte_order
+                               | extended_limits
+                               | fix_axis_par
+                               | fix_axis_par_dist
+                               | fix_axis_par_list
+                               | deposit
+                               | curve_axis_ref"""
+
+    @staticmethod
+    def p_axis_pts_ref(p):
+        """axis_pts_ref : AXIS_PTS_REF IDENT"""
+
+    @staticmethod
+    def p_max_grad(p):
+        """max_grad : MAX_GRAD NUMERIC"""
+
+    @staticmethod
+    def p_monotony(p):
+        """monotony : MONOTONY monotony_type"""
+
+    @staticmethod
+    def p_monotony_type(p):
+        """monotony_type : MON_INCREASE
+                         | MON_DECREASE
+                         | STRICT_INCREASE
+                         | STRICT_DECREASE"""
+
+    @staticmethod
+    def p_fix_axis_par(p):
+        """fix_axis_par : FIX_AXIS_PAR NUMERIC NUMERIC NUMERIC"""
+
+    @staticmethod
+    def p_fix_axis_par_dist(p):
+        """fix_axis_par_dist : FIX_AXIS_PAR_DIST NUMERIC NUMERIC NUMERIC"""
+
+    @staticmethod
+    def p_fix_axis_par_list(p):
+        """fix_axis_par_list : begin FIX_AXIS_PAR_LIST number_list end FIX_AXIS_PAR_LIST"""
+
+        p[0] = p[3]
+
+    @staticmethod
+    def p_curve_axis_ref(p):
+        """curve_axis_ref : CURVE_AXIS_REF IDENT"""
+
+    @staticmethod
+    def p_axis_descr_optional_list(p):
+        """axis_descr_optional_list : axis_descr_optional
+                                    | axis_descr_optional axis_descr_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_axis_descr_optional_list_optional(p):
+        """axis_descr_optional_list_optional : empty
+                                             | axis_descr_optional_list"""
 
     @staticmethod
     def p_axis_descr_attribute(p):
@@ -567,12 +1088,16 @@ class A2lParser(object):
                                    | ref_memory_segment
                                    | annotation
                                    | comparison_quantity
-                                   | if_data
+                                   | if_data_characteristic
                                    | axis_descr
                                    | calibration_access
                                    | matrix_dim
                                    | ecu_address_extension"""
         p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_characteristic(p):
+        """if_data_characteristic : if_data_memory_layout"""
 
     @staticmethod
     def p_characteristic_optional_list(p):
@@ -606,10 +1131,15 @@ class A2lParser(object):
                              | GUARD_RAILS
                              | extended_limits
                              | annotation
-                             | if_data
+                             | if_data_axis_pts
                              | calibration_access
                              | ecu_address_extension"""
-        pass
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_axis_pts(p):
+        """if_data_axis_pts : if_data_memory_layout"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_pts_optional_list(p):
@@ -629,17 +1159,18 @@ class A2lParser(object):
     @staticmethod
     def p_deposit(p):
         """deposit : DEPOSIT deposit_mode"""
-        p[0] = p[2]
+        p[0] = p[1]
 
     @staticmethod
     def p_deposit_mode(p):
         """deposit_mode : ABSOLUTE
                         | DIFFERENCE"""
+        p[0] = p[1]
 
     @staticmethod
     def p_measurement(p):
         """measurement : begin MEASUREMENT IDENT STRING datatype IDENT NUMERIC NUMERIC NUMERIC NUMERIC measurement_optional_list_optional end MEASUREMENT"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_measurement_optional(p):
@@ -657,10 +1188,75 @@ class A2lParser(object):
                                 | error_mask
                                 | ref_memory_segment
                                 | annotation
-                                | if_data
+                                | if_data_measurement
                                 | matrix_dim
                                 | ecu_address_extension"""
         p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_measurement(p):
+        """if_data_measurement : begin IF_DATA IDENT if_data_measurement_optional_parameter_list_optional end IF_DATA"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_measurement_optional_parameter(p):
+        """if_data_measurement_optional_parameter : kp_blob kp_data
+                                                  | dp_blob dp_data
+                                                  | pa_blob pa_data
+                                                  | if_data_measurement_unsupported_element"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_measurement_unsupported_element(p):
+        """if_data_measurement_unsupported_element : begin IDENT generic_parameter_list end IDENT"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_measurement_optional_parameter_list(p):
+        """if_data_measurement_optional_parameter_list : if_data_measurement_optional_parameter
+                                                       | if_data_measurement_optional_parameter if_data_measurement_optional_parameter_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_measurement_optional_parameter_list_optional(p):
+        """if_data_measurement_optional_parameter_list_optional : empty
+                                                                | if_data_measurement_optional_parameter_list"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_kp_blob(p):
+        """kp_blob : KP_BLOB"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_pa_blob(p):
+        """pa_blob : PA_BLOB"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_kp_data(p):
+        """kp_data : kp_data_parameter_optional_list"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_kp_data_parameter_optional(p):
+        """kp_data_parameter_optional : NUMERIC
+                                      | STRING
+                                      | IDENT"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_kp_data_parameter_optional_list(p):
+        """kp_data_parameter_optional_list : kp_data_parameter_optional
+                                           | kp_data_parameter_optional kp_data_parameter_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_measurement_optional_list(p):
@@ -685,6 +1281,7 @@ class A2lParser(object):
     @staticmethod
     def p_bit_operation(p):
         """bit_operation : begin BIT_OPERATION bit_operation_optional_list_optional end BIT_OPERATION"""
+        p[0] = p[1]
 
     @staticmethod
     def p_bit_operation_optional(p):
@@ -696,12 +1293,12 @@ class A2lParser(object):
     @staticmethod
     def p_left_shift(p):
         """left_shift : LEFT_SHIFT NUMERIC"""
-        return p[2]
+        p[0] = p[1]
 
     @staticmethod
     def p_right_shift(p):
         """right_shift : RIGHT_SHIFT NUMERIC"""
-        return p[2]
+        p[0] = p[1]
 
     @staticmethod
     def p_bit_operation_optional_list(p):
@@ -721,7 +1318,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_method(p):
         """compu_method : begin COMPU_METHOD IDENT STRING compu_method_conversion_type STRING STRING compu_method_optional_list_optional end COMPU_METHOD"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_compu_method_conversion_type(p):
@@ -730,13 +1327,15 @@ class A2lParser(object):
                              | TAB_VERB
                              | RAT_FUNC
                              | FORM
-                             | IDENTICAL"""
+                             | IDENTICAL
+                             | LINEAR"""
         p[0] = p[1]
 
     @staticmethod
     def p_compu_method_optional(p):
         """compu_method_optional : formula
                                  | coeffs
+                                 | coeffs_linear
                                  | compu_tab_ref
                                  | ref_unit"""
         p[0] = p[1]
@@ -744,22 +1343,28 @@ class A2lParser(object):
     @staticmethod
     def p_formula(p):
         """formula : begin FORMULA STRING formula_optional end FORMULA"""
-        pass
+        p[0] = p[1]
+
+    @staticmethod
+    def p_formula_inv(p):
+        """formula_inv : FORMULA_INV STRING"""
+        p[0] = p[1]
 
     @staticmethod
     def p_formula_optional(p):
         """formula_optional : empty
                             | formula_inv"""
-
-    @staticmethod
-    def p_formula_inv(p):
-        """formula_inv : STRING"""
-        p[0] = p[1]  # might be simplified...
+        p[0] = p[1]
 
     @staticmethod
     def p_coeffs(p):
         """coeffs : COEFFS NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC"""
         p[0] = (p[2], p[3], p[4], p[5], p[6], p[7])
+
+    @staticmethod
+    def p_coeffs_linear(p):
+        """coeffs_linear : COEFFS_LINEAR NUMERIC NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_compu_tab_ref(p):
@@ -804,29 +1409,35 @@ class A2lParser(object):
     @staticmethod
     def p_compu_tab(p):
         """compu_tab : begin COMPU_TAB IDENT STRING compu_tab_conversion_type NUMERIC number_list compu_tab_optional end COMPU_TAB"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_compu_tab_conversion_type(p):
         """compu_tab_conversion_type : TAB_INTP
                                      | TAB_NOINTP"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_compu_tab_optional(p):
         """compu_tab_optional : empty
-                              | default_value"""
+                              | default_value
+                              | default_value_numeric"""
         p[0] = p[1]
 
     @staticmethod
     def p_default_value(p):
         """default_value : DEFAULT_VALUE STRING"""
-        pass
+        p[0] = p[1]
+
+    @staticmethod
+    def p_default_value_numeric(p):
+        """default_value_numeric : DEFAULT_VALUE_NUMERIC NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_compu_vtab(p):
         """compu_vtab : begin COMPU_VTAB IDENT STRING compu_vtab_conversion_type NUMERIC number_string_value_list compu_vtab_optional end COMPU_VTAB"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_compu_vtab_conversion_type(p):
@@ -856,7 +1467,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_vtab_range(p):
         """compu_vtab_range : begin COMPU_VTAB_RANGE IDENT STRING NUMERIC number_number_string_value_list compu_vtab_range_optional end COMPU_VTAB_RANGE"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_number_number_string_value_list(p):
@@ -881,7 +1492,7 @@ class A2lParser(object):
     @staticmethod
     def p_function(p):
         """function : begin FUNCTION IDENT STRING function_optional_list_optional end FUNCTION"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_function_optional(p):
@@ -908,45 +1519,67 @@ class A2lParser(object):
     def p_function_optional_list_optional(p):
         """function_optional_list_optional : empty
                                            | function_optional_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_def_characteristic(p):
         """def_characteristic : begin DEF_CHARACTERISTIC ident_list end DEF_CHARACTERISTIC"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_ref_characteristic(p):
-        """ref_characteristic : begin REF_CHARACTERISTIC ident_list end REF_CHARACTERISTIC"""
-        pass
+        """ref_characteristic : begin REF_CHARACTERISTIC ref_characteristic_optional_list_optional end REF_CHARACTERISTIC"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_ref_characteristic_optional(p):
+        """ref_characteristic_optional : IDENT"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_ref_characteristic_optional_list(p):
+        """ref_characteristic_optional_list : ref_characteristic_optional
+                                            | ref_characteristic_optional ref_characteristic_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_ref_characteristic_optional_list_optional(p):
+        """ref_characteristic_optional_list_optional : empty
+                                                     | ref_characteristic_optional_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_in_measurement(p):
         """in_measurement : begin IN_MEASUREMENT ident_list end IN_MEASUREMENT"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_out_measurement(p):
         """out_measurement : begin OUT_MEASUREMENT ident_list end OUT_MEASUREMENT"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_loc_measurement(p):
         """loc_measurement : begin LOC_MEASUREMENT ident_list end LOC_MEASUREMENT"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_sub_function(p):
         """sub_function : begin SUB_FUNCTION ident_list end SUB_FUNCTION"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_function_version(p):
         """function_version : FUNCTION_VERSION STRING"""
+        p[0] = p[1]
 
     @staticmethod
     def p_group(p):
         """group : begin GROUP IDENT STRING group_optional_list_optional end GROUP"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_group_optional(p):
@@ -975,8 +1608,28 @@ class A2lParser(object):
 
     @staticmethod
     def p_ref_measurement(p):
-        """ref_measurement : begin REF_MEASUREMENT ident_list end REF_MEASUREMENT"""
+        """ref_measurement : begin REF_MEASUREMENT ref_measurement_optional_list_optional end REF_MEASUREMENT"""
         p[0] = p[3]
+
+    @staticmethod
+    def p_ref_measurement_optional(p):
+        """ref_measurement_optional : IDENT"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_ref_measurement_optional_list(p):
+        """ref_measurement_optional_list : ref_measurement_optional
+                                         | ref_measurement_optional ref_measurement_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_ref_measurement_optional_list_optional(p):
+        """ref_measurement_optional_list_optional : empty
+                                                  | ref_measurement_optional_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_sub_group(p):
@@ -986,7 +1639,7 @@ class A2lParser(object):
     @staticmethod
     def p_record_layout(p):
         """record_layout : begin RECORD_LAYOUT IDENT record_layout_optional_list_optional end RECORD_LAYOUT"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_record_layout_optional(p):
@@ -1049,7 +1702,7 @@ class A2lParser(object):
     @staticmethod
     def p_fnc_values(p):
         """fnc_values : FNC_VALUES NUMERIC datatype fnc_values_index_mode addrtype"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_fnc_values_index_mode(p):
@@ -1063,160 +1716,198 @@ class A2lParser(object):
     @staticmethod
     def p_identification(p):
         """identification : IDENTIFICATION NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_pts_x(p):
         """axis_pts_x : AXIS_PTS_X NUMERIC datatype indexorder addrtype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_pts_y(p):
         """axis_pts_y : AXIS_PTS_Y NUMERIC datatype indexorder addrtype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_pts_z(p):
         """axis_pts_z : AXIS_PTS_Z NUMERIC datatype indexorder addrtype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_rescale_x(p):
         """axis_rescale_x : AXIS_RESCALE_X NUMERIC datatype NUMERIC indexorder addrtype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_rescale_y(p):
         """axis_rescale_y : AXIS_RESCALE_Y NUMERIC datatype NUMERIC indexorder addrtype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_axis_rescale_z(p):
         """axis_rescale_z : AXIS_RESCALE_Z NUMERIC datatype NUMERIC indexorder addrtype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_no_axis_pts_x(p):
         """no_axis_pts_x : NO_AXIS_PTS_X NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_no_axis_pts_y(p):
         """no_axis_pts_y : NO_AXIS_PTS_Y NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_no_axis_pts_z(p):
         """no_axis_pts_z : NO_AXIS_PTS_Z NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_no_rescale_x(p):
         """no_rescale_x : NO_RESCALE_X NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_no_rescale_y(p):
         """no_rescale_y : NO_RESCALE_Y NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_no_rescale_z(p):
         """no_rescale_z : NO_RESCALE_Z NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_fix_no_axis_pts_x(p):
         """fix_no_axis_pts_x : FIX_NO_AXIS_PTS_X NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_fix_no_axis_pts_y(p):
         """fix_no_axis_pts_y : FIX_NO_AXIS_PTS_Y NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_fix_no_axis_pts_z(p):
         """fix_no_axis_pts_z : FIX_NO_AXIS_PTS_Z NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_src_addr_x(p):
         """src_addr_x : SRC_ADDR_X NUMERIC src_addr_optional"""
+        p[0] = p[1]
 
     @staticmethod
     def p_src_addr_y(p):
         """src_addr_y : SRC_ADDR_Y NUMERIC src_addr_optional"""
+        p[0] = p[1]
 
     @staticmethod
     def p_src_addr_z(p):
         """src_addr_z : SRC_ADDR_Z NUMERIC src_addr_optional"""
+        p[0] = p[1]
 
     @staticmethod
     def p_src_addr_optional(p):
         """src_addr_optional : empty
                              | datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_rip_addr_x(p):
         """rip_addr_x : RIP_ADDR_X NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_rip_addr_y(p):
         """rip_addr_y : RIP_ADDR_Y NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_rip_addr_z(p):
         """rip_addr_z : RIP_ADDR_Z NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_rip_addr_w(p):
         """rip_addr_w : RIP_ADDR_W NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_shift_op_x(p):
         """shift_op_x : SHIFT_OP_X NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_shift_op_y(p):
         """shift_op_y : SHIFT_OP_Y NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_shift_op_z(p):
         """shift_op_z : SHIFT_OP_Z NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_offset_x(p):
         """offset_x : OFFSET_X NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_offset_y(p):
         """offset_y : OFFSET_Y NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_offset_z(p):
         """offset_z : OFFSET_Z NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_dist_op_x(p):
         """dist_op_x : DIST_OP_X NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_dist_op_y(p):
         """dist_op_y : DIST_OP_Y NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_dist_op_z(p):
         """dist_op_z : DIST_OP_Z NUMERIC datatype"""
+        p[0] = p[1]
 
     @staticmethod
     def p_alignment_byte(p):
         """alignment_byte : ALIGNMENT_BYTE NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_alignment_word(p):
         """alignment_word : ALIGNMENT_WORD NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_alignment_long(p):
         """alignment_long : ALIGNMENT_LONG NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_alignment_float32_ieee(p):
         """alignment_float32_ieee : ALIGNMENT_FLOAT32_IEEE NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_alignment_float64_ieee(p):
         """alignment_float64_ieee : ALIGNMENT_FLOAT64_IEEE NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_variant_coding(p):
         """variant_coding : begin VARIANT_CODING variant_coding_optional_list_optional end VARIANT_CODING"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_variant_coding_optional(p):
@@ -1230,31 +1921,41 @@ class A2lParser(object):
     @staticmethod
     def p_var_characteristic(p):
         """var_characteristic : begin VAR_CHARACTERISTIC IDENT ident_list var_characteristic_optional end VAR_CHARACTERISTIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_characteristic_optional(p):
         """var_characteristic_optional : var_address"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_address(p):
         """var_address : begin VAR_ADDRESS number_list end VAR_ADDRESS"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_separator(p):
         """var_separator : VAR_SEPARATOR STRING"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_naming(p):
         """var_naming : VAR_NAMING IDENT"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_forbidden_comb(p):
         """var_forbidden_comb : begin VAR_FORBIDDEN_COMB ident_ident_value_list end VAR_FORBIDDEN_COMB"""
+        p[0] = p[1]
 
     @staticmethod
     def p_ident_ident_value_list(p):
         """ident_ident_value_list : ident_ident_value
                                   | ident_ident_value ident_ident_value_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_ident_ident_value(p):
@@ -1264,11 +1965,13 @@ class A2lParser(object):
     @staticmethod
     def p_var_criterion(p):
         """var_criterion : begin VAR_CRITERION IDENT STRING ident_list var_criterion_optional_list_optional end VAR_CRITERION"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_criterion_optional(p):
         """var_criterion_optional : var_measurement
                                   | var_selection_characteristic"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_criterion_optional_list(p):
@@ -1288,10 +1991,12 @@ class A2lParser(object):
     @staticmethod
     def p_var_measurement(p):
         """var_measurement : VAR_MEASUREMENT IDENT"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_selection_characteristic(p):
         """var_selection_characteristic : VAR_SELECTION_CHARACTERISTIC IDENT"""
+        p[0] = p[1]
 
     @staticmethod
     def p_variant_coding_optional_list(p):
@@ -1311,96 +2016,154 @@ class A2lParser(object):
     @staticmethod
     def p_reserved(p):
         """reserved : RESERVED NUMERIC datasize"""
+        p[0] = p[1]
 
     @staticmethod
     def p_frame(p):
         """frame : begin FRAME IDENT STRING NUMERIC NUMERIC frame_optional_list_optional end FRAME"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_frame_optional(p):
         """frame_optional : frame_measurement
-                          | if_data"""
+                          | if_data_frame"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_frame(p):
+        """if_data_frame : begin IF_DATA IDENT if_data_frame_parameter_optional_list_optional end IF_DATA"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_frame_parameter_optional(p):
+        """if_data_frame_parameter_optional : QP_BLOB qp_data"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_if_data_frame_parameter_optional_list(p):
+        """if_data_frame_parameter_optional_list : if_data_frame_parameter_optional
+                                                 | if_data_frame_parameter_optional if_data_frame_parameter_optional_list"""
+
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_frame_parameter_optional_list_optional(p):
+        """if_data_frame_parameter_optional_list_optional : empty
+                                                          | if_data_frame_parameter_optional_list"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_qp_data(p):
+        """qp_data : generic_parameter"""
+        p[0] = p[1]
 
     @staticmethod
     def p_frame_optional_list(p):
         """frame_optional_list : frame_optional
                                | frame_optional frame_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_frame_optional_list_optional(p):
         """frame_optional_list_optional : empty
                                         | frame_optional_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_frame_measurement(p):
         """frame_measurement : FRAME_MEASUREMENT ident_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_user_rights(p):
         """user_rights : begin USER_RIGHTS IDENT user_rights_optional_list_optional end USER_RIGHTS"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_user_rights_optional(p):
         """user_rights_optional : ref_group
                                 | READ_ONLY"""
+        p[0] = p[1]
 
     @staticmethod
     def p_user_rights_optional_list(p):
         """user_rights_optional_list : user_rights_optional
                                      | user_rights_optional user_rights_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_user_rights_optional_list_optional(p):
         """user_rights_optional_list_optional : empty
                                               | user_rights_optional_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_ref_group(p):
         """ref_group : begin REF_GROUP ident_list end REF_GROUP"""
+        p[0] = p[1]
 
     @staticmethod
     def p_unit(p):
         """unit : begin UNIT IDENT STRING STRING unit_type unit_optional_list_optional end UNIT"""
-        pass
+        p[0] = p[1]
 
     @staticmethod
     def p_unit_type(p):
         """unit_type : EXTENDED_SI
                      | DERIVED"""
+        p[0] = p[1]
 
     @staticmethod
     def p_unit_optional(p):
         """unit_optional : si_exponents
                          | ref_unit
                          | unit_conversion"""
+        p[0] = p[1]
 
     @staticmethod
     def p_unit_optional_list(p):
         """unit_optional_list : unit_optional
                               | unit_optional unit_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_unit_optional_list_optional(p):
         """unit_optional_list_optional : empty
                                        | unit_optional_list"""
+        p[0] = p[1]
 
     @staticmethod
     def p_si_exponents(p):
         """si_exponents : SI_EXPONENTS NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_unit_conversion(p):
         """unit_conversion : UNIT_CONVERSION NUMERIC NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_empty(p):
         """empty :"""
-        pass
+        p[0] = None
 
 
 if __name__ == '__main__':
+    with open('example/a2l.a2l', 'r') as fp:
+        parser = A2lParser(fp.read())
+    exit(0)
     parser = A2lParser(r"""
     ASAP2_VERSION 1 61
     A2ML_VERSION 2 36
@@ -1499,6 +2262,7 @@ if __name__ == '__main__':
                 })*;
                 "COMMUNICATION_MODE_SUPPORTED" taggedunion {
                   "BLOCK" taggedstruct {
+                    "SLAVE" ;
                     "MASTER" struct {
                       uchar;
                       uchar;
@@ -3557,10 +4321,47 @@ if __name__ == '__main__':
 
       };
             /end A2ML
-            /begin MOD_PAR
-            /end MOD_PAR
-            /begin MOD_COMMON
-            /end MOD_COMMON
+            
+            
+            /begin MOD_PAR ""
+      NO_OF_INTERFACES 1
+
+      /begin MEMORY_SEGMENT ECU_Code
+        "Memory segment for code part of the ECU"
+        DATA FLASH EXTERN 0x16000 0x86C -1 -1 -1 -1 -1
+        /begin IF_DATA XCP
+          /begin SEGMENT
+            0x0 0x2 0x0 0x0 0x0
+            /begin PAGE
+              0x0 ECU_ACCESS_DONT_CARE XCP_READ_ACCESS_WITH_ECU_ONLY XCP_WRITE_ACCESS_NOT_ALLOWED
+            /end PAGE
+            /begin PAGE
+              0x1 ECU_ACCESS_DONT_CARE XCP_READ_ACCESS_WITH_ECU_ONLY XCP_WRITE_ACCESS_WITH_ECU_ONLY
+            /end PAGE
+          /end SEGMENT
+        /end IF_DATA
+      /end MEMORY_SEGMENT
+
+      /begin MEMORY_SEGMENT ECU_Data
+        "Memory segment for parameters"
+        DATA FLASH EXTERN 0x810000 0x10000 -1 -1 -1 -1 -1
+      /end MEMORY_SEGMENT
+
+      SYSTEM_CONSTANT "System_Constant_1" "-3.45"
+      SYSTEM_CONSTANT "System_Constant_2" "5.67"
+      SYSTEM_CONSTANT "System_Constant_3" "Text in System Constant"
+
+    /end MOD_PAR
+            
+            /begin MOD_COMMON ""
+      DEPOSIT ABSOLUTE
+      BYTE_ORDER MSB_LAST
+      ALIGNMENT_BYTE 1
+      ALIGNMENT_WORD 2
+      ALIGNMENT_LONG 4
+      ALIGNMENT_FLOAT32_IEEE 4
+      ALIGNMENT_FLOAT64_IEEE 4
+    /end MOD_COMMON
             /begin AXIS_PTS 
             AirChrgrMdlHi_CmprSpdCorrd_MAPX 
             "Air Charger Model _ Compressor Speed Corrected _ Map X Axis"

@@ -46,7 +46,8 @@ primary_keywords = KeywordsList('A2ML',
                                 'USER_RIGHTS',
                                 'VARIANT_CODING')
 
-secondary_keywords = KeywordsList('ADDR_EPK',
+secondary_keywords = KeywordsList('ADDRESS_MAPPING',
+                                  'ADDR_EPK',
                                   'ALIGNMENT_BYTE',
                                   'ALIGNMENT_FLOAT32_IEEE',
                                   'ALIGNMENT_FLOAT64_IEEE',
@@ -124,6 +125,7 @@ secondary_keywords = KeywordsList('ADDR_EPK',
                                   'IN_MEASUREMENT',
                                   'LAYOUT',
                                   'LEFT_SHIFT',
+                                  'LINEAR',
                                   'LOC_MEASUREMENT',
                                   'MAP_LIST',
                                   'MATRIX_DIM',
@@ -187,6 +189,7 @@ secondary_keywords = KeywordsList('ADDR_EPK',
                                   'SUPPLIER',
                                   'SYMBOL_LINK',
                                   'SYSTEM_CONSTANT',
+                                  'S_REC_LAYOUT',
                                   'UNIT_CONVERSION',
                                   'USER',
                                   'VAR_ADDRESS',
@@ -200,6 +203,24 @@ secondary_keywords = KeywordsList('ADDR_EPK',
                                   'VERSION',
                                   'VIRTUAL',
                                   'VIRTUAL_CHARACTERISTIC')
+
+if_data_module_keywords = KeywordsList('RASTER',
+                                       'EVENT_GROUP',
+                                       'SEED_KEY',
+                                       'CHECKSUM',
+                                       'TP_BLOB',
+                                       'SOURCE',
+                                       'QP_BLOB')
+
+if_data_memory_segment_keywords = KeywordsList('SEGMENT',
+                                               'PAGE',
+                                               'INIT_SEGMENT')
+
+if_data_memory_layout_keywords = KeywordsList('DP_BLOB',
+                                              'BA_BLOB')
+
+if_data_measurement_keywords = KeywordsList('KP_BLOB',
+                                            'PA_BLOB')
 
 datatype_keywords = KeywordsList('UBYTE',
                                  'SBYTE',
@@ -233,6 +254,11 @@ characteristic_type_keywords = KeywordsList('VALUE',
 
 byte_order_keywords = KeywordsList('MSB_FIRST',
                                    'MSB_LAST')
+
+monotony_type_keywords = KeywordsList('MON_INCREASE',
+                                      'MON_DECREASE',
+                                      'STRICT_INCREASE',
+                                      'STRICT_DECREASE')
 
 axis_descr_attribute_keywords = KeywordsList('STD_AXIS',
                                              'FIX_AXIS',
@@ -271,6 +297,29 @@ var_separator_keywords = KeywordsList('VAR_SEPARATOR')
 unit_type_keywords = KeywordsList('EXTENDED_SI',
                                   'DERIVED')
 
+memory_layout_prg_type_keywords = KeywordsList('PRG_CODE',
+                                               'PRG_DATA',
+                                               'PRG_RESERVED')
+
+memory_segment_prg_type_keywords = KeywordsList('CODE',
+                                                'DATA',
+                                                'OFFLINE_DATA',
+                                                'VARIABLES',
+                                                'SERAM',
+                                                'RESERVED',
+                                                'CALIBRATION_VARIABLES',
+                                                'EXCLUDE_FROM_FLASH')
+
+memory_segment_memory_type_keywords = KeywordsList('RAM',
+                                                   'EEPROM',
+                                                   'EPROM',
+                                                   'ROM',
+                                                   'REGISTER',
+                                                   'FLASH')
+
+memory_segment_attributes_keywords = KeywordsList('INTERN',
+                                                  'EXTERN')
+
 a2ml_block_definition_keywords = KeywordsList('block')
 
 a2ml_type_name_keywords = KeywordsList('struct',
@@ -290,6 +339,10 @@ a2ml_predefined_type_name_keywords = KeywordsList('char',
 reserved_keywords = dict(top_level_keywords.items() + \
                          primary_keywords.items() + \
                          secondary_keywords.items() + \
+                         if_data_module_keywords.items() + \
+                         if_data_memory_segment_keywords.items() + \
+                         if_data_memory_layout_keywords.items() + \
+                         if_data_measurement_keywords.items() + \
                          datatype_keywords.items() + \
                          datasize_keywords.items() + \
                          addrtype_keywords.items() + \
@@ -297,6 +350,8 @@ reserved_keywords = dict(top_level_keywords.items() + \
  \
                          characteristic_type_keywords.items() + \
                          byte_order_keywords.items() + \
+                         monotony_type_keywords.items() + \
+                         deposit_mode_keywords.items() + \
                          axis_descr_attribute_keywords.items() + \
                          calibration_access_type_keywords.items() + \
                          deposit_mode_keywords.items() + \
@@ -306,6 +361,10 @@ reserved_keywords = dict(top_level_keywords.items() + \
                          fnc_values_index_mode_keywords.items() + \
                          var_separator_keywords.items() + \
                          unit_type_keywords.items() + \
+                         memory_layout_prg_type_keywords.items() + \
+                         memory_segment_attributes_keywords.items() + \
+                         memory_segment_memory_type_keywords.items() + \
+                         memory_segment_prg_type_keywords.items() + \
  \
                          a2ml_block_definition_keywords.items() + \
                          a2ml_type_name_keywords.items() + \
@@ -366,13 +425,13 @@ def t_end(token):
     return token
 
 
-@lex.TOKEN(r'"[^"]{0,}"')
+@lex.TOKEN(r'"(?:[^"\\]|\\.)*"')
 def t_STRING(token):
     token.value = token.value[1:-1]
     return token
 
 
-@lex.TOKEN(r'[+-]{0,1}(([0]{1}[Xx]{1}[A-Fa-f0-9]{1,})|(\d+(\.\d*)?))')
+@lex.TOKEN(r'[+-]?(([0]{1}[Xx]{1}[A-Fa-f0-9]+)|(\d+(\.(\d*([eE][+-]?\d+)?)?|([eE][+-]?\d+)?)?))')
 def t_NUMERIC(token):
     try:
         token.value = int(token.value, 10)
@@ -393,10 +452,10 @@ def t_NUMERIC(token):
     return token
 
 
-@lex.TOKEN(r'[A-Za-z0-9_]{1}[^\s;\[\]\(\)]{0,}')
+@lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_\.\[\]]*')
 def t_IDENT(token):
     try:
-        token.type = reserved_keywords[token.value]
+        token.type = reserved_keywords[token.value.split('[')[0]]
     except KeyError:
         pass
     except:
