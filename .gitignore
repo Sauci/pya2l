@@ -1,4 +1,9 @@
 doc/*
 .idea/*
+pya2l/htmlcov/*
+pya2l/\.coverage
+*.out
 *.pyc
 *.DS_Store
+
+
