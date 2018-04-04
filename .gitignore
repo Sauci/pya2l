@@ -1,9 +1,10 @@
+build/*
+dist/*
 doc/*
 .idea/*
 pya2l/htmlcov/*
 pya2l/\.coverage
+pya2l\.egg-info/
 *.out
 *.pyc
 *.DS_Store
-
-
