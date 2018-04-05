@@ -24,6 +24,9 @@ if __name__ == '__main__':
         /end HEADER
         /begin MODULE Example ""
             /begin IF_DATA module_if_datas
+            /begin SOURCE Time10ms 4 1 /* source parameter */
+            DISPLAY_IDENTIFIER diplay_identifier__
+            /end SOURCE
             /begin CHECKSUM "crc16.dll" /end CHECKSUM
             /begin SEED_KEY "access.dll" "access.dll" "access.dll" /end SEED_KEY
             /begin RASTER "Segment synchronous cylinder" "CYL1" 1 103 1 /end RASTER
@@ -52,6 +55,7 @@ if __name__ == '__main__':
               uint;
               uchar;
               uint;
+              enum no_content;
               enum {
                 "BYTE_ORDER_MSB_LAST" = 0,
                 "BYTE_ORDER_MSB_FIRST" = 1
@@ -2180,8 +2184,18 @@ if __name__ == '__main__':
 
 
             /begin MOD_PAR ""
+      ECU "test ecu"
+      CPU_TYPE "tms570lc4357zwt"
+      ECU_CALIBRATION_OFFSET 0x10000
       NO_OF_INTERFACES 1
-
+      /begin CALIBRATION_METHOD
+        "In circuit"
+        2
+        /begin CALIBRATION_HANDLE
+            0x10000 /* start address of pointer table */ 0x200 /* length of pointer table */
+0x4 /* size of one pointer table entry */ 0x10000 /* start address of flash section */ 0x10000 /* length of flash section */
+        /end CALIBRATION_HANDLE
+      /end CALIBRATION_METHOD
       /begin MEMORY_SEGMENT ECU_Code
         "Memory segment for code part of the ECU"
         DATA FLASH EXTERN 0x16000 0x86C -1 -1 -1 -1 -1
@@ -2219,6 +2233,8 @@ if __name__ == '__main__':
       ALIGNMENT_LONG 4
       ALIGNMENT_FLOAT32_IEEE 4
       ALIGNMENT_FLOAT64_IEEE 4
+      DATA_SIZE 16
+      S_REC_LAYOUT SIEMENS_ABL
     /end MOD_COMMON
             /begin AXIS_PTS 
             AirChrgrMdlHi_CmprSpdCorrd_MAPX 
@@ -2284,6 +2300,7 @@ if __name__ == '__main__':
                 EXTENDED_LIMITS 0 256
                 NUMBER 42
                 READ_ONLY
+                GUARD_RAILS
                 DISPLAY_IDENTIFIER DI.ASAM.C.SCALAR.SBYTE.IDENTICAL
                 FORMAT "%6.1"
                 REF_MEMORY_SEGMENT SEC_CONST.UNSPECIFIED
@@ -2349,6 +2366,7 @@ CONV_N 14 /* conversion, max. no. of axis p.*/
                 8400.0 /* upper limit */
                 /begin BIT_OPERATION
                     RIGHT_SHIFT 4 /*4 positions*/
+                    LEFT_SHIFT 4 /*4 positions*/
                     SIGN_EXTEND
                 /end BIT_OPERATION
             /begin IF_DATA asd
@@ -2393,10 +2411,13 @@ CONV_N 14 /* conversion, max. no. of axis p.*/
       "conversion that delivers always phys = int"
       IDENTICAL "%3.0" "hours"
       COEFFS -0 +1 -0.2 +0.4 123123.123 -1
+      COEFFS_LINEAR 12 2
       REF_UNIT kms_per_hour
       COMPU_TAB_REF TMPCON1
 
-      /begin FORMULA "a * x + b" /end FORMULA
+      /begin FORMULA "a * x + b" 
+        FORMULA_INV "b * x + c"
+      /end FORMULA
             /end COMPU_METHOD
             /begin COMPU_TAB
             TT /* name */
@@ -2406,6 +2427,15 @@ CONV_N 14 /* conversion, max. no. of axis p.*/
 1 4.3 2 4.7 3 5.8 4 14.2 
 5 16.8 6 17.2 7 19.4
 DEFAULT_VALUE "out of range..."
+            /end COMPU_TAB
+            /begin COMPU_TAB
+            TT /* name */
+"conversion table for oil temperatures"
+ TAB_NOINTP /* convers_type */
+7 /* number_value_pairs */ 
+1 4.3 2 4.7 3 5.8 4 14.2 
+5 16.8 6 17.2 7 19.4
+DEFAULT_VALUE_NUMERIC 12
             /end COMPU_TAB
             /begin COMPU_VTAB
             TT /* name */ "engine status conversion"
@@ -2466,12 +2496,40 @@ ROOT
 FNC_VALUES 7 SWORD COLUMN_DIR DIRECT
 AXIS_PTS_X 3 SWORD INDEX_INCR DIRECT
 AXIS_PTS_Y 6 UBYTE INDEX_INCR DIRECT
+AXIS_PTS_Z 6 UBYTE INDEX_INCR DIRECT
+AXIS_RESCALE_X 3 UBYTE 5 INDEX_INCR DIRECT
+AXIS_RESCALE_Y 4 UBYTE 5 INDEX_INCR DIRECT
+AXIS_RESCALE_Z 5 UBYTE 5 INDEX_INCR DIRECT
 NO_AXIS_PTS_X 2 UBYTE
 NO_AXIS_PTS_Y 5 UBYTE
-SRC_ADDR_X 1
-SRC_ADDR_Y 4
+NO_AXIS_PTS_Z 52 UBYTE
+NO_RESCALE_X 1 UBYTE
+NO_RESCALE_Y 1 UBYTE
+NO_RESCALE_Z 1 UBYTE
+SRC_ADDR_X 1 UWORD
+SRC_ADDR_Y 4 UWORD
+SRC_ADDR_Z 4 UBYTE
+FIX_NO_AXIS_PTS_X 17
+FIX_NO_AXIS_PTS_Y 18
+FIX_NO_AXIS_PTS_Z 19
 ALIGNMENT_BYTE 2
 IDENTIFICATION 1 UWORD
+RESERVED 2 BYTE
+RESERVED 1 WORD
+RESERVED 4 LONG
+RIP_ADDR_X 19 UWORD
+RIP_ADDR_Y 19 UWORD
+RIP_ADDR_Z 19 UWORD
+RIP_ADDR_W 19 UWORD
+SHIFT_OP_X 19 UWORD
+SHIFT_OP_Y 19 UBYTE
+SHIFT_OP_Z 12 UWORD
+OFFSET_X 12 UWORD
+OFFSET_Y 12 UWORD
+OFFSET_Z 12 UWORD
+DIST_OP_X 12 UWORD
+DIST_OP_Y 12 UWORD
+DIST_OP_Z 12 UWORD
 /end RECORD_LAYOUT
             /begin VARIANT_CODING
 VAR_SEPARATOR "." /* PUMKF.1 */
