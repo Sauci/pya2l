@@ -465,6 +465,14 @@ class IfDataMemorySegment(A2lNode):
         print self
 
 
+class MaxRefresh(A2lNode):
+    def __init__(self, node, scaling_unit, rate):
+        self.scaling_unit = scaling_unit
+        self.rate = rate
+        super(MaxRefresh, self).__init__(node)
+        print self
+
+
 class Measurement(A2lNode):
     def __init__(self, node, name, long_identifier, datatype, conversion, resolution, accuracy, lower_limit,
                  upper_limit, args):

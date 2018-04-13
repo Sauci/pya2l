@@ -67,6 +67,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'HEADER': Header,
             'IDENTIFICATION': Identification,
             'if_data_memory_segment': IfDataMemorySegment,
+            'MAX_REFRESH': MaxRefresh,
             'MEASUREMENT': Measurement,
             'MEMORY_LAYOUT': MemoryLayout,
             'MEMORY_SEGMENT': MemorySegment,
@@ -1123,7 +1124,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_max_refresh(p):
         """max_refresh : MAX_REFRESH NUMERIC NUMERIC"""
-        p[0] = (p[2], p[3])  # TODO: implement class, with scaling_unit and rate properties.
+        p[0] = a2l_node_factory(*p[1:4])
 
     @staticmethod
     def p_dependent_characteristic(p):

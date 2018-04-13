@@ -1361,8 +1361,7 @@ def test_characteristic_max_refresh_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].characteristic[0], 'max_refresh')
-    assert a2l.tree.project.module[0].characteristic[0].max_refresh[0] == 0
-    assert a2l.tree.project.module[0].characteristic[0].max_refresh[1] == 1
+    assert a2l.tree.project.module[0].characteristic[0].max_refresh is not None
 
 
 def test_characteristic_dependent_characteristic_node():
@@ -2044,6 +2043,27 @@ def test_axis_pts_ecu_address_extension_node():
 
 
 # TODO: implement tests for AXIS_DESCR.
+def test_max_refresh():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    MAX_REFRESH 0 1
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].measurement[0].max_refresh.scaling_unit == 0
+    assert a2l.tree.project.module[0].measurement[0].max_refresh.rate == 1
+
 
 def test_function_list():
     a2l_string = """
