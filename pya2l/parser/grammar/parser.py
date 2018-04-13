@@ -6,8 +6,8 @@
 """
 
 import ply.yacc as yacc
-import lexer
 
+import lexer
 from node import *
 
 

@@ -4,7 +4,7 @@ setup(
     name='pya2l',
     version='0.0.1',
     packages=['pya2l', 'pya2l.parser'],
-    url='',license='BSD',
+    url='', license='BSD',
     author='Guillaume Sottas',
     author_email='guillaumesottas@gmail.com',
     description='utility for a2l files',
