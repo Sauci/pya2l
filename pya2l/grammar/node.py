@@ -18,14 +18,15 @@ class A2lNode(object):
                 elif attr is None:
                     setattr(self, attribute, value)
                 else:
+                    print attr
                     raise ValueError
                 if isinstance(value, A2lNode):
                     value.set_parent(self)
                     self.add_children(value)
             except AttributeError as e:
                 raise e
-            except Exception:
-                raise
+            except Exception as e:
+                raise e
         self._node = node
 
     def set_parent(self, a2l_node):
@@ -34,12 +35,14 @@ class A2lNode(object):
     def add_children(self, a2l_node):
         self._children.append(a2l_node)
 
+    def get_properties(self):
+        return [p for p in self.__dict__.keys() if not p.startswith('_')]
+
 
 class Version(A2lNode):
-    def __init__(self, node, major=None, minor=None, patch=None):
-        self.major = major
-        self.minor = minor
-        self.patch = patch
+    def __init__(self, node, version_no, upgrade_no):
+        self.version_no = version_no
+        self.upgrade_no = upgrade_no
         super(Version, self).__init__(node)
         print self
 
@@ -66,29 +69,104 @@ class AddressMapping(A2lNode):
         print self
 
 
+class Annotation(A2lNode):
+    def __init__(self, node, args):
+        self.annotation_label = None
+        self.annotation_origin = None
+        self.annotation_text = None
+        super(Annotation, self).__init__(node, *args)
+        print self
+
+
+class AnnotationText(A2lNode):
+    def __init__(self, node, args):
+        self.annotation_text = list()
+        super(AnnotationText, self).__init__(node, *args)
+        print self
+
+
 class ASAP2Version(Version):
     pass
 
 
+class AxisDescr(A2lNode):
+    def __init__(self, node, attribute, input_quantity, conversion, max_axis_points, lower_limit, upper_limit, args):
+        self.attribute = attribute
+        self.input_quantity = input_quantity
+        self.conversion = conversion
+        self.max_axis_points = max_axis_points
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
+        self.read_only = None
+        self.format = None
+        self.annotation = list()
+        self.axis_pts_ref = None
+        self.max_grad = None
+        self.monotony = None
+        self.byte_order = None
+        self.extended_limits = None
+        self.fix_axis_par = None
+        self.fix_axis_par_dist = None
+        self.fix_axis_par_list = None
+        self.deposit = None
+        self.curve_axis_ref = None
+        super(AxisDescr, self).__init__(node, *args)
+        print self
+
+
 class AxisPts(A2lNode):
+    def __init__(self, node, name, long_identifier, address, input_quantity, deposit, max_diff, conversion,
+                 max_axis_points, lower_limit, upper_limit, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.address = address
+        self.input_quantity = input_quantity
+        self.deposit = deposit
+        self.max_diff = max_diff
+        self.conversion = conversion
+        self.max_axis_points = max_axis_points
+        self.lower_limit = lower_limit
+        self.upper_limit = upper_limit
+        self.display_identifier = None
+        self.read_only = None
+        self.format = None
+        self.deposit = None
+        self.byte_order = None
+        self.function_list = None
+        self.ref_memory_segment = None
+        self.guard_rails = None
+        self.extended_limits = None
+        self.annotation = list()
+        self.if_data_axis_pts = list()
+        self.calibration_access = None
+        self.ecu_address_extension = None
+        try:
+            super(AxisPts, self).__init__(node, *args)
+        except ValueError as e:
+            print e
+            raise e
+        print self
+
+
+class AxisPtsXYZ(A2lNode):
     def __init__(self, node, position, datatype, indexorder, addrtype):
         self.position = position
         self.datatype = datatype
         self.indexorder = indexorder
         self.addrtype = addrtype
-        super(AxisPts, self).__init__(node)
+        super(AxisPtsXYZ, self).__init__(node)
         print self
 
 
-class AxisPtsX(AxisPts):
+class AxisPtsX(AxisPtsXYZ):
     pass
 
 
-class AxisPtsY(AxisPts):
+class AxisPtsY(AxisPtsXYZ):
     pass
 
 
-class AxisPtsZ(AxisPts):
+class AxisPtsZ(AxisPtsXYZ):
     pass
 
 
@@ -190,6 +268,66 @@ class Coeffs(A2lNode):
         print self
 
 
+class CompuMethod(A2lNode):
+    def __init__(self, node, name, long_identifier, conversion_type, format, unit, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.conversion_type = conversion_type
+        self.format = format
+        self.unit = unit
+        self.formula = None
+        self.coeffs = None
+        self.coeffs_linear = None  # TODO: should be removed, according to 1.51.
+        self.compu_tab_ref = None
+        self.ref_unit = None
+        super(CompuMethod, self).__init__(node, *args)
+        print self
+
+
+class CompuTab(A2lNode):
+    def __init__(self, node, name, long_identifier, conversion_type, number_value_pairs, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.conversion_type = conversion_type
+        self.number_value_pairs = number_value_pairs
+        self.in_val_out_val = list()
+        self.default_value = None
+        self.default_value_numeric = None  # TODO: should be removed, according to 1.51.
+        super(CompuTab, self).__init__(node, *args)
+        print self
+
+
+class CompuVTab(A2lNode):
+    def __init__(self, node, name, long_identifier, conversion_type, number_value_pairs, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.conversion_type = conversion_type
+        self.number_value_pairs = number_value_pairs
+        self.compu_vtab_in_val_out_val = list()  # TODO: replace with in_val_out_val...
+        self.default_value = None
+        super(CompuVTab, self).__init__(node, *args)
+        print self
+
+
+class CompuVTabRange(A2lNode):
+    def __init__(self, node, name, long_identifier, number_value_triples, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.number_value_triples = number_value_triples
+        self.compu_vtab_range_in_val_out_val = list()  # TODO: replace with in_val_min_in_val_max_out_val...
+        self.default_value = None
+        super(CompuVTabRange, self).__init__(node, *args)
+        print self
+
+
+class DependentCharacteristic(A2lNode):
+    def __init__(self, node, formula, args):
+        self.formula = formula
+        self.characteristic = list()
+        super(DependentCharacteristic, self).__init__(node, *args)
+        print self
+
+
 class DistOp(A2lNode):
     def __init__(self, node, position, datatype):
         self.position = position
@@ -217,6 +355,19 @@ class EventGroup(A2lNode):
         self.raster_id = raster_id
         super(EventGroup, self).__init__(node)
         print self
+
+
+class FixAxisPar(A2lNode):
+    def __init__(self, node, offset, shift, numberapo):
+        self.offset = offset
+        self.shift = shift
+        self.numberapo = numberapo
+        super(FixAxisPar, self).__init__(node)
+        print self
+
+
+class FixAxisParList(FixAxisPar):
+    pass
 
 
 class FixNoAxisPts(A2lNode):
@@ -255,6 +406,36 @@ class Frame(A2lNode):
         self.frame_measurement = None
         self.frame_if_data = list()
         super(Frame, self).__init__(node, *args)
+        print self
+
+
+class Function(A2lNode):
+    def __init__(self, node, name, long_identifier, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.annotation = list()
+        self.def_characteristic = None
+        self.ref_characteristic = None
+        self.in_measurement = None
+        self.out_measurement = None
+        self.loc_measurement = None
+        self.sub_function = None
+        self.function_version = None
+        super(Function, self).__init__(node, *args)
+        print self
+
+
+class Group(A2lNode):
+    def __init__(self, node, group_name, group_long_identifier, args):
+        self.group_name = group_name
+        self.group_long_identifier = group_long_identifier
+        self.annotation = list()
+        self.root = None
+        self.ref_characteristic = None
+        self.ref_measurement = None
+        self.function_list = None
+        self.sub_group = None
+        super(Group, self).__init__(node, *args)
         print self
 
 
@@ -313,6 +494,32 @@ class Measurement(A2lNode):
         self.matrix_dim = None
         self.ecu_address_extension = None
         super(Measurement, self).__init__(node, *args)
+        print self
+
+
+class MemoryLayout(A2lNode):
+    def __init__(self, node, prg_type, address, size, offset, args):
+        self.prg_type = prg_type
+        self.address = address
+        self.size = size
+        self.offset = offset
+        self.if_data_memory_layout = list()
+        super(MemoryLayout, self).__init__(node, *args)
+        print self
+
+
+class MemorySegment(A2lNode):
+    def __init__(self, node, name, long_identifier, prg_type, memory_type, attribute, address, size, offset, args):
+        self.name = name
+        self.long_identifier = long_identifier
+        self.prg_type = prg_type
+        self.memory_type = memory_type
+        self.attribute = attribute
+        self.address = address
+        self.size = size
+        self.offset = offset
+        self.if_data_memory_segment = list()
+        super(MemorySegment, self).__init__(node, *args)
         print self
 
 
@@ -462,6 +669,52 @@ class Raster(A2lNode):
         print self
 
 
+class RecordLayout(A2lNode):
+    def __init__(self, node, name, args):
+        self.name = name
+        self.fnc_values = None
+        self.identification = None
+        self.axis_pts_x = None
+        self.axis_pts_y = None
+        self.axis_pts_z = None
+        self.axis_rescale_x = None
+        self.axis_rescale_y = None
+        self.axis_rescale_z = None
+        self.no_axis_pts_x = None
+        self.no_axis_pts_y = None
+        self.no_axis_pts_z = None
+        self.no_rescale_x = None
+        self.no_rescale_y = None
+        self.no_rescale_z = None
+        self.fix_no_axis_pts_x = None
+        self.fix_no_axis_pts_y = None
+        self.fix_no_axis_pts_z = None
+        self.src_addr_x = None
+        self.src_addr_y = None
+        self.src_addr_z = None
+        self.rip_addr_x = None
+        self.rip_addr_y = None
+        self.rip_addr_z = None
+        self.rip_addr_w = None
+        self.shift_op_x = None
+        self.shift_op_y = None
+        self.shift_op_z = None
+        self.offset_x = None
+        self.offset_y = None
+        self.offset_z = None
+        self.dist_op_x = None
+        self.dist_op_y = None
+        self.dist_op_z = None
+        self.alignment_byte = None
+        self.alignment_word = None
+        self.alignment_long = None
+        self.alignment_float32_ieee = None
+        self.alignment_float64_ieee = None
+        self.reserved = list()
+        super(RecordLayout, self).__init__(node, *args)
+        print self
+
+
 class RefGroup(A2lNode):
     def __init__(self, node, identifier):
         self.identifier = identifier
@@ -606,6 +859,26 @@ class UserRights(A2lNode):
         print self
 
 
+class VariantCoding(A2lNode):
+    def __init__(self, node, args):
+        self.var_separator = None
+        self.var_naming = None
+        self.var_criterion = list()
+        self.var_forbidden_comb = list()
+        self.var_characteristic = list()
+        super(VariantCoding, self).__init__(node, *args)
+        print self
+
+
+class VarCharacteristic(A2lNode):
+    def __init__(self, node, name, criterion_name, args):
+        self.name = name
+        self.criterion_name = criterion_name
+        self.var_address = None
+        super(VarCharacteristic, self).__init__(node, args)
+        print self
+
+
 class VarCriterion(A2lNode):
     def __init__(self, node, name, long_identifier, value, args):
         self.name = name
@@ -614,4 +887,20 @@ class VarCriterion(A2lNode):
         self.var_measurement = None
         self.var_selection_characteristic = None
         super(VarCriterion, self).__init__(node, *args)
+        print self
+
+
+class VarForbiddenComb(A2lNode):
+    def __init__(self, node, *args):
+        self.criterion_name = list()
+        self.criterion_value = list()
+        super(VarForbiddenComb, self).__init__(node, *args)
+        print self
+
+
+class VirtualCharacteristic(A2lNode):
+    def __init__(self, node, formula, args):
+        self.formula = formula
+        self.characteristic = list()
+        super(VirtualCharacteristic, self).__init__(node, *args)
         print self

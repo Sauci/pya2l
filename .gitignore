@@ -1,6 +1,8 @@
 build/*
 dist/*
 doc/*
+.cache/*
+.pytest_cache/*
 .idea/*
 pya2l/htmlcov/*
 pya2l/\.coverage
