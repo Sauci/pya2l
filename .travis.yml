@@ -2,7 +2,10 @@ language: python
 python:
   - "2.7"
 install:
-  - pip install pytest-cov
+  - pip install codecov
+  - pip install pytest pytest-cov
   - pip install git+https://github.com/Sauci/pya2l.git@master
+after_success:
+  - codecov
 script:
   - py.test --cov-report html --cov pya2l --verbose
