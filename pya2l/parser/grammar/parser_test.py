@@ -2042,7 +2042,440 @@ def test_axis_pts_ecu_address_extension_node():
     assert a2l.tree.project.module[0].axis_pts[0].ecu_address_extension == 0
 
 
-# TODO: implement tests for AXIS_DESCR.
+def test_measurement_display_identifier_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    DISPLAY_IDENTIFIER display_identifier
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'display_identifier')
+    assert a2l.tree.project.module[0].measurement[0].display_identifier == 'display_identifier'
+
+
+def test_measurement_read_write_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    READ_WRITE
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'read_write')
+    assert a2l.tree.project.module[0].measurement[0].read_write == 'READ_WRITE'
+
+
+def test_measurement_format_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    FORMAT "%d"
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'format')
+    assert a2l.tree.project.module[0].measurement[0].format == '%d'
+
+
+def test_measurement_array_size_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    ARRAY_SIZE 0
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'array_size')
+    assert a2l.tree.project.module[0].measurement[0].array_size == 0
+
+
+def test_measurement_bit_mask_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    BIT_MASK 0
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'bit_mask')
+    assert a2l.tree.project.module[0].measurement[0].bit_mask == 0
+
+
+def test_measurement_bit_operation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin BIT_OPERATION
+                        LEFT_SHIFT 0
+                    /end BIT_OPERATION
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'bit_operation')
+    assert a2l.tree.project.module[0].measurement[0].bit_operation is not None
+
+
+def test_measurement_byte_order_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    BYTE_ORDER MSB_FIRST
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'byte_order')
+    assert a2l.tree.project.module[0].measurement[0].byte_order == 'MSB_FIRST'
+
+
+def test_measurement_max_refresh_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    MAX_REFRESH 0 1
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'max_refresh')
+    assert a2l.tree.project.module[0].measurement[0].max_refresh is not None
+
+
+def test_measurement_virtual_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin VIRTUAL
+                        virtual
+                    /end VIRTUAL
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'virtual')
+    assert a2l.tree.project.module[0].measurement[0].virtual is not None
+
+
+def test_measurement_function_list_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin FUNCTION_LIST
+                        first_function
+                        second_function
+                    /end FUNCTION_LIST
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'function_list')
+    assert a2l.tree.project.module[0].measurement[0].function_list is not None
+
+
+def test_measurement_ecu_address_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    ECU_ADDRESS 0
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'ecu_address')
+    assert a2l.tree.project.module[0].measurement[0].ecu_address == 0
+
+
+def test_measurement_error_mask_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    ERROR_MASK 0
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'error_mask')
+    assert a2l.tree.project.module[0].measurement[0].error_mask == 0
+
+
+def test_measurement_ref_memory_segment_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    REF_MEMORY_SEGMENT ref_memory_segment
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'ref_memory_segment')
+    assert a2l.tree.project.module[0].measurement[0].ref_memory_segment == 'ref_memory_segment'
+
+
+def test_measurement_annotation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'annotation')
+    assert a2l.tree.project.module[0].measurement[0].annotation is not None
+
+
+def test_measurement_with_multiple_annotation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].measurement[0].annotation) == 2
+
+
+def test_measurement_if_data_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA if_data
+                    /end IF_DATA
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'if_data_measurement')
+    assert a2l.tree.project.module[0].measurement[0].if_data_measurement is not None
+
+
+def test_measurement_with_multiple_if_data_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA first_if_data
+                    /end IF_DATA
+                    /begin IF_DATA second_if_data
+                    /end IF_DATA
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].measurement[0].if_data_measurement) == 2
+
+
+def test_measurement_matrix_dim_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    MATRIX_DIM 0 1 2
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'matrix_dim')
+    assert a2l.tree.project.module[0].measurement[0].matrix_dim[0] == 0
+    assert a2l.tree.project.module[0].measurement[0].matrix_dim[1] == 1
+    assert a2l.tree.project.module[0].measurement[0].matrix_dim[2] == 2
+
+
+def test_measurement_ecu_address_extension_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    ECU_ADDRESS_EXTENSION 0
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'ecu_address_extension')
+    assert a2l.tree.project.module[0].measurement[0].ecu_address_extension == 0
+
+# TODO: implement tests for BIT_OPERATION.
+
 def test_max_refresh():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
@@ -2676,3 +3109,5 @@ def test_fix_axis_par_list():
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[0] == 0
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[1] == 1
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[2] == 2
+
+
