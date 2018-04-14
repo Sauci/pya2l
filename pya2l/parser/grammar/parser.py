@@ -1702,7 +1702,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_default_value(p):
         """default_value : DEFAULT_VALUE STRING"""
-        p[0] = p[1]
+        p[0] = p[2]
 
     @staticmethod
     def p_default_value_numeric(p):  # TODO: should it be removed?

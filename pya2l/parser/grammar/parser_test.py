@@ -2532,6 +2532,20 @@ def test_compu_method_ref_unit_node():
     assert hasattr(a2l.tree.project.module[0].compu_method[0], 'ref_unit')
     assert a2l.tree.project.module[0].compu_method[0].ref_unit == 'ref_unit'
 
+
+def test_compu_tab_default_value_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_TAB first_compu_tab_name "first compu_tab long identifier" TAB_INTP 1 1 1
+                    DEFAULT_VALUE "default value"
+                /end COMPU_TAB
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_tab[0], 'default_value')
+    assert a2l.tree.project.module[0].compu_tab[0].default_value == 'default value'
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_formula_formula_inv_node():
