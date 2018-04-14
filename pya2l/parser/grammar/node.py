@@ -44,7 +44,6 @@ class Version(A2lNode):
         self.version_no = version_no
         self.upgrade_no = upgrade_no
         super(Version, self).__init__(node)
-        print self
 
 
 class A2lFile(A2lNode):
@@ -53,7 +52,6 @@ class A2lFile(A2lNode):
         self.a2ml_version = None
         self.project = None
         super(A2lFile, self).__init__(node, *args)
-        print self
 
 
 class A2MLVersion(Version):
@@ -66,7 +64,6 @@ class AddressMapping(A2lNode):
         self.mapping_address = mapping_address
         self.length = length
         super(AddressMapping, self).__init__(node)
-        print self
 
 
 class Annotation(A2lNode):
@@ -75,14 +72,12 @@ class Annotation(A2lNode):
         self.annotation_origin = None
         self.annotation_text = None
         super(Annotation, self).__init__(node, *args)
-        print self
 
 
 class AnnotationText(A2lNode):
     def __init__(self, node, args):
         self.annotation_text = list()
         super(AnnotationText, self).__init__(node, *args)
-        print self
 
 
 class ASAP2Version(Version):
@@ -111,7 +106,6 @@ class AxisDescr(A2lNode):
         self.deposit = None
         self.curve_axis_ref = None
         super(AxisDescr, self).__init__(node, *args)
-        print self
 
 
 class AxisPts(A2lNode):
@@ -145,7 +139,6 @@ class AxisPts(A2lNode):
         except ValueError as e:
             print e
             raise e
-        print self
 
 
 class AxisPtsXYZ(A2lNode):
@@ -155,7 +148,6 @@ class AxisPtsXYZ(A2lNode):
         self.indexorder = indexorder
         self.addrtype = addrtype
         super(AxisPtsXYZ, self).__init__(node)
-        print self
 
 
 class AxisPtsX(AxisPtsXYZ):
@@ -178,7 +170,6 @@ class AxisRescale(A2lNode):
         self.index_incr = index_incr
         self.addressing = addressing
         super(AxisRescale, self).__init__(node)
-        print self
 
 
 class AxisRescaleX(AxisRescale):
@@ -199,7 +190,6 @@ class BitOperation(A2lNode):
         self.right_shift = None
         self.sign_extend = None
         super(BitOperation, self).__init__(node, *args)
-        print self
 
 
 class CalibrationMethod(A2lNode):
@@ -208,7 +198,6 @@ class CalibrationMethod(A2lNode):
         self.version = version
         self.calibration_handle = list()
         super(CalibrationMethod, self).__init__(node, *args)
-        print self
 
 
 class Characteristic(A2lNode):
@@ -245,7 +234,6 @@ class Characteristic(A2lNode):
         self.matrix_dim = None
         self.ecu_address_extension = None
         super(Characteristic, self).__init__(node, *args)
-        print self
 
 
 class Checksum(A2lNode):
@@ -253,7 +241,6 @@ class Checksum(A2lNode):
         self.checksum_dll = checksum_dll
         self.max_block_size = max_block_size
         super(Checksum, self).__init__(node)
-        print self
 
 
 class Coeffs(A2lNode):
@@ -265,7 +252,6 @@ class Coeffs(A2lNode):
         self.e = e
         self.f = f
         super(Coeffs, self).__init__(node)
-        print self
 
 
 class CompuMethod(A2lNode):
@@ -281,7 +267,6 @@ class CompuMethod(A2lNode):
         self.compu_tab_ref = None
         self.ref_unit = None
         super(CompuMethod, self).__init__(node, *args)
-        print self
 
 
 class CompuTab(A2lNode):
@@ -294,7 +279,6 @@ class CompuTab(A2lNode):
         self.default_value = None
         self.default_value_numeric = None  # TODO: should be removed, according to 1.51.
         super(CompuTab, self).__init__(node, *args)
-        print self
 
 
 class CompuVTab(A2lNode):
@@ -306,7 +290,6 @@ class CompuVTab(A2lNode):
         self.compu_vtab_in_val_out_val = None  # TODO: replace with in_val_out_val...
         self.default_value = None
         super(CompuVTab, self).__init__(node, *args)
-        print self
 
 
 class CompuVTabRange(A2lNode):
@@ -317,14 +300,12 @@ class CompuVTabRange(A2lNode):
         self.compu_vtab_range_in_val_out_val = None  # TODO: replace with in_val_min_in_val_max_out_val...
         self.default_value = None
         super(CompuVTabRange, self).__init__(node, *args)
-        print self
 
 
 class DefCharacteristic(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(DefCharacteristic, self).__init__(node, *args)
-        print self
 
 
 class DependentCharacteristic(A2lNode):
@@ -332,7 +313,6 @@ class DependentCharacteristic(A2lNode):
         self.formula = formula
         self.characteristic = list()
         super(DependentCharacteristic, self).__init__(node, *args)
-        print self
 
 
 class DistOp(A2lNode):
@@ -340,7 +320,6 @@ class DistOp(A2lNode):
         self.position = position
         self.datatype = datatype
         super(DistOp, self).__init__(node)
-        print self
 
 
 class DistOpX(DistOp):
@@ -361,7 +340,6 @@ class EventGroup(A2lNode):
         self.short_name = short_name
         self.raster_id = raster_id
         super(EventGroup, self).__init__(node)
-        print self
 
 
 class FixAxisPar(A2lNode):
@@ -370,7 +348,6 @@ class FixAxisPar(A2lNode):
         self.shift = shift
         self.numberapo = numberapo
         super(FixAxisPar, self).__init__(node)
-        print self
 
 
 class FixAxisParList(FixAxisPar):
@@ -381,7 +358,6 @@ class FixNoAxisPts(A2lNode):
     def __init__(self, node, number_of_axis_points):
         self.number_of_axis_points = number_of_axis_points
         super(FixNoAxisPts, self).__init__(node)
-        print self
 
 
 class FixNoAxisPtsX(FixNoAxisPts):
@@ -401,7 +377,6 @@ class Formula(A2lNode):
         self.f = f
         self.formula_inv = None
         super(Formula, self).__init__(node, *args)
-        print self
 
 
 class Frame(A2lNode):
@@ -413,7 +388,6 @@ class Frame(A2lNode):
         self.frame_measurement = None
         self.frame_if_data = list()
         super(Frame, self).__init__(node, *args)
-        print self
 
 
 class Function(A2lNode):
@@ -429,7 +403,6 @@ class Function(A2lNode):
         self.sub_function = None
         self.function_version = None
         super(Function, self).__init__(node, *args)
-        print self
 
 
 class Group(A2lNode):
@@ -443,7 +416,6 @@ class Group(A2lNode):
         self.function_list = None
         self.sub_group = None
         super(Group, self).__init__(node, *args)
-        print self
 
 
 class Header(A2lNode):
@@ -452,7 +424,6 @@ class Header(A2lNode):
         self.version = None
         self.project_no = None
         super(Header, self).__init__(node, *args)
-        print self
 
 
 class Identification(A2lNode):
@@ -460,7 +431,6 @@ class Identification(A2lNode):
         self.position = position
         self.datatype = datatype
         super(Identification, self).__init__(node)
-        print self
 
 
 class IfDataMemorySegment(A2lNode):
@@ -469,21 +439,18 @@ class IfDataMemorySegment(A2lNode):
         self.address_mapping = list()
         self.segment = list()
         super(IfDataMemorySegment, self).__init__(node, *args)
-        print self
 
 
 class InMeasurement(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(InMeasurement, self).__init__(node, *args)
-        print self
 
 
 class LocMeasurement(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(LocMeasurement, self).__init__(node, *args)
-        print self
 
 
 class MaxRefresh(A2lNode):
@@ -491,7 +458,6 @@ class MaxRefresh(A2lNode):
         self.scaling_unit = scaling_unit
         self.rate = rate
         super(MaxRefresh, self).__init__(node)
-        print self
 
 
 class Measurement(A2lNode):
@@ -523,7 +489,6 @@ class Measurement(A2lNode):
         self.matrix_dim = None
         self.ecu_address_extension = None
         super(Measurement, self).__init__(node, *args)
-        print self
 
 
 class MemoryLayout(A2lNode):
@@ -534,7 +499,6 @@ class MemoryLayout(A2lNode):
         self.offset = offset
         self.if_data_memory_layout = list()
         super(MemoryLayout, self).__init__(node, *args)
-        print self
 
 
 class MemorySegment(A2lNode):
@@ -549,7 +513,6 @@ class MemorySegment(A2lNode):
         self.offset = offset
         self.if_data_memory_segment = list()
         super(MemorySegment, self).__init__(node, *args)
-        print self
 
 
 class Module(A2lNode):
@@ -575,7 +538,6 @@ class Module(A2lNode):
         self.user_rights = list()
         self.unit = list()
         super(Module, self).__init__(node, *args)
-        print self
 
 
 class ModCommon(A2lNode):
@@ -591,7 +553,6 @@ class ModCommon(A2lNode):
         self.alignment_float32_ieee = None
         self.alignment_float64_ieee = None
         super(ModCommon, self).__init__(node, *args)
-        print self
 
 
 class ModPar(A2lNode):
@@ -614,7 +575,6 @@ class ModPar(A2lNode):
         self.memory_segment = list()
         self.system_constant = list()
         super(ModPar, self).__init__(node, *args)
-        print self
 
 
 class NoAxisPts(A2lNode):
@@ -622,7 +582,6 @@ class NoAxisPts(A2lNode):
         self.position = position
         self.datatype = datatype
         super(NoAxisPts, self).__init__(node)
-        print self
 
 
 class NoAxisPtsX(NoAxisPts):
@@ -642,7 +601,6 @@ class NoRescale(A2lNode):
         self.position = position
         self.datatype = datatype
         super(NoRescale, self).__init__(node)
-        print self
 
 
 class NoRescaleX(NoRescale):
@@ -662,7 +620,6 @@ class Offset(A2lNode):
         self.position = position
         self.datatype = datatype
         super(Offset, self).__init__(node)
-        print self
 
 
 class OffsetX(Offset):
@@ -681,7 +638,6 @@ class OutMeasurement(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(OutMeasurement, self).__init__(node, *args)
-        print self
 
 
 class Project(A2lNode):
@@ -691,7 +647,6 @@ class Project(A2lNode):
         self.header = None
         self.module = list()
         super(Project, self).__init__(node, *args)
-        print self
 
 
 class Raster(A2lNode):
@@ -702,7 +657,6 @@ class Raster(A2lNode):
         self.scaling_unit = scaling_unit
         self.rate = rate
         super(Raster, self).__init__(node)
-        print self
 
 
 class RecordLayout(A2lNode):
@@ -748,21 +702,18 @@ class RecordLayout(A2lNode):
         self.alignment_float64_ieee = None
         self.reserved = list()
         super(RecordLayout, self).__init__(node, *args)
-        print self
 
 
 class RefCharacteristic(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(RefCharacteristic, self).__init__(node, *args)
-        print self
 
 
 class RefGroup(A2lNode):
     def __init__(self, node, identifier):
         self.identifier = identifier
         super(RefGroup, self).__init__(node)
-        print self
 
 
 class RipAddr(A2lNode):
@@ -770,7 +721,6 @@ class RipAddr(A2lNode):
         self.position = position
         self.datatype = datatype
         super(RipAddr, self).__init__(node)
-        print self
 
 
 class RipAddrX(RipAddr):
@@ -795,7 +745,6 @@ class SeedKey(A2lNode):
         self.daq_dll = daq_dll
         self.pgm_dll = pgm_dll
         super(SeedKey, self).__init__(node)
-        print self
 
 
 class ShiftOp(A2lNode):
@@ -803,7 +752,6 @@ class ShiftOp(A2lNode):
         self.position = position
         self.datatype = datatype
         super(ShiftOp, self).__init__(node)
-        print self
 
 
 class ShiftOpX(ShiftOp):
@@ -829,7 +777,6 @@ class SiExponents(A2lNode):
         self.amount_of_substance = amount_of_substance
         self.luminous_intensity = luminous_intensity
         super(SiExponents, self).__init__(node)
-        print self
 
 
 class Source(A2lNode):
@@ -841,7 +788,6 @@ class Source(A2lNode):
         self.qp_blob = None
         self.qp_data = None
         super(Source, self).__init__(node, *args)
-        print self
 
 
 class SrcAddr(A2lNode):
@@ -849,7 +795,6 @@ class SrcAddr(A2lNode):
         self.position = position
         self.datatype = datatype
         super(SrcAddr, self).__init__(node)
-        print self
 
 
 class SrcAddrX(SrcAddr):
@@ -868,7 +813,6 @@ class SubFunction(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(SubFunction, self).__init__(node, *args)
-        print self
 
 
 class SystemConstant(A2lNode):
@@ -876,7 +820,6 @@ class SystemConstant(A2lNode):
         self.name = name
         self.value = value
         super(SystemConstant, self).__init__(node)
-        print self
 
 
 class Unit(A2lNode):
@@ -889,7 +832,6 @@ class Unit(A2lNode):
         self.ref_unit = None
         self.unit_conversion = None
         super(Unit, self).__init__(node, *args)
-        print self
 
 
 class UnitConversion(A2lNode):
@@ -897,7 +839,6 @@ class UnitConversion(A2lNode):
         self.gradient = gradient
         self.offset = offset
         super(UnitConversion, self).__init__(node)
-        print self
 
 
 class UserRights(A2lNode):
@@ -906,7 +847,6 @@ class UserRights(A2lNode):
         self.read_only = None
         self.ref_group = list()
         super(UserRights, self).__init__(node, *args)
-        print self
 
 
 class VariantCoding(A2lNode):
@@ -917,7 +857,6 @@ class VariantCoding(A2lNode):
         self.var_forbidden_comb = list()
         self.var_characteristic = list()
         super(VariantCoding, self).__init__(node, *args)
-        print self
 
 
 class VarCharacteristic(A2lNode):
@@ -926,7 +865,6 @@ class VarCharacteristic(A2lNode):
         self.criterion_name = criterion_name
         self.var_address = None
         super(VarCharacteristic, self).__init__(node, args)
-        print self
 
 
 class VarCriterion(A2lNode):
@@ -937,7 +875,6 @@ class VarCriterion(A2lNode):
         self.var_measurement = None
         self.var_selection_characteristic = None
         super(VarCriterion, self).__init__(node, *args)
-        print self
 
 
 class VarForbiddenComb(A2lNode):
@@ -945,7 +882,6 @@ class VarForbiddenComb(A2lNode):
         self.criterion_name = list()
         self.criterion_value = list()
         super(VarForbiddenComb, self).__init__(node, *args)
-        print self
 
 
 class VirtualCharacteristic(A2lNode):
@@ -953,4 +889,3 @@ class VirtualCharacteristic(A2lNode):
         self.formula = formula
         self.characteristic = list()
         super(VirtualCharacteristic, self).__init__(node, *args)
-        print self
