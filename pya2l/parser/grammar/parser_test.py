@@ -2546,6 +2546,29 @@ def test_compu_tab_default_value_node():
     assert hasattr(a2l.tree.project.module[0].compu_tab[0], 'default_value')
     assert a2l.tree.project.module[0].compu_tab[0].default_value == 'default value'
 
+def test_compu_vtab():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_VTAB 
+                    first_compu_tab_name 
+                    "first compu_tab long identifier" 
+                    TAB_VERB 
+                    2 
+                    0 "0"
+                    1 "1"
+                    DEFAULT_VALUE "default value"
+                /end COMPU_VTAB
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_vtab[0], 'default_value')
+    assert a2l.tree.project.module[0].compu_vtab[0].default_value == 'default value'
+    assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[0][0] == 0
+    assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[0][1] == '0'
+    assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[1][0] == 1
+    assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[1][1] == '1'
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_formula_formula_inv_node():

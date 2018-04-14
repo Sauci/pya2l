@@ -303,7 +303,7 @@ class CompuVTab(A2lNode):
         self.long_identifier = long_identifier
         self.conversion_type = conversion_type
         self.number_value_pairs = number_value_pairs
-        self.compu_vtab_in_val_out_val = list()  # TODO: replace with in_val_out_val...
+        self.compu_vtab_in_val_out_val = None  # TODO: replace with in_val_out_val...
         self.default_value = None
         super(CompuVTab, self).__init__(node, *args)
         print self
