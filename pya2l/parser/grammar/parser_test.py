@@ -2476,6 +2476,22 @@ def test_measurement_ecu_address_extension_node():
 
 # TODO: implement tests for BIT_OPERATION.
 
+def test_formula_formula_inv_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_METHOD compu_method_name "compu_method long identifier" TAB_INTP "%d" "-"
+                    /begin FORMULA
+                        "formula"
+                        FORMULA_INV "formula inv"
+                    /end FORMULA
+                /end COMPU_METHOD
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].compu_method[0].formula.formula_inv == 'formula inv'
+
+
 def test_max_refresh():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

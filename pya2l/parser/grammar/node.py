@@ -390,8 +390,8 @@ class FixNoAxisPtsZ(FixNoAxisPts):
 
 
 class Formula(A2lNode):
-    def __init__(self, node, formula, args):
-        self.formula = formula
+    def __init__(self, node, f, args):
+        self.f = f
         self.formula_inv = None
         super(Formula, self).__init__(node, *args)
         print self

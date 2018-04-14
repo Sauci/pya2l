@@ -1598,14 +1598,28 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_formula(p):
-        """formula : begin FORMULA STRING formula_optional end FORMULA"""
+        """formula : begin FORMULA STRING formula_optional_list_optional end FORMULA"""
         p[0] = a2l_node_factory(*p[2:5])
 
     @staticmethod
     def p_formula_optional(p):
-        """formula_optional : empty
-                            | formula_inv"""
-        p[0] = ((p.slice[1].type, p[1]),)
+        """formula_optional : formula_inv"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_formula_optional_list(p):
+        """formula_optional_list : formula_optional
+                                 | formula_optional formula_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_formula_optional_list_optional(p):
+        """formula_optional_list_optional : empty
+                                          | formula_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_formula_inv(p):
