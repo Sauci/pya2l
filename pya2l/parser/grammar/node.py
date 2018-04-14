@@ -730,6 +730,12 @@ class RecordLayout(A2lNode):
         print self
 
 
+class RefCharacteristic(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(RefCharacteristic, self).__init__(node, *args)
+        print self
+
 class RefGroup(A2lNode):
     def __init__(self, node, identifier):
         self.identifier = identifier
