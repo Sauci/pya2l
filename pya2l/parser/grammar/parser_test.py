@@ -2533,11 +2533,11 @@ def test_compu_method_ref_unit_node():
     assert a2l.tree.project.module[0].compu_method[0].ref_unit == 'ref_unit'
 
 
-def test_compu_tab_default_value_node():
+def test_compu_tab():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
             /begin MODULE first_module_name "first module long identifier"
-                /begin COMPU_TAB first_compu_tab_name "first compu_tab long identifier" TAB_INTP 1 1 1
+                /begin COMPU_TAB first_compu_tab_name "first compu_tab long identifier" TAB_INTP 1 2 3
                     DEFAULT_VALUE "default value"
                 /end COMPU_TAB
             /end MODULE
@@ -2545,6 +2545,9 @@ def test_compu_tab_default_value_node():
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].compu_tab[0], 'default_value')
     assert a2l.tree.project.module[0].compu_tab[0].default_value == 'default value'
+    assert a2l.tree.project.module[0].compu_tab[0].in_val_out_val[0] == 2
+    assert a2l.tree.project.module[0].compu_tab[0].in_val_out_val[1] == 3
+
 
 def test_compu_vtab():
     a2l_string = """

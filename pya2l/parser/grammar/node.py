@@ -290,7 +290,7 @@ class CompuTab(A2lNode):
         self.long_identifier = long_identifier
         self.conversion_type = conversion_type
         self.number_value_pairs = number_value_pairs
-        self.in_val_out_val = list()
+        self.in_val_out_val = None
         self.default_value = None
         self.default_value_numeric = None  # TODO: should be removed, according to 1.51.
         super(CompuTab, self).__init__(node, *args)
