@@ -472,6 +472,20 @@ class IfDataMemorySegment(A2lNode):
         print self
 
 
+class InMeasurement(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(InMeasurement, self).__init__(node, *args)
+        print self
+
+
+class LocMeasurement(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(LocMeasurement, self).__init__(node, *args)
+        print self
+
+
 class MaxRefresh(A2lNode):
     def __init__(self, node, scaling_unit, rate):
         self.scaling_unit = scaling_unit
@@ -663,6 +677,13 @@ class OffsetZ(Offset):
     pass
 
 
+class OutMeasurement(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(OutMeasurement, self).__init__(node, *args)
+        print self
+
+
 class Project(A2lNode):
     def __init__(self, node, name, long_identifier, args):
         self.name = name
@@ -735,6 +756,7 @@ class RefCharacteristic(A2lNode):
         self.identifier = list()
         super(RefCharacteristic, self).__init__(node, *args)
         print self
+
 
 class RefGroup(A2lNode):
     def __init__(self, node, identifier):

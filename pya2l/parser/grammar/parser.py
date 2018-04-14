@@ -68,6 +68,8 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'HEADER': Header,
             'IDENTIFICATION': Identification,
             'if_data_memory_segment': IfDataMemorySegment,
+            'IN_MEASUREMENT': InMeasurement,
+            'LOC_MEASUREMENT': LocMeasurement,
             'MAX_REFRESH': MaxRefresh,
             'MEASUREMENT': Measurement,
             'MEMORY_LAYOUT': MemoryLayout,
@@ -84,6 +86,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'OFFSET_X': OffsetX,
             'OFFSET_Y': OffsetY,
             'OFFSET_Z': OffsetZ,
+            'OUT_MEASUREMENT': OutMeasurement,
             'PROJECT': Project,
             'RASTER': Raster,
             'RECORD_LAYOUT': RecordLayout,
@@ -1895,18 +1898,78 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_in_measurement(p):
-        """in_measurement : begin IN_MEASUREMENT ident_list end IN_MEASUREMENT"""
-        p[0] = p[1]
+        """in_measurement : begin IN_MEASUREMENT in_measurement_optional_list_optional end IN_MEASUREMENT"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_in_measurement_optional(p):
+        """in_measurement_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_in_measurement_optional_list(p):
+        """in_measurement_optional_list : in_measurement_optional
+                                        | in_measurement_optional in_measurement_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_in_measurment_optional_list_optional(p):
+        """in_measurement_optional_list_optional : empty
+                                                 | in_measurement_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_out_measurement(p):
-        """out_measurement : begin OUT_MEASUREMENT ident_list end OUT_MEASUREMENT"""
-        p[0] = p[1]
+        """out_measurement : begin OUT_MEASUREMENT out_measurement_optional_list_optional end OUT_MEASUREMENT"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_out_measurement_optional(p):
+        """out_measurement_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_out_measurement_optional_list(p):
+        """out_measurement_optional_list : out_measurement_optional
+                                         | out_measurement_optional out_measurement_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_out_measurment_optional_list_optional(p):
+        """out_measurement_optional_list_optional : empty
+                                                  | out_measurement_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_loc_measurement(p):
-        """loc_measurement : begin LOC_MEASUREMENT ident_list end LOC_MEASUREMENT"""
-        p[0] = p[1]
+        """loc_measurement : begin LOC_MEASUREMENT loc_measurement_optional_list_optional end LOC_MEASUREMENT"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_loc_measurement_optional(p):
+        """loc_measurement_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_loc_measurement_optional_list(p):
+        """loc_measurement_optional_list : loc_measurement_optional
+                                         | loc_measurement_optional loc_measurement_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_loc_measurment_optional_list_optional(p):
+        """loc_measurement_optional_list_optional : empty
+                                                  | loc_measurement_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_sub_function(p):

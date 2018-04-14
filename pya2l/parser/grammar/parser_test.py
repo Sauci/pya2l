@@ -2650,6 +2650,57 @@ def test_ref_characteristic():
     assert a2l.tree.project.module[0].function[0].ref_characteristic.identifier[1] == 'second_ref_characteristic'
 
 
+def test_in_measurement():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin IN_MEASUREMENT
+                        first_in_measurement
+                        second_in_measurement
+                    /end IN_MEASUREMENT
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].function[0].in_measurement.identifier[0] == 'first_in_measurement'
+    assert a2l.tree.project.module[0].function[0].in_measurement.identifier[1] == 'second_in_measurement'
+
+
+def test_out_measurement():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin OUT_MEASUREMENT
+                        first_out_measurement
+                        second_out_measurement
+                    /end OUT_MEASUREMENT
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].function[0].out_measurement.identifier[0] == 'first_out_measurement'
+    assert a2l.tree.project.module[0].function[0].out_measurement.identifier[1] == 'second_out_measurement'
+
+
+def test_loc_measurement():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin LOC_MEASUREMENT
+                        first_loc_measurement
+                        second_loc_measurement
+                    /end LOC_MEASUREMENT
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].function[0].loc_measurement.identifier[0] == 'first_loc_measurement'
+    assert a2l.tree.project.module[0].function[0].loc_measurement.identifier[1] == 'second_loc_measurement'
+
+
 def test_coeffs():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
