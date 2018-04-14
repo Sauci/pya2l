@@ -50,6 +50,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'COMPU_TAB': CompuTab,
             'COMPU_VTAB': CompuVTab,
             'COMPU_VTAB_RANGE': CompuVTabRange,
+            'DEF_CHARACTERISTIC': DefCharacteristic,
             'DEPENDENT_CHARACTERISTIC': DependentCharacteristic,
             'DIST_OP_X': DistOpX,
             'DIST_OP_Y': DistOpY,
@@ -1838,7 +1839,32 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_def_characteristic(p):
-        """def_characteristic : begin DEF_CHARACTERISTIC ident_list end DEF_CHARACTERISTIC"""
+        """def_characteristic : begin DEF_CHARACTERISTIC def_characteristic_optional_list_optional end DEF_CHARACTERISTIC"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_def_characteristic_optional(p):
+        """def_characteristic_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_def_characteristic_optional_list(p):
+        """def_characteristic_optional_list : def_characteristic_optional
+                                            | def_characteristic_optional def_characteristic_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_def_characteristic_optional_list_optional(p):
+        """def_characteristic_optional_list_optional : empty
+                                                     | def_characteristic_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_identifier(p):
+        """identifier : IDENT"""
         p[0] = p[1]
 
     @staticmethod

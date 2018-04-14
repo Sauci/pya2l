@@ -320,6 +320,13 @@ class CompuVTabRange(A2lNode):
         print self
 
 
+class DefCharacteristic(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(DefCharacteristic, self).__init__(node, *args)
+        print self
+
+
 class DependentCharacteristic(A2lNode):
     def __init__(self, node, formula, args):
         self.formula = formula

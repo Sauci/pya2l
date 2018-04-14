@@ -2615,7 +2615,25 @@ def test_formula_formula_inv_node():
     assert a2l.tree.project.module[0].compu_method[0].formula.formula_inv == 'formula inv'
 
 
-def test_coeffs_node():
+
+def test_def_characteristic():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin DEF_CHARACTERISTIC
+                        first_def_characteristic
+                        second_def_characteristic
+                    /end DEF_CHARACTERISTIC
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].function[0].def_characteristic.identifier[0] == 'first_def_characteristic'
+    assert a2l.tree.project.module[0].function[0].def_characteristic.identifier[1] == 'second_def_characteristic'
+
+
+def test_coeffs():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
             /begin MODULE first_module_name "first module long identifier"
