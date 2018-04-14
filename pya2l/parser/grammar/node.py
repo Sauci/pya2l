@@ -314,7 +314,7 @@ class CompuVTabRange(A2lNode):
         self.name = name
         self.long_identifier = long_identifier
         self.number_value_triples = number_value_triples
-        self.compu_vtab_range_in_val_out_val = list()  # TODO: replace with in_val_min_in_val_max_out_val...
+        self.compu_vtab_range_in_val_out_val = None  # TODO: replace with in_val_min_in_val_max_out_val...
         self.default_value = None
         super(CompuVTabRange, self).__init__(node, *args)
         print self

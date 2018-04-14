@@ -2554,8 +2554,8 @@ def test_compu_vtab():
         /begin PROJECT project_name "project long identifier"
             /begin MODULE first_module_name "first module long identifier"
                 /begin COMPU_VTAB 
-                    first_compu_tab_name 
-                    "first compu_tab long identifier" 
+                    compu_vtab_name 
+                    "compu_vtab long identifier" 
                     TAB_VERB 
                     2 
                     0 "0"
@@ -2571,6 +2571,31 @@ def test_compu_vtab():
     assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[0][1] == '0'
     assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[1][0] == 1
     assert a2l.tree.project.module[0].compu_vtab[0].compu_vtab_in_val_out_val[1][1] == '1'
+
+
+def test_compu_vtab_range():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_VTAB_RANGE
+                    compu_tab_range_name 
+                    "compu_tab_range long identifier"  
+                    2 
+                    0 1 "2"
+                    3 4 "5"
+                    DEFAULT_VALUE "default value"
+                /end COMPU_VTAB_RANGE
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_vtab_range[0], 'default_value')
+    assert a2l.tree.project.module[0].compu_vtab_range[0].default_value == 'default value'
+    assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[0][0] == 0
+    assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[0][1] == 1
+    assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[0][2] == '2'
+    assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[1][0] == 3
+    assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[1][1] == 4
+    assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[1][2] == '5'
 
 # TODO: implement tests for BIT_OPERATION.
 
