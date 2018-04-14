@@ -2492,6 +2492,23 @@ def test_formula_formula_inv_node():
     assert a2l.tree.project.module[0].compu_method[0].formula.formula_inv == 'formula inv'
 
 
+def test_coeffs_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_METHOD compu_method_name "compu_method long identifier" TAB_INTP "%d" "-"
+                    COEFFS 0 1 2 3 4 5
+                /end COMPU_METHOD
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].compu_method[0].coeffs.a == 0
+    assert a2l.tree.project.module[0].compu_method[0].coeffs.b == 1
+    assert a2l.tree.project.module[0].compu_method[0].coeffs.c == 2
+    assert a2l.tree.project.module[0].compu_method[0].coeffs.d == 3
+    assert a2l.tree.project.module[0].compu_method[0].coeffs.e == 4
+    assert a2l.tree.project.module[0].compu_method[0].coeffs.f == 5
+
 def test_max_refresh():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
