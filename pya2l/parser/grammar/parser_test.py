@@ -2597,6 +2597,154 @@ def test_compu_vtab_range():
     assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[1][1] == 4
     assert a2l.tree.project.module[0].compu_vtab_range[0].compu_vtab_range_in_val_out_val[1][2] == '5'
 
+
+def test_function_annotation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'annotation')
+    assert a2l.tree.project.module[0].function[0].annotation[0] is not None
+
+
+def test_function_with_multiple_annotation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].function[0].annotation) == 2
+
+
+def test_function_def_characteristic_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin DEF_CHARACTERISTIC
+                        first_def_characteristic
+                        second_def_characteristic
+                    /end DEF_CHARACTERISTIC
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'def_characteristic')
+    assert a2l.tree.project.module[0].function[0].def_characteristic is not None
+
+
+def test_function_ref_characteristic_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin REF_CHARACTERISTIC
+                        first_ref_characteristic
+                        second_ref_characteristic
+                    /end REF_CHARACTERISTIC
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'ref_characteristic')
+    assert a2l.tree.project.module[0].function[0].ref_characteristic is not None
+
+
+def test_function_in_measurement_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin IN_MEASUREMENT
+                        first_in_measurement
+                        second_in_measurement
+                    /end IN_MEASUREMENT
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'in_measurement')
+    assert a2l.tree.project.module[0].function[0].in_measurement is not None
+
+
+def test_function_out_measurement_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin OUT_MEASUREMENT
+                        first_out_measurement
+                        second_out_measurement
+                    /end OUT_MEASUREMENT
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'out_measurement')
+    assert a2l.tree.project.module[0].function[0].out_measurement is not None
+
+
+def test_function_loc_measurement_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin LOC_MEASUREMENT
+                        first_loc_measurement
+                        second_loc_measurement
+                    /end LOC_MEASUREMENT
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'loc_measurement')
+    assert a2l.tree.project.module[0].function[0].loc_measurement is not None
+
+
+def test_function_sub_function_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin SUB_FUNCTION
+                        first_sub_function
+                        second_sub_function
+                    /end SUB_FUNCTION
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'sub_function')
+    assert a2l.tree.project.module[0].function[0].sub_function is not None
+
+
+def test_function_function_version_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    FUNCTION_VERSION "function version"
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].function[0], 'function_version')
+    assert a2l.tree.project.module[0].function[0].function_version == 'function version'
+
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_formula_formula_inv_node():
@@ -2613,7 +2761,6 @@ def test_formula_formula_inv_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.tree.project.module[0].compu_method[0].formula.formula_inv == 'formula inv'
-
 
 
 def test_def_characteristic():
@@ -2734,6 +2881,7 @@ def test_coeffs():
     assert a2l.tree.project.module[0].compu_method[0].coeffs.d == 3
     assert a2l.tree.project.module[0].compu_method[0].coeffs.e == 4
     assert a2l.tree.project.module[0].compu_method[0].coeffs.f == 5
+
 
 def test_max_refresh():
     a2l_string = """
@@ -3368,5 +3516,3 @@ def test_fix_axis_par_list():
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[0] == 0
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[1] == 1
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[2] == 2
-
-
