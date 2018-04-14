@@ -2000,7 +2000,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_function_version(p):
         """function_version : FUNCTION_VERSION STRING"""
-        p[0] = p[1]
+        p[0] = p[2]
 
     @staticmethod
     def p_group(p):
