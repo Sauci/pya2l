@@ -106,6 +106,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'SRC_ADDR_X': SrcAddrX,
             'SRC_ADDR_Y': SrcAddrY,
             'SRC_ADDR_Z': SrcAddrZ,
+            'SUB_FUNCTION': SubFunction,
             'SYSTEM_CONSTANT': SystemConstant,
             'UNIT': Unit,
             'UNIT_CONVERSION': UnitConversion,
@@ -1973,8 +1974,28 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_sub_function(p):
-        """sub_function : begin SUB_FUNCTION ident_list end SUB_FUNCTION"""
-        p[0] = p[1]
+        """sub_function : begin SUB_FUNCTION sub_function_optional_list_optional end SUB_FUNCTION"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_sub_function_optional(p):
+        """sub_function_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_sub_function_optional_list(p):
+        """sub_function_optional_list : sub_function_optional
+                                      | sub_function_optional sub_function_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_sub_function_optional_list_optional(p):
+        """sub_function_optional_list_optional : empty
+                                               | sub_function_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_function_version(p):

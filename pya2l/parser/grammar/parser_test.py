@@ -2701,6 +2701,23 @@ def test_loc_measurement():
     assert a2l.tree.project.module[0].function[0].loc_measurement.identifier[1] == 'second_loc_measurement'
 
 
+def test_sub_function():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FUNCTION first_function_name "first function long identifier"
+                    /begin SUB_FUNCTION
+                        first_sub_function
+                        second_sub_function
+                    /end SUB_FUNCTION
+                /end FUNCTION
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].function[0].sub_function.identifier[0] == 'first_sub_function'
+    assert a2l.tree.project.module[0].function[0].sub_function.identifier[1] == 'second_sub_function'
+
+
 def test_coeffs():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

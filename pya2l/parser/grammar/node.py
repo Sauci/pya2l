@@ -864,6 +864,13 @@ class SrcAddrZ(SrcAddr):
     pass
 
 
+class SubFunction(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(SubFunction, self).__init__(node, *args)
+        print self
+
+
 class SystemConstant(A2lNode):
     def __init__(self, node, name, value):
         self.name = name
