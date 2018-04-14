@@ -2474,6 +2474,64 @@ def test_measurement_ecu_address_extension_node():
     assert hasattr(a2l.tree.project.module[0].measurement[0], 'ecu_address_extension')
     assert a2l.tree.project.module[0].measurement[0].ecu_address_extension == 0
 
+
+def test_compu_method_formula_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_METHOD compu_method_name "compu_method long identifier" TAB_INTP "%d" "-"
+                    /begin FORMULA
+                        "formula"
+                    /end FORMULA
+                /end COMPU_METHOD
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_method[0], 'formula')
+    assert a2l.tree.project.module[0].compu_method[0].formula.f == 'formula'
+
+
+def test_compu_method_coeffs_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_METHOD compu_method_name "compu_method long identifier" TAB_INTP "%d" "-"
+                    COEFFS 0 1 2 3 4 5
+                /end COMPU_METHOD
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_method[0], 'coeffs')
+    assert a2l.tree.project.module[0].compu_method[0].coeffs is not None
+
+
+def test_compu_method_compu_tab_ref_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_METHOD compu_method_name "compu_method long identifier" TAB_INTP "%d" "-"
+                    COMPU_TAB_REF compu_tab_ref
+                /end COMPU_METHOD
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_method[0], 'compu_tab_ref')
+    assert a2l.tree.project.module[0].compu_method[0].compu_tab_ref == 'compu_tab_ref'
+
+
+def test_compu_method_ref_unit_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin COMPU_METHOD compu_method_name "compu_method long identifier" TAB_INTP "%d" "-"
+                    REF_UNIT ref_unit
+                /end COMPU_METHOD
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].compu_method[0], 'ref_unit')
+    assert a2l.tree.project.module[0].compu_method[0].ref_unit == 'ref_unit'
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_formula_formula_inv_node():
