@@ -400,6 +400,13 @@ class Function(A2lNode):
         super(Function, self).__init__(node, *args)
 
 
+class FunctionList(A2lNode):
+    def __init__(self, node, args):
+        self.name = list()
+        super(FunctionList, self).__init__(node, *args)
+        print self
+
+
 class Group(A2lNode):
     def __init__(self, node, group_name, group_long_identifier, args):
         self.group_name = group_name

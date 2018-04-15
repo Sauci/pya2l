@@ -2944,8 +2944,8 @@ def test_function_list():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.tree.project.module[0].characteristic[0].function_list[0] == 'first_function'
-    assert a2l.tree.project.module[0].characteristic[0].function_list[1] == 'second_function'
+    assert a2l.tree.project.module[0].characteristic[0].function_list.name[0] == 'first_function'
+    assert a2l.tree.project.module[0].characteristic[0].function_list.name[1] == 'second_function'
 
 
 def test_map_list():

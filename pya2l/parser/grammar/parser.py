@@ -64,6 +64,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'FORMULA': Formula,
             'FRAME': Frame,
             'FUNCTION': Function,
+            'FUNCTION_LIST': FunctionList,
             'GROUP': Group,
             'HEADER': Header,
             'IDENTIFICATION': Identification,
@@ -1047,7 +1048,6 @@ class A2lParser(A2lNode):
     def p_page_optional_parameter_list(p):
         """page_optional_parameter_list : page_optional_parameter
                                         | page_optional_parameter page_optional_parameter_list"""
-
         try:
             p[0] = [p[1]] + p[2]
         except IndexError:
@@ -1110,8 +1110,28 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_function_list(p):
-        """function_list : begin FUNCTION_LIST ident_list end FUNCTION_LIST"""
-        p[0] = p[3]
+        """function_list : begin FUNCTION_LIST function_list_optional_list_optional end FUNCTION_LIST"""
+        p[0] = a2l_node_factory(p[2], [('name', c[1]) for c in p[3]])
+
+    @staticmethod
+    def p_function_list_optional(p):
+        """function_list_optional : IDENT"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_function_list_optional_list(p):
+        """function_list_optional_list : function_list_optional
+                                       | function_list_optional function_list_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_function_list_optional_list_optional(p):
+        """function_list_optional_list_optional : empty
+                                                | function_list_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_number(p):
