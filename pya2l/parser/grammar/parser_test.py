@@ -2850,6 +2850,614 @@ def test_group_sub_group_node():
     assert a2l.tree.project.module[0].group[0].sub_group is not None
 
 
+def test_record_layout_fnc_values_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    FNC_VALUES 0 SWORD COLUMN_DIR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'fnc_values')
+    assert a2l.tree.project.module[0].record_layout[0].fnc_values.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].fnc_values.datatype == 'SWORD'
+    assert a2l.tree.project.module[0].record_layout[0].fnc_values.index_mode == 'COLUMN_DIR'
+    assert a2l.tree.project.module[0].record_layout[0].fnc_values.addresstype == 'DIRECT'
+
+
+def test_record_layout_identification_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    IDENTIFICATION 0 UWORD
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'identification')
+    assert a2l.tree.project.module[0].record_layout[0].identification.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].identification.datatype == 'UWORD'
+
+
+def test_record_layout_axis_pts_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    AXIS_PTS_X 0 ULONG INDEX_INCR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'axis_pts_x')
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_x.data_type == 'ULONG'
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_x.index_incr == 'INDEX_INCR'
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_x.addressing == 'DIRECT'
+
+
+def test_record_layout_axis_pts_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    AXIS_PTS_Y 0 ULONG INDEX_INCR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'axis_pts_y')
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_y.data_type == 'ULONG'
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_y.index_incr == 'INDEX_INCR'
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_y.addressing == 'DIRECT'
+
+
+def test_record_layout_axis_pts_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    AXIS_PTS_Z 0 ULONG INDEX_INCR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'axis_pts_z')
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_z.data_type == 'ULONG'
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_z.index_incr == 'INDEX_INCR'
+    assert a2l.tree.project.module[0].record_layout[0].axis_pts_z.addressing == 'DIRECT'
+
+
+def test_record_layout_axis_rescale_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    AXIS_RESCALE_X 0 ULONG 1 INDEX_INCR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'axis_rescale_x')
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_x.data_type == 'ULONG'
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_x.max_number_of_rescale_pairs == 1
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_x.index_incr == 'INDEX_INCR'
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_x.addressing == 'DIRECT'
+
+
+def test_record_layout_axis_rescale_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    AXIS_RESCALE_Y 0 ULONG 1 INDEX_INCR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'axis_rescale_y')
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_y.data_type == 'ULONG'
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_y.max_number_of_rescale_pairs == 1
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_y.index_incr == 'INDEX_INCR'
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_y.addressing == 'DIRECT'
+
+
+def test_record_layout_axis_rescale_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    AXIS_RESCALE_Z 0 ULONG 1 INDEX_INCR DIRECT
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'axis_rescale_z')
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_z.data_type == 'ULONG'
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_z.max_number_of_rescale_pairs == 1
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_z.index_incr == 'INDEX_INCR'
+    assert a2l.tree.project.module[0].record_layout[0].axis_rescale_z.addressing == 'DIRECT'
+
+
+def test_record_layout_no_axis_pts_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    NO_AXIS_PTS_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'no_axis_pts_x')
+    assert a2l.tree.project.module[0].record_layout[0].no_axis_pts_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].no_axis_pts_x.data_type == 'ULONG'
+
+
+def test_record_layout_no_axis_pts_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    NO_AXIS_PTS_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'no_axis_pts_y')
+    assert a2l.tree.project.module[0].record_layout[0].no_axis_pts_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].no_axis_pts_y.data_type == 'ULONG'
+
+
+def test_record_layout_no_axis_pts_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    NO_AXIS_PTS_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'no_axis_pts_z')
+    assert a2l.tree.project.module[0].record_layout[0].no_axis_pts_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].no_axis_pts_z.data_type == 'ULONG'
+
+
+def test_record_layout_no_rescale_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    NO_RESCALE_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'no_rescale_x')
+    assert a2l.tree.project.module[0].record_layout[0].no_rescale_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].no_rescale_x.data_type == 'ULONG'
+
+
+def test_record_layout_no_rescale_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    NO_RESCALE_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'no_rescale_y')
+    assert a2l.tree.project.module[0].record_layout[0].no_rescale_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].no_rescale_y.data_type == 'ULONG'
+
+
+def test_record_layout_no_rescale_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    NO_RESCALE_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'no_rescale_z')
+    assert a2l.tree.project.module[0].record_layout[0].no_rescale_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].no_rescale_z.data_type == 'ULONG'
+
+
+def test_record_layout_fix_no_axis_pts_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    FIX_NO_AXIS_PTS_X 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'fix_no_axis_pts_x')
+    assert a2l.tree.project.module[0].record_layout[0].fix_no_axis_pts_x.number_of_axis_points == 0
+
+
+def test_record_layout_fix_no_axis_pts_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    FIX_NO_AXIS_PTS_Y 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'fix_no_axis_pts_y')
+    assert a2l.tree.project.module[0].record_layout[0].fix_no_axis_pts_y.number_of_axis_points == 0
+
+
+def test_record_layout_fix_no_axis_pts_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    FIX_NO_AXIS_PTS_Z 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'fix_no_axis_pts_z')
+    assert a2l.tree.project.module[0].record_layout[0].fix_no_axis_pts_z.number_of_axis_points == 0
+
+
+def test_record_layout_src_addr_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    SRC_ADDR_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'src_addr_x')
+    assert a2l.tree.project.module[0].record_layout[0].src_addr_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].src_addr_x.data_type == 'ULONG'
+
+
+def test_record_layout_src_addr_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    SRC_ADDR_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'src_addr_y')
+    assert a2l.tree.project.module[0].record_layout[0].src_addr_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].src_addr_y.data_type == 'ULONG'
+
+
+def test_record_layout_src_addr_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    SRC_ADDR_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'src_addr_z')
+    assert a2l.tree.project.module[0].record_layout[0].src_addr_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].src_addr_z.data_type == 'ULONG'
+
+
+def test_record_layout_rip_addr_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    RIP_ADDR_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'rip_addr_x')
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_x.data_type == 'ULONG'
+
+
+def test_record_layout_rip_addr_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    RIP_ADDR_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'rip_addr_y')
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_y.data_type == 'ULONG'
+
+
+def test_record_layout_rip_addr_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    RIP_ADDR_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'rip_addr_z')
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_z.data_type == 'ULONG'
+
+
+def test_record_layout_rip_addr_w_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    RIP_ADDR_W 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'rip_addr_w')
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_w.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].rip_addr_w.data_type == 'ULONG'
+
+
+def test_record_layout_shift_op_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    SHIFT_OP_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'shift_op_x')
+    assert a2l.tree.project.module[0].record_layout[0].shift_op_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].shift_op_x.data_type == 'ULONG'
+
+
+def test_record_layout_shift_op_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    SHIFT_OP_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'shift_op_y')
+    assert a2l.tree.project.module[0].record_layout[0].shift_op_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].shift_op_y.data_type == 'ULONG'
+
+
+def test_record_layout_shift_op_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    SHIFT_OP_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'shift_op_z')
+    assert a2l.tree.project.module[0].record_layout[0].shift_op_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].shift_op_z.data_type == 'ULONG'
+
+
+def test_record_layout_offset_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    OFFSET_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'offset_x')
+    assert a2l.tree.project.module[0].record_layout[0].offset_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].offset_x.data_type == 'ULONG'
+
+
+def test_record_layout_offset_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    OFFSET_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'offset_y')
+    assert a2l.tree.project.module[0].record_layout[0].offset_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].offset_y.data_type == 'ULONG'
+
+
+def test_record_layout_offset_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    OFFSET_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'offset_z')
+    assert a2l.tree.project.module[0].record_layout[0].offset_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].offset_z.data_type == 'ULONG'
+
+
+def test_record_layout_dist_op_x_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    DIST_OP_X 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'dist_op_x')
+    assert a2l.tree.project.module[0].record_layout[0].dist_op_x.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].dist_op_x.data_type == 'ULONG'
+
+
+def test_record_layout_dist_op_y_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    DIST_OP_Y 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'dist_op_y')
+    assert a2l.tree.project.module[0].record_layout[0].dist_op_y.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].dist_op_y.data_type == 'ULONG'
+
+
+def test_record_layout_dist_op_z_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    DIST_OP_Z 0 ULONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'dist_op_z')
+    assert a2l.tree.project.module[0].record_layout[0].dist_op_z.position == 0
+    assert a2l.tree.project.module[0].record_layout[0].dist_op_z.data_type == 'ULONG'
+
+
+def test_record_layout_alignment_byte_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    ALIGNMENT_BYTE 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'alignment_byte')
+    assert a2l.tree.project.module[0].record_layout[0].alignment_byte == 0
+
+
+def test_record_layout_alignment_word_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    ALIGNMENT_WORD 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'alignment_word')
+    assert a2l.tree.project.module[0].record_layout[0].alignment_word == 0
+
+
+def test_record_layout_alignment_long_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    ALIGNMENT_LONG 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'alignment_long')
+    assert a2l.tree.project.module[0].record_layout[0].alignment_long == 0
+
+
+def test_record_layout_alignment_float32_ieee_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    ALIGNMENT_FLOAT32_IEEE 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'alignment_float32_ieee')
+    assert a2l.tree.project.module[0].record_layout[0].alignment_float32_ieee == 0
+
+
+def test_record_layout_alignment_float64_ieee_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    ALIGNMENT_FLOAT64_IEEE 0
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'alignment_float64_ieee')
+    assert a2l.tree.project.module[0].record_layout[0].alignment_float64_ieee == 0
+
+
+def test_record_layout_reserved_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    RESERVED 0 LONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].record_layout[0], 'reserved')
+    assert a2l.tree.project.module[0].record_layout[0].reserved[0].position == 0
+    assert a2l.tree.project.module[0].record_layout[0].reserved[0].data_size == 'LONG'
+
+
+def test_record_layout_with_multiple_reserverd_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin RECORD_LAYOUT record_layout_name
+                    RESERVED 0 LONG
+                    RESERVED 0 LONG
+                /end RECORD_LAYOUT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].record_layout[0].reserved) == 2
+
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_formula_formula_inv_node():

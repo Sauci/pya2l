@@ -137,11 +137,11 @@ class AxisPts(A2lNode):
 
 
 class AxisPtsXYZ(A2lNode):
-    def __init__(self, node, position, datatype, indexorder, addrtype):
+    def __init__(self, node, position, data_type, index_incr, addressing):
         self.position = position
-        self.datatype = datatype
-        self.indexorder = indexorder
-        self.addrtype = addrtype
+        self.data_type = data_type
+        self.index_incr = index_incr
+        self.addressing = addressing
         super(AxisPtsXYZ, self).__init__(node)
 
 
@@ -158,9 +158,9 @@ class AxisPtsZ(AxisPtsXYZ):
 
 
 class AxisRescale(A2lNode):
-    def __init__(self, node, position, datatype, max_number_of_rescale_pairs, index_incr, addressing):
+    def __init__(self, node, position, data_type, max_number_of_rescale_pairs, index_incr, addressing):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         self.max_number_of_rescale_pairs = max_number_of_rescale_pairs
         self.index_incr = index_incr
         self.addressing = addressing
@@ -311,9 +311,9 @@ class DependentCharacteristic(A2lNode):
 
 
 class DistOp(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(DistOp, self).__init__(node)
 
 
@@ -365,6 +365,15 @@ class FixNoAxisPtsY(FixNoAxisPts):
 
 class FixNoAxisPtsZ(FixNoAxisPts):
     pass
+
+
+class FncValues(A2lNode):
+    def __init__(self, node, position, datatype, index_mode, addresstype):
+        self.position = position
+        self.datatype = datatype
+        self.index_mode = index_mode
+        self.addresstype = addresstype
+        super(FncValues, self).__init__(node)
 
 
 class Formula(A2lNode):
@@ -579,9 +588,9 @@ class ModPar(A2lNode):
 
 
 class NoAxisPts(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(NoAxisPts, self).__init__(node)
 
 
@@ -598,9 +607,9 @@ class NoAxisPtsZ(NoAxisPts):
 
 
 class NoRescale(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(NoRescale, self).__init__(node)
 
 
@@ -617,9 +626,9 @@ class NoRescaleZ(NoRescale):
 
 
 class Offset(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(Offset, self).__init__(node)
 
 
@@ -723,10 +732,17 @@ class RefMeasurement(A2lNode):
         super(RefMeasurement, self).__init__(node, *args)
 
 
-class RipAddr(A2lNode):
-    def __init__(self, node, position, datatype):
+class Reserved(A2lNode):
+    def __init__(self, node, position, data_size):
         self.position = position
-        self.datatype = datatype
+        self.data_size = data_size
+        super(Reserved, self).__init__(node)
+
+
+class RipAddr(A2lNode):
+    def __init__(self, node, position, data_type):
+        self.position = position
+        self.data_type = data_type
         super(RipAddr, self).__init__(node)
 
 
@@ -755,9 +771,9 @@ class SeedKey(A2lNode):
 
 
 class ShiftOp(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(ShiftOp, self).__init__(node)
 
 
@@ -798,9 +814,9 @@ class Source(A2lNode):
 
 
 class SrcAddr(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(SrcAddr, self).__init__(node)
 
 

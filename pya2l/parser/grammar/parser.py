@@ -61,6 +61,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'FIX_NO_AXIS_PTS_X': FixNoAxisPtsX,
             'FIX_NO_AXIS_PTS_Y': FixNoAxisPtsY,
             'FIX_NO_AXIS_PTS_Z': FixNoAxisPtsZ,
+            'FNC_VALUES': FncValues,
             'FORMULA': Formula,
             'FRAME': Frame,
             'FUNCTION': Function,
@@ -94,6 +95,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'REF_CHARACTERISTIC': RefCharacteristic,
             'REF_GROUP': RefGroup,
             'REF_MEASUREMENT': RefMeasurement,
+            'RESERVED': Reserved,
             'RIP_ADDR_X': RipAddrX,
             'RIP_ADDR_Y': RipAddrY,
             'RIP_ADDR_Z': RipAddrZ,
@@ -2175,7 +2177,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_fnc_values(p):
         """fnc_values : FNC_VALUES NUMERIC datatype fnc_values_index_mode addrtype"""
-        p[0] = p[1]
+        p[0] = a2l_node_factory(*p[1:6])
 
     @staticmethod
     def p_fnc_values_index_mode(p):
@@ -2507,7 +2509,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_reserved(p):
         """reserved : RESERVED NUMERIC datasize"""
-        p[0] = p[1]
+        p[0] = a2l_node_factory(*p[1:4])
 
     @staticmethod
     def p_frame(p):
