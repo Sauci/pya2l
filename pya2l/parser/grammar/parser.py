@@ -92,6 +92,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'RECORD_LAYOUT': RecordLayout,
             'REF_CHARACTERISTIC': RefCharacteristic,
             'REF_GROUP': RefGroup,
+            'REF_MEASUREMENT': RefMeasurement,
             'RIP_ADDR_X': RipAddrX,
             'RIP_ADDR_Y': RipAddrY,
             'RIP_ADDR_Z': RipAddrZ,
@@ -2040,12 +2041,12 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_ref_measurement(p):
         """ref_measurement : begin REF_MEASUREMENT ref_measurement_optional_list_optional end REF_MEASUREMENT"""
-        p[0] = p[3]
+        p[0] = a2l_node_factory(*p[2:4])
 
     @staticmethod
     def p_ref_measurement_optional(p):
-        """ref_measurement_optional : IDENT"""
-        p[0] = p[1]
+        """ref_measurement_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
 
     @staticmethod
     def p_ref_measurement_optional_list(p):
@@ -2060,7 +2061,7 @@ class A2lParser(A2lNode):
     def p_ref_measurement_optional_list_optional(p):
         """ref_measurement_optional_list_optional : empty
                                                   | ref_measurement_optional_list"""
-        p[0] = p[1]
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_sub_group(p):

@@ -711,6 +711,12 @@ class RefGroup(A2lNode):
         super(RefGroup, self).__init__(node)
 
 
+class RefMeasurement(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(RefMeasurement, self).__init__(node, *args)
+
+
 class RipAddr(A2lNode):
     def __init__(self, node, position, datatype):
         self.position = position

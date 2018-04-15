@@ -2865,6 +2865,23 @@ def test_sub_function():
     assert a2l.tree.project.module[0].function[0].sub_function.identifier[1] == 'second_sub_function'
 
 
+def test_ref_measurement():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin REF_MEASUREMENT
+                        first_ref_measurement
+                        second_ref_measurement
+                    /end REF_MEASUREMENT
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].group[0].ref_measurement.identifier[0] == 'first_ref_measurement'
+    assert a2l.tree.project.module[0].group[0].ref_measurement.identifier[1] == 'second_ref_measurement'
+
+
 def test_coeffs():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
