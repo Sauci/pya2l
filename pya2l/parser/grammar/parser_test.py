@@ -2745,6 +2745,111 @@ def test_function_function_version_node():
     assert a2l.tree.project.module[0].function[0].function_version == 'function version'
 
 
+def test_group_annotation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].group[0], 'annotation')
+    assert a2l.tree.project.module[0].group[0].annotation is not None
+
+
+def test_group_with_multiple_annotation_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                    /begin ANNOTATION
+                    /end ANNOTATION
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].group[0].annotation) == 2
+
+
+def test_group_root_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    ROOT
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].group[0], 'root')
+    assert a2l.tree.project.module[0].group[0].root == 'ROOT'
+
+
+def test_group_ref_characteristic_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin REF_CHARACTERISTIC
+                    /end REF_CHARACTERISTIC
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].group[0], 'ref_characteristic')
+    assert a2l.tree.project.module[0].group[0].ref_characteristic is not None
+
+
+def test_group_ref_measurement_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin REF_MEASUREMENT
+                    /end REF_MEASUREMENT
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].group[0], 'ref_measurement')
+    assert a2l.tree.project.module[0].group[0].ref_measurement is not None
+
+
+def test_group_function_list_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin FUNCTION_LIST
+                    /end FUNCTION_LIST
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].group[0], 'function_list')
+    assert a2l.tree.project.module[0].group[0].function_list is not None
+
+
+def test_group_sub_group_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin SUB_GROUP
+                    /end SUB_GROUP
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].group[0], 'sub_group')
+    assert a2l.tree.project.module[0].group[0].sub_group is not None
+
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_formula_formula_inv_node():
