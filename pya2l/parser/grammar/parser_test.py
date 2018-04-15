@@ -2882,6 +2882,23 @@ def test_ref_measurement():
     assert a2l.tree.project.module[0].group[0].ref_measurement.identifier[1] == 'second_ref_measurement'
 
 
+def test_sub_group():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin GROUP first_group_name "first group long identifier"
+                    /begin SUB_GROUP
+                        first_sub_group
+                        second_sub_group
+                    /end SUB_GROUP
+                /end GROUP
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].group[0].sub_group.identifier[0] == 'first_sub_group'
+    assert a2l.tree.project.module[0].group[0].sub_group.identifier[1] == 'second_sub_group'
+
+
 def test_coeffs():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

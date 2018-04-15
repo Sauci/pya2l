@@ -109,6 +109,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'SRC_ADDR_Y': SrcAddrY,
             'SRC_ADDR_Z': SrcAddrZ,
             'SUB_FUNCTION': SubFunction,
+            'SUB_GROUP': SubGroup,
             'SYSTEM_CONSTANT': SystemConstant,
             'UNIT': Unit,
             'UNIT_CONVERSION': UnitConversion,
@@ -2085,8 +2086,28 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_sub_group(p):
-        """sub_group : begin SUB_GROUP ident_list end SUB_GROUP"""
-        p[0] = p[3]
+        """sub_group : begin SUB_GROUP sub_group_optional_list_optional end SUB_GROUP"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_sub_group_optional(p):
+        """sub_group_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_sub_group_optional_list(p):
+        """sub_group_optional_list : sub_group_optional
+                                   | sub_group_optional sub_group_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_sub_group_optional_list_optional(p):
+        """sub_group_optional_list_optional : empty
+                                            | sub_group_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_record_layout(p):

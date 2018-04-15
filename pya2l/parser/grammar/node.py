@@ -404,7 +404,6 @@ class FunctionList(A2lNode):
     def __init__(self, node, args):
         self.name = list()
         super(FunctionList, self).__init__(node, *args)
-        print self
 
 
 class Group(A2lNode):
@@ -821,6 +820,12 @@ class SubFunction(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(SubFunction, self).__init__(node, *args)
+
+
+class SubGroup(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(SubGroup, self).__init__(node, *args)
 
 
 class SystemConstant(A2lNode):
