@@ -64,6 +64,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'FNC_VALUES': FncValues,
             'FORMULA': Formula,
             'FRAME': Frame,
+            'FRAME_MEASUREMENT': FrameMeasurement,
             'FUNCTION': Function,
             'FUNCTION_LIST': FunctionList,
             'GROUP': Group,
@@ -2563,7 +2564,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_frame_measurement(p):
         """frame_measurement : FRAME_MEASUREMENT ident_list"""
-        p[0] = p[1]
+        p[0] = a2l_node_factory(p[1], [('identifier', i) for i in p[2]])
 
     @staticmethod
     def p_user_rights(p):

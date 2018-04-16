@@ -3600,6 +3600,18 @@ def test_variant_coding_with_multiple_var_characteristic_node():
     assert len(a2l.tree.project.module[0].variant_coding.var_characteristic) == 2
 # TODO: implement tests for BIT_OPERATION.
 
+def test_frame_measurement():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FRAME frame_name "frame long identifier" 0 0
+                    FRAME_MEASUREMENT first_identifier second_identifier
+                /end FRAME
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].frame.frame_measurement.identifier[0] == 'first_identifier'
+    assert a2l.tree.project.module[0].frame.frame_measurement.identifier[1] == 'second_identifier'
 
 def test_var_characteristic():
     a2l_string = """

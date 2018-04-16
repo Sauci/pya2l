@@ -394,6 +394,12 @@ class Frame(A2lNode):
         super(Frame, self).__init__(node, *args)
 
 
+class FrameMeasurement(A2lNode):
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(FrameMeasurement, self).__init__(node, *args)
+
+
 class Function(A2lNode):
     def __init__(self, node, name, long_identifier, args):
         self.name = name
