@@ -70,6 +70,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'GROUP': Group,
             'HEADER': Header,
             'IDENTIFICATION': Identification,
+            'if_data_frame': IfDataFrame,
             'if_data_memory_segment': IfDataMemorySegment,
             'IN_MEASUREMENT': InMeasurement,
             'LOC_MEASUREMENT': LocMeasurement,
@@ -2533,7 +2534,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_if_data_frame(p):
         """if_data_frame : begin IF_DATA IDENT if_data_frame_optional_list_optional end IF_DATA"""
-        p[0] = p[1]
+        p[0] = a2l_node_factory('if_data_frame', *p[3:5])
 
     @staticmethod
     def p_if_data_frame_optional(p):

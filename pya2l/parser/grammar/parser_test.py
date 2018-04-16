@@ -3598,6 +3598,53 @@ def test_variant_coding_with_multiple_var_characteristic_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert len(a2l.tree.project.module[0].variant_coding.var_characteristic) == 2
+
+
+def test_frame_frame_measurement_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FRAME frame_name "frame long identifier" 0 0
+                    FRAME_MEASUREMENT first_identifier second_identifier
+                /end FRAME
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].frame, 'frame_measurement')
+    assert a2l.tree.project.module[0].frame is not None
+
+
+def test_frame_if_data_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FRAME frame_name "frame long identifier" 0 0
+                    /begin IF_DATA if_data
+                    /end IF_DATA
+                /end FRAME
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].frame, 'if_data_frame')
+    assert a2l.tree.project.module[0].frame.if_data_frame is not None
+
+
+def test_frame_with_multiple_if_data_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin FRAME frame_name "frame long identifier" 0 0
+                    /begin IF_DATA first_if_data
+                    /end IF_DATA
+                    /begin IF_DATA second_if_data
+                    /end IF_DATA
+                /end FRAME
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].frame.if_data_frame) == 2
+
+
 # TODO: implement tests for BIT_OPERATION.
 
 def test_frame_measurement():

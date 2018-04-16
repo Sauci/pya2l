@@ -390,7 +390,7 @@ class Frame(A2lNode):
         self.scaling_unit = scaling_unit
         self.rate = rate
         self.frame_measurement = None
-        self.frame_if_data = list()
+        self.if_data_frame = list()
         super(Frame, self).__init__(node, *args)
 
 
@@ -447,6 +447,12 @@ class Identification(A2lNode):
         self.position = position
         self.datatype = datatype
         super(Identification, self).__init__(node)
+
+
+class IfDataFrame(A2lNode):
+    def __init__(self, node, name, args):
+        self.name = name
+        super(IfDataFrame, self).__init__(node, *args)
 
 
 class IfDataMemorySegment(A2lNode):
