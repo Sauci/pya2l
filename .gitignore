@@ -1,11 +1,11 @@
 build/*
 dist/*
 doc/*
+htmlcov/*
 .cache/*
+.coverage
 .pytest_cache/*
 .idea/*
-pya2l/htmlcov/*
-pya2l/\.coverage
 pya2l\.egg-info/
 *.out
 *.pyc
