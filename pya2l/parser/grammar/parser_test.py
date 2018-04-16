@@ -3458,7 +3458,283 @@ def test_record_layout_with_multiple_reserverd_node():
     assert len(a2l.tree.project.module[0].record_layout[0].reserved) == 2
 
 
+def test_variant_coding_var_separator_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    VAR_SEPARATOR "var separator"
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding, 'var_separator')
+    assert a2l.tree.project.module[0].variant_coding.var_separator == 'var separator'
+
+
+def test_variant_coding_var_naming_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    VAR_NAMING var_naming
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding, 'var_naming')
+    assert a2l.tree.project.module[0].variant_coding.var_naming == 'var_naming'
+
+
+def test_variant_coding_var_criterion_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CRITERION
+                        var_criterion_name "var_criterion long identifier"
+                            first_var_criterion
+                            second_var_criterion
+                    /end VAR_CRITERION
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding, 'var_criterion')
+    assert a2l.tree.project.module[0].variant_coding.var_criterion[0].name == 'var_criterion_name'
+
+
+def test_variant_coding_with_multiple_var_criterion_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CRITERION
+                        first_var_criterion_name "first var_criterion long identifier"
+                            first_var_criterion
+                            second_var_criterion
+                    /end VAR_CRITERION
+                    /begin VAR_CRITERION
+                        second_var_criterion_name "second var_criterion long identifier"
+                            first_var_criterion
+                            second_var_criterion
+                    /end VAR_CRITERION
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].variant_coding.var_criterion) == 2
+
+
+def test_variant_coding_var_forbidden_comb_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_FORBIDDEN_COMB
+                        var_forbidden_comb_name var_forbidden_comb_value
+                    /end VAR_FORBIDDEN_COMB
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding, 'var_forbidden_comb')
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb is not None
+
+
+def test_variant_coding_with_multiple_var_forbidden_comb_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_FORBIDDEN_COMB
+                        var_forbidden_comb_name var_forbidden_comb_value
+                    /end VAR_FORBIDDEN_COMB
+                    /begin VAR_FORBIDDEN_COMB
+                        var_forbidden_comb_name var_forbidden_comb_value
+                    /end VAR_FORBIDDEN_COMB
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].variant_coding.var_forbidden_comb) == 2
+
+
+def test_variant_coding_var_characteristic_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CHARACTERISTIC
+                        var_characteristic_name
+                        first_var_characteristic_criterion_name
+                        second_var_characteristic_criterion_name
+                    /end VAR_CHARACTERISTIC
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding, 'var_characteristic')
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic is not None
+
+
+def test_variant_coding_with_multiple_var_characteristic_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CHARACTERISTIC
+                        first_var_characteristic_name
+                        first_var_characteristic_criterion_name
+                        second_var_characteristic_criterion_name
+                    /end VAR_CHARACTERISTIC
+                    /begin VAR_CHARACTERISTIC
+                        second_var_characteristic_name
+                        first_var_characteristic_criterion_name
+                        second_var_characteristic_criterion_name
+                    /end VAR_CHARACTERISTIC
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].variant_coding.var_characteristic) == 2
 # TODO: implement tests for BIT_OPERATION.
+
+
+def test_var_characteristic():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CHARACTERISTIC var_characteristic_name
+                        first_var_characteristic_criterion_name
+                        second_var_characteristic_criterion_name
+                    /end VAR_CHARACTERISTIC
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].name == 'var_characteristic_name'
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].criterion_name[0] == 'first_var_characteristic_criterion_name'
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].criterion_name[1] == 'second_var_characteristic_criterion_name'
+
+
+def test_var_characteristic_var_address_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CHARACTERISTIC var_characteristic_name
+                        first_var_characteristic_criterion_name
+                        second_var_characteristic_criterion_name
+                        /begin VAR_ADDRESS
+                            0
+                        /end VAR_ADDRESS
+                    /end VAR_CHARACTERISTIC
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding.var_characteristic[0], 'var_address')
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].var_address is not None
+
+
+def test_var_address():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CHARACTERISTIC var_characteristic_name
+                        first_var_characteristic_criterion_name
+                        second_var_characteristic_criterion_name
+                        /begin VAR_ADDRESS
+                            0
+                            1
+                        /end VAR_ADDRESS
+                    /end VAR_CHARACTERISTIC
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].var_address.address[0] == 0
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].var_address.address[1] == 1
+
+
+def test_var_criterion():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CRITERION
+                        var_criterion_name "var_criterion long identifier"
+                            first_var_criterion
+                            second_var_criterion
+                    /end VAR_CRITERION
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].variant_coding.var_criterion[0].value[0] == 'first_var_criterion'
+    assert a2l.tree.project.module[0].variant_coding.var_criterion[0].value[1] == 'second_var_criterion'
+
+
+def test_var_forbidden_comb():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_FORBIDDEN_COMB
+                        first_var_forbidden_comb_name first_var_forbidden_comb_value
+                        second_var_forbidden_comb_name second_var_forbidden_comb_value
+                    /end VAR_FORBIDDEN_COMB
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[0] == 'first_var_forbidden_comb_name'
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[0] == 'first_var_forbidden_comb_value'
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[1] == 'second_var_forbidden_comb_name'
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[1] == 'second_var_forbidden_comb_value'
+
+
+
+def test_var_criterion_var_measurement_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CRITERION
+                        var_criterion_name "var_criterion long identifier"
+                            first_var_criterion
+                            second_var_criterion
+                            VAR_MEASUREMENT var_measurement
+                    /end VAR_CRITERION
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding.var_criterion[0], 'var_measurement')
+    assert a2l.tree.project.module[0].variant_coding.var_criterion[0].var_measurement == 'var_measurement'
+
+
+def test_var_criterion_var_selection_characteristic_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin VARIANT_CODING
+                    /begin VAR_CRITERION
+                        var_criterion_name "var_criterion long identifier"
+                            first_var_criterion
+                            second_var_criterion
+                            VAR_SELECTION_CHARACTERISTIC var_selection_characteristic
+                    /end VAR_CRITERION
+                /end VARIANT_CODING
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].variant_coding.var_criterion[0], 'var_selection_characteristic')
+    assert a2l.tree.project.module[0].variant_coding.var_criterion[0].var_selection_characteristic == 'var_selection_characteristic'
+
 
 def test_formula_formula_inv_node():
     a2l_string = """

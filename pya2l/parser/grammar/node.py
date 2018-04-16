@@ -888,6 +888,12 @@ class VariantCoding(A2lNode):
         super(VariantCoding, self).__init__(node, *args)
 
 
+class VarAddress(A2lNode):
+    def __init__(self, node, args):
+        self.address = list()
+        super(VarAddress, self).__init__(node, *args)
+
+
 class VarCharacteristic(A2lNode):
     def __init__(self, node, name, criterion_name, args):
         self.name = name

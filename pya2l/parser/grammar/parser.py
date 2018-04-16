@@ -117,6 +117,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'UNIT_CONVERSION': UnitConversion,
             'USER_RIGHTS': UserRights,
             'VARIANT_CODING': VariantCoding,
+            'VAR_ADDRESS': VarAddress,
             'VAR_CHARACTERISTIC': VarCharacteristic,
             'VAR_CRITERION': VarCriterion,
             'VAR_FORBIDDEN_COMB': VarForbiddenComb,
@@ -2419,7 +2420,7 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_var_characteristic(p):
-        """var_characteristic : begin VAR_CHARACTERISTIC IDENT ident_list var_characteristic_optional end VAR_CHARACTERISTIC"""
+        """var_characteristic : begin VAR_CHARACTERISTIC IDENT ident_list var_characteristic_optional_optional end VAR_CHARACTERISTIC"""
         p[0] = a2l_node_factory(*p[2:6])
 
     @staticmethod
@@ -2428,24 +2429,15 @@ class A2lParser(A2lNode):
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
-    def p_var_characteristic_optional_list(p):
-        """var_characteristic_optional_list : var_characteristic_optional
-                                            | var_characteristic_optional var_characteristic_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_var_characteristic_optional_list_optional(p):
-        """var_characteristic_optional_list_optional : empty
-                                                     | var_characteristic_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
+    def p_var_characteristic_optional_optional(p):
+        """var_characteristic_optional_optional : empty
+                                                | var_characteristic_optional"""
+        p[0] = ('var_address', None) if p[1] is None else p[1]
 
     @staticmethod
     def p_var_address(p):
         """var_address : begin VAR_ADDRESS number_list end VAR_ADDRESS"""
-        p[0] = p[3]
+        p[0] = a2l_node_factory(p[2], [('address', a) for a in p[3]])
 
     @staticmethod
     def p_var_forbidden_comb(p):
@@ -2499,12 +2491,12 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_var_measurement(p):
         """var_measurement : VAR_MEASUREMENT IDENT"""
-        p[0] = p[1]
+        p[0] = p[2]
 
     @staticmethod
     def p_var_selection_characteristic(p):
         """var_selection_characteristic : VAR_SELECTION_CHARACTERISTIC IDENT"""
-        p[0] = p[1]
+        p[0] = p[2]
 
     @staticmethod
     def p_reserved(p):
