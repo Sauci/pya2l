@@ -3690,7 +3690,66 @@ def test_user_rights_read_only_node():
     assert a2l.tree.project.module[0].user_rights[0].read_only == 'READ_ONLY'
 
 
+def test_unit_si_exponents_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin UNIT first_unit "first unit long identifier" "-" DERIVED
+                    SI_EXPONENTS 0 -1 0 1 0 0 0
+                /end UNIT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].unit[0], 'si_exponents')
+    assert a2l.tree.project.module[0].unit[0].si_exponents is not None
+
+
+def test_unit_ref_unit_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin UNIT first_unit "first unit long identifier" "-" DERIVED
+                    REF_UNIT ref_unit
+                /end UNIT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].unit[0], 'ref_unit')
+    assert a2l.tree.project.module[0].unit[0].ref_unit is not None
+
+
+def test_unit_unit_conversion_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin UNIT first_unit "first unit long identifier" "-" DERIVED
+                    UNIT_CONVERSION 0 1
+                /end UNIT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].unit[0], 'unit_conversion')
+    assert a2l.tree.project.module[0].unit[0].unit_conversion is not None
+
+
 # TODO: implement tests for BIT_OPERATION.
+
+
+
+
+def test_unit_conversion_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin UNIT first_unit "first unit long identifier" "-" DERIVED
+                    UNIT_CONVERSION 0 1
+                /end UNIT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].unit[0].unit_conversion.gradient == 0
+    assert a2l.tree.project.module[0].unit[0].unit_conversion.offset == 1
+
 
 def test_ref_group():
     a2l_string = """
@@ -3708,6 +3767,7 @@ def test_ref_group():
     assert a2l.tree.project.module[0].user_rights[0].ref_group[0].identifier[0] == 'first_identifier'
     assert a2l.tree.project.module[0].user_rights[0].ref_group[0].identifier[1] == 'second_identifier'
 
+
 def test_frame_measurement():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
@@ -3720,6 +3780,7 @@ def test_frame_measurement():
     a2l = Parser(a2l_string)
     assert a2l.tree.project.module[0].frame.frame_measurement.identifier[0] == 'first_identifier'
     assert a2l.tree.project.module[0].frame.frame_measurement.identifier[1] == 'second_identifier'
+
 
 def test_var_characteristic():
     a2l_string = """
@@ -3735,8 +3796,10 @@ def test_var_characteristic():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].name == 'var_characteristic_name'
-    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].criterion_name[0] == 'first_var_characteristic_criterion_name'
-    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].criterion_name[1] == 'second_var_characteristic_criterion_name'
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].criterion_name[
+               0] == 'first_var_characteristic_criterion_name'
+    assert a2l.tree.project.module[0].variant_coding.var_characteristic[0].criterion_name[
+               1] == 'second_var_characteristic_criterion_name'
 
 
 def test_var_characteristic_var_address_node():
@@ -3811,11 +3874,14 @@ def test_var_forbidden_comb():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[0] == 'first_var_forbidden_comb_name'
-    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[0] == 'first_var_forbidden_comb_value'
-    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[1] == 'second_var_forbidden_comb_name'
-    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[1] == 'second_var_forbidden_comb_value'
-
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[
+               0] == 'first_var_forbidden_comb_name'
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[
+               0] == 'first_var_forbidden_comb_value'
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[
+               1] == 'second_var_forbidden_comb_name'
+    assert a2l.tree.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[
+               1] == 'second_var_forbidden_comb_value'
 
 
 def test_var_criterion_var_measurement_node():
@@ -3853,7 +3919,8 @@ def test_var_criterion_var_selection_characteristic_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].variant_coding.var_criterion[0], 'var_selection_characteristic')
-    assert a2l.tree.project.module[0].variant_coding.var_criterion[0].var_selection_characteristic == 'var_selection_characteristic'
+    assert a2l.tree.project.module[0].variant_coding.var_criterion[
+               0].var_selection_characteristic == 'var_selection_characteristic'
 
 
 def test_formula_formula_inv_node():
