@@ -733,9 +733,9 @@ class RefCharacteristic(A2lNode):
 
 
 class RefGroup(A2lNode):
-    def __init__(self, node, identifier):
-        self.identifier = identifier
-        super(RefGroup, self).__init__(node)
+    def __init__(self, node, args):
+        self.identifier = list()
+        super(RefGroup, self).__init__(node, *args)
 
 
 class RefMeasurement(A2lNode):

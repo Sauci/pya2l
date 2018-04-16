@@ -3645,7 +3645,68 @@ def test_frame_with_multiple_if_data_node():
     assert len(a2l.tree.project.module[0].frame.if_data_frame) == 2
 
 
+def test_user_rights_ref_group_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin USER_RIGHTS first_user_rights
+                    /begin REF_GROUP
+                    /end REF_GROUP
+                /end USER_RIGHTS
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0], 'user_rights')
+    assert a2l.tree.project.module[0].user_rights is not None
+
+
+def test_user_rights_with_multiple_ref_group_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin USER_RIGHTS first_user_rights
+                    /begin REF_GROUP
+                    /end REF_GROUP
+                    /begin REF_GROUP
+                    /end REF_GROUP
+                /end USER_RIGHTS
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.tree.project.module[0].user_rights[0].ref_group) == 2
+
+
+def test_user_rights_read_only_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin USER_RIGHTS first_user_rights
+                    READ_ONLY
+                /end USER_RIGHTS
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].user_rights[0], 'read_only')
+    assert a2l.tree.project.module[0].user_rights[0].read_only == 'READ_ONLY'
+
+
 # TODO: implement tests for BIT_OPERATION.
+
+def test_ref_group():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin USER_RIGHTS first_user_rights
+                    /begin REF_GROUP
+                        first_identifier
+                        second_identifier
+                    /end REF_GROUP
+                /end USER_RIGHTS
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].user_rights[0].ref_group[0].identifier[0] == 'first_identifier'
+    assert a2l.tree.project.module[0].user_rights[0].ref_group[0].identifier[1] == 'second_identifier'
 
 def test_frame_measurement():
     a2l_string = """

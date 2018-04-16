@@ -2595,8 +2595,28 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_ref_group(p):
-        """ref_group : begin REF_GROUP ref_group_ident_list end REF_GROUP"""
+        """ref_group : begin REF_GROUP ref_group_optional_list_optional end REF_GROUP"""
         p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_ref_group_optional(p):
+        """ref_group_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_ref_group_optional_list(p):
+        """ref_group_optional_list : ref_group_optional
+                                   | ref_group_optional ref_group_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_ref_group_optional_list_optional(p):
+        """ref_group_optional_list_optional : empty
+                                            | ref_group_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_ref_group_ident(p):
