@@ -1166,8 +1166,14 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_virtual_characteristic(p):
-        """virtual_characteristic : begin VIRTUAL_CHARACTERISTIC STRING ident_list end VIRTUAL_CHARACTERISTIC"""
+        """virtual_characteristic : begin VIRTUAL_CHARACTERISTIC STRING virtual_characteristic_optional end VIRTUAL_CHARACTERISTIC"""
         p[0] = a2l_node_factory(p[2], p[3], (('characteristic', c) for c in p[4]))
+
+    @staticmethod
+    def p_virtual_characteristic_optional(p):
+        """virtual_characteristic_optional : empty
+                                           | ident_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_ref_memory_segment(p):
