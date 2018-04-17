@@ -7,8 +7,8 @@
 
 import pytest
 
-from parser import A2lFormatException
-from parser import A2lParser as Parser
+from pya2l.parser.grammar.parser import A2lFormatException
+from pya2l.parser.grammar.parser import A2lParser as Parser
 
 
 def test_string_empty():

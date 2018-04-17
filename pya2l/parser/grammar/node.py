@@ -17,7 +17,6 @@ class A2lNode(object):
             elif attr is None:
                 setattr(self, attribute, value)
             else:
-                print attr
                 raise ValueError
             if isinstance(value, A2lNode):
                 value.set_parent(self)
@@ -129,11 +128,7 @@ class AxisPts(A2lNode):
         self.if_data_axis_pts = list()
         self.calibration_access = None
         self.ecu_address_extension = None
-        try:
-            super(AxisPts, self).__init__(node, *args)
-        except ValueError as e:
-            print e
-            raise e
+        super(AxisPts, self).__init__(node, *args)
 
 
 class AxisPtsXYZ(A2lNode):

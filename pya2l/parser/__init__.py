@@ -5,4 +5,4 @@
 @date: 20.03.2018
 """
 
-from grammar import A2lParser, A2lFormatException
+from .grammar import A2lParser, A2lFormatException

@@ -7,8 +7,8 @@
 
 import ply.yacc as yacc
 
-import lexer
-from node import *
+from .lexer import tokens as lex_tokens
+from .node import *
 
 
 class A2lFormatException(Exception):
@@ -132,7 +132,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
 
 
 class A2lParser(A2lNode):
-    tokens = lexer.tokens
+    tokens = lex_tokens
 
     def __init__(self, string):
         self.tree = None
