@@ -4696,7 +4696,7 @@ def test_fix_axis_par_dist():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_dist.offset == 0
-    assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_dist.shift == 1
+    assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_dist.distance == 1
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_dist.numberapo == 2
 
 

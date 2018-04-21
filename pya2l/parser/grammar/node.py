@@ -341,7 +341,11 @@ class FixAxisPar(A2lNode):
 
 
 class FixAxisParList(FixAxisPar):
-    pass
+    def __init__(self, node, offset, distance, numberapo):
+        self.offset = offset
+        self.distance = distance
+        self.numberapo = numberapo
+        super(FixAxisPar, self).__init__(node)
 
 
 class FixNoAxisPts(A2lNode):
