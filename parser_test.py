@@ -2862,7 +2862,7 @@ def test_record_layout_fnc_values_node():
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].record_layout[0], 'fnc_values')
     assert a2l.tree.project.module[0].record_layout[0].fnc_values.position == 0
-    assert a2l.tree.project.module[0].record_layout[0].fnc_values.datatype == 'SWORD'
+    assert a2l.tree.project.module[0].record_layout[0].fnc_values.data_type == 'SWORD'
     assert a2l.tree.project.module[0].record_layout[0].fnc_values.index_mode == 'COLUMN_DIR'
     assert a2l.tree.project.module[0].record_layout[0].fnc_values.addresstype == 'DIRECT'
 
@@ -2879,7 +2879,7 @@ def test_record_layout_identification_node():
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].record_layout[0], 'identification')
     assert a2l.tree.project.module[0].record_layout[0].identification.position == 0
-    assert a2l.tree.project.module[0].record_layout[0].identification.datatype == 'UWORD'
+    assert a2l.tree.project.module[0].record_layout[0].identification.data_type == 'UWORD'
 
 
 def test_record_layout_axis_pts_x_node():

@@ -367,9 +367,9 @@ class FixNoAxisPtsZ(FixNoAxisPts):
 
 
 class FncValues(A2lNode):
-    def __init__(self, node, position, datatype, index_mode, addresstype):
+    def __init__(self, node, position, data_type, index_mode, addresstype):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         self.index_mode = index_mode
         self.addresstype = addresstype
         super(FncValues, self).__init__(node)
@@ -442,9 +442,9 @@ class Header(A2lNode):
 
 
 class Identification(A2lNode):
-    def __init__(self, node, position, datatype):
+    def __init__(self, node, position, data_type):
         self.position = position
-        self.datatype = datatype
+        self.data_type = data_type
         super(Identification, self).__init__(node)
 
 
@@ -482,11 +482,11 @@ class MaxRefresh(A2lNode):
 
 
 class Measurement(A2lNode):
-    def __init__(self, node, name, long_identifier, datatype, conversion, resolution, accuracy, lower_limit,
+    def __init__(self, node, name, long_identifier, data_type, conversion, resolution, accuracy, lower_limit,
                  upper_limit, args):
         self.name = name
         self.long_identifier = long_identifier
-        self.datatype = datatype
+        self.data_type = data_type
         self.conversion = conversion
         self.resolution = resolution
         self.accuracy = accuracy
