@@ -2625,20 +2625,6 @@ class A2lParser(A2lNode):
         p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
-    def p_ref_group_ident(p):
-        """ref_group_ident : IDENT"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_ref_group_ident_list(p):
-        """ref_group_ident_list : ref_group_ident
-                                | ref_group_ident ref_group_ident_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
     def p_read_only(p):
         """read_only : READ_ONLY"""
         p[0] = p[1]
