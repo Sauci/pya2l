@@ -725,7 +725,7 @@ def test_module_if_data_xcp():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0], 'if_data_module_xcp')
+    assert hasattr(a2l.tree.project.module[0], 'if_data_xcp')
 
 
 def test_module_if_data_xcp_protocol_layer_node():
@@ -751,18 +751,17 @@ def test_module_if_data_xcp_protocol_layer_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_module_xcp, 'protocol_layer')
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].xcp_protocol_layer_version == 0x100
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t1 == 10
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t2 == 20
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t3 == 30
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t4 == 40
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t5 == 50
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t6 == 60
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t7 == 70
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].max_cto == 8
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].max_dto == 9
-
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'protocol_layer')
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].xcp_protocol_layer_version == 0x100
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t1 == 10
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t2 == 20
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t3 == 30
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t4 == 40
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t5 == 50
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t6 == 60
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t7 == 70
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].max_cto == 8
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].max_dto == 9
 
 
 def test_module_if_data_xcp_with_multiple_protocol_layer_node():
@@ -802,8 +801,250 @@ def test_module_if_data_xcp_with_multiple_protocol_layer_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t1 == 1
-    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[1].t1 == 2
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t1 == 1
+    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[1].t1 == 2
+
+
+def test_module_if_data_xcp_daq_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin DAQ
+                        STATIC /* DAQ configuration type */
+                        1 /* max DAQ */
+                        2 /* max event channel */
+                        3 /* min DAQ */
+                    /end DAQ
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'daq')
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_config_type == 'STATIC'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_daq == 1
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_event_channel == 2
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].min_daq == 3
+
+
+def test_module_if_data_xcp_pag_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin PAG
+                        1
+                        FREEZE_SUPPORTED
+                    /end PAG
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'pag')
+    assert a2l.tree.project.module[0].if_data_xcp.pag[0].max_segments == 1
+    assert a2l.tree.project.module[0].if_data_xcp.pag[0].freeze_supported == 'FREEZE_SUPPORTED'
+
+
+def test_module_if_data_xcp_pgm_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin PGM
+                        PGM_MODE_ABSOLUTE_AND_FUNCTIONAL
+                        1
+                        2
+                    /end PGM
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'pgm')
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].mode == 'PGM_MODE_ABSOLUTE_AND_FUNCTIONAL'
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].max_sectors == 1
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].max_cto_pgm == 2
+
+
+def test_module_if_data_xcp_pgm_sector_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin PGM
+                        PGM_MODE_ABSOLUTE_AND_FUNCTIONAL
+                        1
+                        2
+                        /begin SECTOR
+                            "first sector name"
+                            1
+                            2
+                            3
+                            4
+                            5
+                            6
+                        /end SECTOR
+                        /begin SECTOR
+                            "second sector name"
+                            7
+                            8
+                            9
+                            10
+                            11
+                            12
+                        /end SECTOR
+                    /end PGM
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp.pgm[0], 'sector')
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].name == 'first sector name'
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].sector_number == 1
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].address == 2
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].length == 3
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].erase_number == 4
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].program_number == 5
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].programming_method == 6
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].name == 'second sector name'
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].sector_number == 7
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].address == 8
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].length == 9
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].erase_number == 10
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].program_number == 11
+    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].programming_method == 12
+
+
+def test_module_if_data_xcp_daq_daq_list_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin DAQ
+                        STATIC /* DAQ configuration type */
+                        1 /* max DAQ */
+                        2 /* max event channel */
+                        3 /* min DAQ */
+                        /begin DAQ_LIST
+                            0x4
+                        /end DAQ_LIST
+                    /end DAQ
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'daq_list')
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_number == 4
+
+
+def test_module_if_data_xcp_daq_daq_list_daq_list_type_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin DAQ
+                        STATIC /* DAQ configuration type */
+                        1 /* max DAQ */
+                        2 /* max event channel */
+                        3 /* min DAQ */
+                        /begin DAQ_LIST
+                            0x4
+                            DAQ_LIST_TYPE DAQ
+                        /end DAQ_LIST
+                    /end DAQ
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_type == 'DAQ'
+
+
+def test_module_if_data_xcp_daq_with_multiple_daq_list_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin DAQ
+                        STATIC /* DAQ configuration type */
+                        1 /* max DAQ */
+                        2 /* max event channel */
+                        3 /* min DAQ */
+                        /begin DAQ_LIST
+                            0x4
+                        /end DAQ_LIST
+                        /begin DAQ_LIST
+                            0x5
+                        /end DAQ_LIST
+                    /end DAQ
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_number == 4
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].daq_list_number == 5
+
+
+def test_module_if_data_xcp_event_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin DAQ
+                        STATIC /* DAQ configuration type */
+                        1 /* max DAQ */
+                        2 /* max event channel */
+                        3 /* min DAQ */
+                        /begin EVENT
+                            "event name"
+                            "event short name"
+                            0x0
+                            DAQ_STIM
+                            1
+                            2
+                            3
+                            4
+                        /end EVENT
+                    /end DAQ
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'event')
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].name == 'event name'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].short_name == 'event short name'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].event_channel_number == 0
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].daq_list_type == 'DAQ_STIM'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].max_daq_list == 1
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].time_cycle == 2
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].time_unit == 3
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].priority == 4
+
+
+def test_module_if_data_xcp_timestamp_supported_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin DAQ
+                        STATIC /* DAQ configuration type */
+                        1 /* max DAQ */
+                        2 /* max event channel */
+                        3 /* min DAQ */
+                        /begin TIMESTAMP_SUPPORTED
+                            1
+                            timestamp_supported_size
+                            timestamp_supported_unit
+                        /end TIMESTAMP_SUPPORTED
+                    /end DAQ
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'timestamp_supported')
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].timestamp_ticks == 1
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[
+               0].size == 'timestamp_supported_size'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[
+               0].unit == 'timestamp_supported_unit'
 
 
 def test_mod_par_version_node():
@@ -2231,6 +2472,172 @@ def test_measurement_display_identifier_node():
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].measurement[0], 'display_identifier')
     assert a2l.tree.project.module[0].measurement[0].display_identifier == 'display_identifier'
+
+
+def test_measurement_if_data_xcp_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin DAQ_EVENT VARIABLE
+                            /begin AVAILABLE_EVENT_LIST
+                                EVENT 0001 EVENT 0002
+                            /end AVAILABLE_EVENT_LIST
+                            /begin DEFAULT_EVENT_LIST
+                                EVENT 0001
+                            /end DEFAULT_EVENT_LIST
+                        /end DAQ_EVENT
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0], 'if_data_xcp')
+
+
+def test_if_data_xcp_daq_event_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin DAQ_EVENT VARIABLE
+                        /end DAQ_EVENT
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0].if_data_xcp[0], 'daq_event')
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].name == 'VARIABLE'
+
+
+def test_if_data_xcp_segment_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin SEGMENT
+                            0x00
+                            0x01
+                            0x02
+                            0x03
+                            0x04
+                        /end SEGMENT
+                        /begin SEGMENT
+                            0x05
+                            0x06
+                            0x07
+                            0x08
+                            0x09
+                            /begin CHECKSUM
+                                "checksum.dll"
+                            /end CHECKSUM
+                        /end SEGMENT
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0].if_data_xcp[0], 'segment')
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[0].segment_logical_number == 0
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[0].number_of_pages == 1
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[0].address_extension == 2
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[0].compression_method == 3
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[0].encryption_method == 4
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[0].checksum is None
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[1].segment_logical_number == 5
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[1].number_of_pages == 6
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[1].address_extension == 7
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[1].compression_method == 8
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[1].encryption_method == 9
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].segment[1].checksum.checksum_dll == 'checksum.dll'
+
+
+def test_if_data_xcp_daq_event_available_event_list_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin DAQ_EVENT VARIABLE
+                            /begin AVAILABLE_EVENT_LIST
+                                EVENT 0001
+                                EVENT 0002
+                            /end AVAILABLE_EVENT_LIST
+                        /end DAQ_EVENT
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0], 'available_event_list')
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].available_event_list[0].event[0] == 1
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].available_event_list[0].event[1] == 2
+
+
+def test_if_data_xcp_daq_event_default_event_list_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin DAQ_EVENT VARIABLE
+                            /begin DEFAULT_EVENT_LIST
+                                EVENT 0001
+                                EVENT 0002
+                            /end DEFAULT_EVENT_LIST
+                        /end DAQ_EVENT
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0], 'default_event_list')
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].default_event_list[0].event[0] == 1
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].default_event_list[0].event[1] == 2
 
 
 def test_measurement_read_write_node():

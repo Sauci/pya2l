@@ -29,9 +29,6 @@ class A2lNode(object):
     def add_children(self, a2l_node):
         self._children.append(a2l_node)
 
-    def get_properties(self):
-        return [p for p in self.__dict__.keys() if not p.startswith('_')]
-
 
 class Version(A2lNode):
     def __init__(self, node, version_no, upgrade_no):
@@ -46,6 +43,18 @@ class A2lFile(A2lNode):
         self.a2ml_version = None
         self.project = None
         super(A2lFile, self).__init__(node, *args)
+
+
+class Sector(A2lNode):
+    def __init__(self, node, name, sector_number, address, length, erase_number, program_number, programming_method):
+        self.name = name
+        self.sector_number = sector_number
+        self.address = address
+        self.length = length
+        self.erase_number = erase_number
+        self.program_number = program_number
+        self.programming_method = programming_method
+        super(Sector, self).__init__(node)
 
 
 class A2MLVersion(Version):
@@ -76,6 +85,12 @@ class AnnotationText(A2lNode):
 
 class ASAP2Version(Version):
     pass
+
+
+class AvailableEventList(A2lNode):
+    def __init__(self, node, args):
+        self.event = list()
+        super(AvailableEventList, self).__init__(node, *args)
 
 
 class AxisDescr(A2lNode):
@@ -292,6 +307,43 @@ class CompuVTabRange(A2lNode):
         super(CompuVTabRange, self).__init__(node, *args)
 
 
+class Daq(A2lNode):
+    def __init__(self, node, daq_config_type, max_daq, max_event_channel, min_daq, args):
+        self.daq_config_type = daq_config_type
+        self.max_daq = max_daq
+        self.max_event_channel = max_event_channel
+        self.min_daq = min_daq
+        self.daq_list = list()
+        self.timestamp_supported = list()
+        self.event = list()
+        self.EVENT = list()
+        self.IDENT = list()
+        self.NUMERIC = list()
+        super(Daq, self).__init__(node, *args)
+
+
+class DaqEvent(A2lNode):
+    def __init__(self, node, name, args):
+        self.name = name
+        self.available_event_list = list()
+        self.default_event_list = list()
+        super(DaqEvent, self).__init__(node, *args)
+
+
+class DaqList(A2lNode):
+    def __init__(self, node, daq_list_number, args):
+        self.daq_list_number = daq_list_number
+        self.daq_list_type = None
+        self.generic_parameter_list = None
+        super(DaqList, self).__init__(node, *args)
+
+
+class DefaultEventList(A2lNode):
+    def __init__(self, node, args):
+        self.event = list()
+        super(DefaultEventList, self).__init__(node, *args)
+
+
 class DefCharacteristic(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
@@ -322,6 +374,20 @@ class DistOpY(DistOp):
 
 class DistOpZ(DistOp):
     pass
+
+
+class Event(A2lNode):
+    def __init__(self, node, name, short_name, event_channel_number, daq_list_type, max_daq_list, time_cycle, time_unit,
+                 priority):
+        self.name = name
+        self.short_name = short_name
+        self.event_channel_number = event_channel_number
+        self.daq_list_type = daq_list_type
+        self.max_daq_list = max_daq_list
+        self.time_cycle = time_cycle
+        self.time_unit = time_unit
+        self.priority = priority
+        super(Event, self).__init__(node)
 
 
 class EventGroup(A2lNode):
@@ -475,10 +541,16 @@ class IfDataModule(A2lNode):
         super(IfDataModule, self).__init__(node, *args)
 
 
-class IfDataModuleXcp(A2lNode):
+class IfDataXcp(A2lNode):
     def __init__(self, node, args):
         self.protocol_layer = list()
-        super(IfDataModuleXcp, self).__init__(node, *args)
+        self.daq = list()
+        self.pag = list()
+        self.pgm = list()
+        self.segment = list()
+        self.daq_event = list()
+        self.generic_parameter_list = None
+        super(IfDataXcp, self).__init__(node, *args)
 
 
 class InMeasurement(A2lNode):
@@ -525,6 +597,7 @@ class Measurement(A2lNode):
         self.error_mask = None
         self.ref_memory_segment = None
         self.annotation = list()
+        self.if_data_xcp = list()
         self.if_data_measurement = list()
         self.matrix_dim = None
         self.ecu_address_extension = None
@@ -552,6 +625,7 @@ class MemorySegment(A2lNode):
         self.size = size
         self.offset = offset
         self.if_data_memory_segment = list()
+        self.if_data_xcp = list()
         super(MemorySegment, self).__init__(node, *args)
 
 
@@ -562,7 +636,7 @@ class Module(A2lNode):
         self.a2ml = None
         self.mod_par = None
         self.mod_common = None
-        self.if_data_module_xcp = None
+        self.if_data_xcp = None
         self.if_data_module = list()
         self.characteristic = list()
         self.axis_pts = list()
@@ -679,6 +753,23 @@ class OutMeasurement(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()
         super(OutMeasurement, self).__init__(node, *args)
+
+
+class Pag(A2lNode):
+    def __init__(self, node, max_segments, args):
+        self.max_segments = max_segments
+        self.freeze_supported = None
+        super(Pag, self).__init__(node, *args)
+
+
+class Pgm(A2lNode):
+    def __init__(self, node, mode, max_sectors, max_cto_pgm, args):
+        self.mode = mode
+        self.max_sectors = max_sectors
+        self.max_cto_pgm = max_cto_pgm
+        self.sector = list()
+        self.generic_parameter_list = None
+        super(Pgm, self).__init__(node, *args)
 
 
 class Project(A2lNode):
@@ -816,6 +907,19 @@ class SeedKey(A2lNode):
         super(SeedKey, self).__init__(node)
 
 
+class Segment(A2lNode):
+    def __init__(self, node, segment_logical_number, number_of_pages, address_extension, compression_method,
+                 encryption_method, args):
+        self.segment_logical_number = segment_logical_number
+        self.number_of_pages = number_of_pages
+        self.address_extension = address_extension
+        self.compression_method = compression_method
+        self.encryption_method = encryption_method
+        self.checksum = None
+        self.page = None
+        super(Segment, self).__init__(node, *args)
+
+
 class ShiftOp(A2lNode):
     def __init__(self, node, position, data_type):
         self.position = position
@@ -895,6 +999,14 @@ class SystemConstant(A2lNode):
         self.name = name
         self.value = value
         super(SystemConstant, self).__init__(node)
+
+
+class TimestampSupported(A2lNode):
+    def __init__(self, node, timestamp_ticks, size, unit, args):
+        self.timestamp_ticks = timestamp_ticks
+        self.size = size
+        self.unit = unit
+        super(TimestampSupported, self).__init__(node)
 
 
 class Unit(A2lNode):

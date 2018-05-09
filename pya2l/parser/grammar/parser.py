@@ -33,6 +33,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'ANNOTATION': Annotation,
             'ANNOTATION_TEXT': AnnotationText,
             'ASAP2_VERSION': ASAP2Version,
+            'AVAILABLE_EVENT_LIST': AvailableEventList,
             'AXIS_DESCR': AxisDescr,
             'AXIS_PTS': AxisPts,
             'AXIS_PTS_X': AxisPtsX,
@@ -50,11 +51,16 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'COMPU_TAB': CompuTab,
             'COMPU_VTAB': CompuVTab,
             'COMPU_VTAB_RANGE': CompuVTabRange,
+            'DAQ': Daq,
+            'DAQ_EVENT': DaqEvent,
+            'DAQ_LIST': DaqList,
+            'DEFAULT_EVENT_LIST': DefaultEventList,
             'DEF_CHARACTERISTIC': DefCharacteristic,
             'DEPENDENT_CHARACTERISTIC': DependentCharacteristic,
             'DIST_OP_X': DistOpX,
             'DIST_OP_Y': DistOpY,
             'DIST_OP_Z': DistOpZ,
+            'EVENT': Event,
             'EVENT_GROUP': EventGroup,
             'FIX_AXIS_PAR': FixAxisPar,
             'FIX_AXIS_PAR_DIST': FixAxisParList,
@@ -73,7 +79,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'if_data_frame': IfDataFrame,
             'if_data_memory_segment': IfDataMemorySegment,
             'if_data_module': IfDataModule,
-            'if_data_module_xcp': IfDataModuleXcp,
+            'if_data_xcp': IfDataXcp,
             'IN_MEASUREMENT': InMeasurement,
             'LOC_MEASUREMENT': LocMeasurement,
             'MAX_REFRESH': MaxRefresh,
@@ -93,6 +99,8 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'OFFSET_Y': OffsetY,
             'OFFSET_Z': OffsetZ,
             'OUT_MEASUREMENT': OutMeasurement,
+            'PAG': Pag,
+            'PGM': Pgm,
             'PROJECT': Project,
             'PROTOCOL_LAYER': ProtocolLayer,
             'RASTER': Raster,
@@ -106,7 +114,9 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'RIP_ADDR_Z': RipAddrZ,
             'RIP_ADDR_W': RipAddrW,
             'ROOT': A2lFile,
+            'SECTOR': Sector,
             'SEED_KEY': SeedKey,
+            'SEGMENT': Segment,
             'SHIFT_OP_X': ShiftOpX,
             'SHIFT_OP_Y': ShiftOpZ,
             'SHIFT_OP_Z': ShiftOpY,
@@ -118,6 +128,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'SUB_FUNCTION': SubFunction,
             'SUB_GROUP': SubGroup,
             'SYSTEM_CONSTANT': SystemConstant,
+            'TIMESTAMP_SUPPORTED': TimestampSupported,
             'UNIT': Unit,
             'UNIT_CONVERSION': UnitConversion,
             'USER_RIGHTS': UserRights,
@@ -533,7 +544,7 @@ class A2lParser(A2lNode):
         """module_optional : a2ml
                            | mod_par
                            | mod_common
-                           | if_data_module_xcp
+                           | if_data_xcp
                            | if_data_module
                            | characteristic
                            | axis_pts
@@ -572,28 +583,249 @@ class A2lParser(A2lNode):
         p[0] = p[3]
 
     @staticmethod
-    def p_if_data_module_xcp(p):
-        """if_data_module_xcp : begin IF_DATA XCP if_data_module_xcp_optional_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory('if_data_module_xcp', p[4])
+    def p_if_data_xcp(p):
+        """if_data_xcp : begin IF_DATA XCP if_data_xcp_optional_list_optional end IF_DATA"""
+        p[0] = a2l_node_factory('if_data_xcp', p[4])
 
     @staticmethod
-    def p_if_data_module_xcp_optional(p):
-        """if_data_module_xcp_optional : protocol_layer"""
+    def p_if_data_xcp_optional(p):
+        """if_data_xcp_optional : protocol_layer
+                                | daq
+                                | pag
+                                | pgm
+                                | segment
+                                | daq_event
+                                | generic_parameter_list"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
-    def p_if_data_module_xcp_optional_list(p):
-        """if_data_module_xcp_optional_list : if_data_module_xcp_optional
-                                            | if_data_module_xcp_optional if_data_module_xcp_optional_list"""
+    def p_daq_event(p):
+        """daq_event : begin DAQ_EVENT IDENT daq_event_optional_list_optional end DAQ_EVENT"""
+        p[0] = a2l_node_factory(*p[2:5])
+
+    @staticmethod
+    def p_daq_event_optional(p):
+        """daq_event_optional : available_event_list
+                              | default_event_list"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_daq_event_optional_list(p):
+        """daq_event_optional_list : daq_event_optional
+                                   | daq_event_optional daq_event_optional_list"""
         try:
             p[0] = [p[1]] + p[2]
         except IndexError:
             p[0] = [p[1]]
 
     @staticmethod
-    def p_if_data_module_xcp_optional_list_optional(p):
-        """if_data_module_xcp_optional_list_optional : empty
-                                                     | if_data_module_xcp_optional_list"""
+    def p_daq_event_optional_list_optional(p):
+        """daq_event_optional_list_optional : empty
+                                            | daq_event_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_default_event_list(p):
+        """default_event_list : begin DEFAULT_EVENT_LIST available_event_list_optional_list_optional end DEFAULT_EVENT_LIST"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_available_event_list(p):
+        """available_event_list : begin AVAILABLE_EVENT_LIST available_event_list_optional_list_optional end AVAILABLE_EVENT_LIST"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_available_event_list_optional(p):
+        """available_event_list_optional : EVENT NUMERIC"""
+        p[0] = 'event', p[2]
+
+    @staticmethod
+    def p_available_event_list_optional_list(p):
+        """available_event_list_optional_list : available_event_list_optional
+                                              | available_event_list_optional available_event_list_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_available_event_list_optional_list_optional(p):
+        """available_event_list_optional_list_optional : empty
+                                                       | available_event_list_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_if_data_xcp_optional_list(p):
+        """if_data_xcp_optional_list : if_data_xcp_optional
+                                     | if_data_xcp_optional if_data_xcp_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_xcp_optional_list_optional(p):
+        """if_data_xcp_optional_list_optional : empty
+                                                     | if_data_xcp_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_pag(p):
+        """pag : begin PAG NUMERIC pag_optional_list_optional end PAG"""
+        p[0] = a2l_node_factory(*p[2:5])
+
+    @staticmethod
+    def p_pgm(p):
+        """pgm : begin PGM IDENT NUMERIC NUMERIC pgm_optional_list_optional end PGM"""
+        p[0] = a2l_node_factory(*p[2:7])
+
+    @staticmethod
+    def p_pgm_optional(p):
+        """pgm_optional : sector
+                        | generic_parameter_list"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_pgm_optional_list(p):
+        """pgm_optional_list : pgm_optional
+                             | pgm_optional pgm_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_pgm_optional_list_optional(p):
+        """pgm_optional_list_optional : empty
+                                      | pgm_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_sector(p):
+        """sector : begin SECTOR STRING NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC end SECTOR"""
+        p[0] = a2l_node_factory(*p[2:10])
+
+    @staticmethod
+    def p_pag_optional(p):
+        """pag_optional : freeze_supported
+                        | generic_parameter_list"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_pag_optional_list(p):
+        """pag_optional_list : pag_optional
+                             | pag_optional pag_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_pag_optional_list_optional(p):
+        """pag_optional_list_optional : empty
+                                      | pag_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_freeze_supported(p):
+        """freeze_supported : FREEZE_SUPPORTED"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_daq(p):
+        """daq : begin DAQ IDENT NUMERIC NUMERIC NUMERIC daq_optional_list_optional end DAQ"""
+        p[0] = a2l_node_factory(*p[2:8])
+
+    @staticmethod
+    def p_daq_optional(p):
+        """daq_optional : daq_list
+                        | event
+                        | timestamp_supported
+                        | IDENT
+                        | NUMERIC"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_daq_optional_list(p):
+        """daq_optional_list : daq_optional
+                             | daq_optional daq_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_daq_optional_list_optional(p):
+        """daq_optional_list_optional : empty
+                                      | daq_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_event(p):
+        """event : begin EVENT STRING STRING NUMERIC daq_list_type_enum NUMERIC NUMERIC NUMERIC NUMERIC end EVENT"""
+        p[0] = a2l_node_factory(*p[2:11])
+
+    @staticmethod
+    def p_daq_list(p):
+        """daq_list : begin DAQ_LIST NUMERIC daq_list_optional_list_optional end DAQ_LIST"""
+        p[0] = a2l_node_factory(*p[2:5])
+
+    @staticmethod
+    def p_daq_list_optional(p):
+        """daq_list_optional : daq_list_type
+                             | generic_parameter_list"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_daq_list_type_enum(p):
+        """daq_list_type_enum : DAQ
+                              | STIM
+                              | DAQ_STIM"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_daq_list_type(p):
+        """daq_list_type : DAQ_LIST_TYPE daq_list_type_enum"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_daq_list_optional_list(p):
+        """daq_list_optional_list : daq_list_optional
+                                  | daq_list_optional daq_list_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_daq_list_optional_list_optional(p):
+        """daq_list_optional_list_optional : empty
+                                           | daq_list_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_timestamp_supported(p):
+        """timestamp_supported : begin TIMESTAMP_SUPPORTED NUMERIC IDENT IDENT timestamp_supported_optional_list_optional end TIMESTAMP_SUPPORTED"""
+        p[0] = a2l_node_factory(*p[2:7])
+
+    @staticmethod
+    def p_timestamp_supported_optional(p):
+        """timestamp_supported_optional : IDENT"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_timestamp_supported_optional_list(p):
+        """timestamp_supported_optional_list : timestamp_supported_optional
+                                             | timestamp_supported_optional timestamp_supported_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_timestamp_supported_optional_list_optional(p):
+        """timestamp_supported_optional_list_optional : empty
+                                                      | timestamp_supported_optional_list"""
         p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
@@ -994,7 +1226,8 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_memory_segment_optional(p):
-        """memory_segment_optional : if_data_memory_segment"""
+        """memory_segment_optional : if_data_memory_segment
+                                   | if_data_xcp"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -1075,17 +1308,18 @@ class A2lParser(A2lNode):
     @staticmethod  # TODO: segment is not defined in the specification, check...
     def p_segment(p):
         """segment : begin SEGMENT NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC segment_optional_parameter_list_optional end SEGMENT"""
+        p[0] = a2l_node_factory(*p[2:9])
 
     @staticmethod
     def p_segment_optional_parameter(p):
         """segment_optional_parameter : page
                                       | checksum"""
+        p[0] = p.slice[1].type, p[1]
 
     @staticmethod
     def p_segment_optional_parameter_list(p):
         """segment_optional_parameter_list : segment_optional_parameter
                                            | segment_optional_parameter segment_optional_parameter_list"""
-
         try:
             p[0] = [p[1]] + p[2]
         except IndexError:
@@ -1095,6 +1329,7 @@ class A2lParser(A2lNode):
     def p_segment_optional_parameter_list_optional(p):
         """segment_optional_parameter_list_optional : empty
                                                     | segment_optional_parameter_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_page(p):
@@ -1511,6 +1746,7 @@ class A2lParser(A2lNode):
                                 | error_mask
                                 | ref_memory_segment
                                 | annotation
+                                | if_data_xcp
                                 | if_data_measurement
                                 | matrix_dim
                                 | ecu_address_extension"""
