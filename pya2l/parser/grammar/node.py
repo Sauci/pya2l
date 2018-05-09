@@ -473,7 +473,12 @@ class IfDataModule(A2lNode):
         self.tp_blob = None
         self.tp_data = None
         super(IfDataModule, self).__init__(node, *args)
-        print(self)
+
+
+class IfDataModuleXcp(A2lNode):
+    def __init__(self, node, args):
+        self.protocol_layer = list()
+        super(IfDataModuleXcp, self).__init__(node, *args)
 
 
 class InMeasurement(A2lNode):
@@ -557,6 +562,7 @@ class Module(A2lNode):
         self.a2ml = None
         self.mod_par = None
         self.mod_common = None
+        self.if_data_module_xcp = None
         self.if_data_module = list()
         self.characteristic = list()
         self.axis_pts = list()
@@ -682,6 +688,21 @@ class Project(A2lNode):
         self.header = None
         self.module = list()
         super(Project, self).__init__(node, *args)
+
+
+class ProtocolLayer(A2lNode):
+    def __init__(self, node, xcp_protocol_layer_version, t1, t2, t3, t4, t5, t6, t7, max_cto, max_dto):
+        self.xcp_protocol_layer_version = xcp_protocol_layer_version
+        self.t1 = t1
+        self.t2 = t2
+        self.t3 = t3
+        self.t4 = t4
+        self.t5 = t5
+        self.t6 = t6
+        self.t7 = t7
+        self.max_cto = max_cto
+        self.max_dto = max_dto
+        super(ProtocolLayer, self).__init__(node)
 
 
 class Raster(A2lNode):

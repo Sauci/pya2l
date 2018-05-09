@@ -73,6 +73,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'if_data_frame': IfDataFrame,
             'if_data_memory_segment': IfDataMemorySegment,
             'if_data_module': IfDataModule,
+            'if_data_module_xcp': IfDataModuleXcp,
             'IN_MEASUREMENT': InMeasurement,
             'LOC_MEASUREMENT': LocMeasurement,
             'MAX_REFRESH': MaxRefresh,
@@ -93,6 +94,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'OFFSET_Z': OffsetZ,
             'OUT_MEASUREMENT': OutMeasurement,
             'PROJECT': Project,
+            'PROTOCOL_LAYER': ProtocolLayer,
             'RASTER': Raster,
             'RECORD_LAYOUT': RecordLayout,
             'REF_CHARACTERISTIC': RefCharacteristic,
@@ -531,6 +533,7 @@ class A2lParser(A2lNode):
         """module_optional : a2ml
                            | mod_par
                            | mod_common
+                           | if_data_module_xcp
                            | if_data_module
                            | characteristic
                            | axis_pts
@@ -567,6 +570,55 @@ class A2lParser(A2lNode):
     def p_a2ml(p):
         """a2ml : begin A2ML a2ml_declaration_list end A2ML"""
         p[0] = p[3]
+
+    @staticmethod
+    def p_if_data_module_xcp(p):
+        """if_data_module_xcp : begin IF_DATA XCP if_data_module_xcp_optional_list_optional end IF_DATA"""
+        p[0] = a2l_node_factory('if_data_module_xcp', p[4])
+
+    @staticmethod
+    def p_if_data_module_xcp_optional(p):
+        """if_data_module_xcp_optional : protocol_layer"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_if_data_module_xcp_optional_list(p):
+        """if_data_module_xcp_optional_list : if_data_module_xcp_optional
+                                            | if_data_module_xcp_optional if_data_module_xcp_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_if_data_module_xcp_optional_list_optional(p):
+        """if_data_module_xcp_optional_list_optional : empty
+                                                     | if_data_module_xcp_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_protocol_layer(p):
+        """protocol_layer : begin PROTOCOL_LAYER NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC protocol_layer_optional_list_optional end PROTOCOL_LAYER"""
+        p[0] = a2l_node_factory(*p[2:13])
+
+    @staticmethod
+    def p_protocol_layer_optional(p):
+        """protocol_layer_optional : generic_parameter_list"""
+
+    @staticmethod
+    def p_protocol_layer_optional_list(p):
+        """protocol_layer_optional_list : protocol_layer_optional
+                                        | protocol_layer_optional protocol_layer_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_protocol_layer_optional_list_optional(p):
+        """protocol_layer_optional_list_optional : empty
+                                                 | protocol_layer_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_if_data_module(p):

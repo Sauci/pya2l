@@ -716,6 +716,96 @@ def test_module_if_data_tp_blob_tp_data_node():
     pytest.skip('missing clear specification...')
 
 
+def test_module_if_data_xcp():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0], 'if_data_module_xcp')
+
+
+def test_module_if_data_xcp_protocol_layer_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin PROTOCOL_LAYER
+                        0x0100 /* XCP protocol layer 1.0 */
+        
+                        10 /* T1 [ms] */
+                        20 /* T2 [ms] */
+                        30 /* T3 [ms] */
+                        40 /* T4 [ms] */
+                        50 /* T5 [ms] */
+                        60 /* T6 [ms] */
+                        70 /* T7 [ms] */
+                
+                        8 /* max CTO */
+                        9 /* max DTO */
+                    /end PROTOCOL_LAYER
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_module_xcp, 'protocol_layer')
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].xcp_protocol_layer_version == 0x100
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t1 == 10
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t2 == 20
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t3 == 30
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t4 == 40
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t5 == 50
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t6 == 60
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t7 == 70
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].max_cto == 8
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].max_dto == 9
+
+
+
+def test_module_if_data_xcp_with_multiple_protocol_layer_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA XCP
+                    /begin PROTOCOL_LAYER
+                        0x0100 /* XCP protocol layer 1.0 */
+        
+                        1 /* T1 [ms] */
+                        1 /* T2 [ms] */
+                        1 /* T3 [ms] */
+                        1 /* T4 [ms] */
+                        1 /* T5 [ms] */
+                        1 /* T6 [ms] */
+                        1 /* T7 [ms] */
+                
+                        1 /* max CTO */
+                        1 /* max DTO */
+                    /end PROTOCOL_LAYER
+                    /begin PROTOCOL_LAYER
+                        0x0100 /* XCP protocol layer 1.0 */
+        
+                        2 /* T1 [ms] */
+                        2 /* T2 [ms] */
+                        2 /* T3 [ms] */
+                        2 /* T4 [ms] */
+                        2 /* T5 [ms] */
+                        2 /* T6 [ms] */
+                        2 /* T7 [ms] */
+                
+                        2 /* max CTO */
+                        2 /* max DTO */
+                    /end PROTOCOL_LAYER
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[0].t1 == 1
+    assert a2l.tree.project.module[0].if_data_module_xcp.protocol_layer[1].t1 == 2
+
+
 def test_mod_par_version_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
