@@ -462,6 +462,20 @@ class IfDataMemorySegment(A2lNode):
         super(IfDataMemorySegment, self).__init__(node, *args)
 
 
+class IfDataModule(A2lNode):
+    def __init__(self, node, name, args):
+        self.name = name
+        self.source = list()
+        self.raster = list()
+        self.event_group = list()
+        self.seed_key = None
+        self.checksum = None
+        self.tp_blob = None
+        self.tp_data = None
+        super(IfDataModule, self).__init__(node, *args)
+        print(self)
+
+
 class InMeasurement(A2lNode):
     def __init__(self, node, args):
         self.identifier = list()

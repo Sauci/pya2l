@@ -72,6 +72,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'IDENTIFICATION': Identification,
             'if_data_frame': IfDataFrame,
             'if_data_memory_segment': IfDataMemorySegment,
+            'if_data_module': IfDataModule,
             'IN_MEASUREMENT': InMeasurement,
             'LOC_MEASUREMENT': LocMeasurement,
             'MAX_REFRESH': MaxRefresh,
@@ -570,6 +571,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_if_data_module(p):
         """if_data_module : begin IF_DATA IDENT if_data_module_optional_list_optional end IF_DATA"""
+        p[0] = a2l_node_factory('if_data_module', *p[3:5])
 
     @staticmethod  # TODO: protocol_layer, daq and xcp_on_can are not available in rev.1.51...
     def p_if_data_module_optional(p):

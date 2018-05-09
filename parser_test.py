@@ -637,6 +637,85 @@ def test_module_with_multiple_unit_node():
     assert a2l.tree.project.module[0].unit[1].name == 'second_unit_name'
 
 
+def test_module_if_data_source_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA if_data_module_name
+                    /begin SOURCE first_source_name 0 0
+                    /end SOURCE
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'source')
+    assert a2l.tree.project.module[0].if_data_module[0].source[0].name == 'first_source_name'
+
+
+def test_module_if_data_raster_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA if_data_module_name
+                    /begin RASTER "raster name" "raster short name" 0 0 0
+                    /end RASTER
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'raster')
+    assert a2l.tree.project.module[0].if_data_module[0].raster[0].raster_name == 'raster name'
+
+
+def test_module_if_data_event_group_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA if_data_module_name
+                    /begin EVENT_GROUP "raster group name" "raster group short name" 0 1 2
+                    /end EVENT_GROUP
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'event_group')
+    assert a2l.tree.project.module[0].if_data_module[0].event_group[0].raster_grp_name == 'raster group name'
+
+
+def test_module_if_data_seed_key_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA if_data_module_name
+                    /begin SEED_KEY "cal_dll_name.dll" "daq_dll_name.dll" "pgm_dll_name.dll"
+                    /end SEED_KEY
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'seed_key')
+    assert a2l.tree.project.module[0].if_data_module[0].seed_key.cal_dll == 'cal_dll_name.dll'
+
+
+def test_module_if_data_checksum_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin IF_DATA if_data_module_name
+                    /begin CHECKSUM "checksum_dll_name.dll"
+                    /end CHECKSUM
+                /end IF_DATA
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'checksum')
+    assert a2l.tree.project.module[0].if_data_module[0].checksum.checksum_dll == 'checksum_dll_name.dll'
+
+
+def test_module_if_data_tp_blob_tp_data_node():
+    pytest.skip('missing clear specification...')
+
+
 def test_mod_par_version_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
@@ -3733,8 +3812,6 @@ def test_unit_unit_conversion_node():
 
 
 # TODO: implement tests for BIT_OPERATION.
-
-
 
 
 def test_unit_conversion_node():
