@@ -308,12 +308,31 @@ class CompuVTabRange(A2lNode):
 
 
 class Daq(A2lNode):
-    def __init__(self, node, daq_config_type, max_daq, max_event_channel, min_daq, args):
+    def __init__(self,
+                 node,
+                 daq_config_type,
+                 max_daq,
+                 max_event_channel,
+                 min_daq,
+                 optimisation_type,
+                 address_extension,
+                 identification_field_type,
+                 granularity_odt_entry,
+                 max_odt_entry_size_daq,
+                 overload_indication,
+                 args):
         self.daq_config_type = daq_config_type
         self.max_daq = max_daq
         self.max_event_channel = max_event_channel
         self.min_daq = min_daq
-        self.identification_field_type = None
+        self.optimisation_type = optimisation_type
+        self.address_extension = address_extension
+        self.identification_field_type = identification_field_type
+        self.granularity_odt_entry = granularity_odt_entry
+        self.max_odt_entry_size_daq = max_odt_entry_size_daq
+        self.overload_indication = overload_indication
+        self.prescaler_supported = None
+        self.resume_supported = None
         self.daq_list = list()
         self.timestamp_supported = list()
         self.event = list()

@@ -733,18 +733,56 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_daq(p):
-        """daq : begin DAQ IDENT NUMERIC NUMERIC NUMERIC daq_optional_list_optional end DAQ"""
-        p[0] = a2l_node_factory(*p[2:8])
+        """daq : begin DAQ daq_config_type NUMERIC NUMERIC NUMERIC optimisation_type address_extension identification_field_type granularity_odt_entry NUMERIC overload_indication daq_optional_list_optional end DAQ"""
+        p[0] = a2l_node_factory(*p[2:14])
+
+    @staticmethod
+    def p_daq_config_type(p):
+        """daq_config_type : STATIC
+                           | DYNAMIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_daq_optional(p):
         """daq_optional : daq_list
                         | event
                         | timestamp_supported
+                        | optimisation_type
+                        | address_extension
                         | identification_field_type
+                        | granularity_odt_entry
+                        | prescaler_supported
+                        | resume_supported
                         | IDENT
                         | NUMERIC"""
         p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_prescaler_supported(p):
+        """prescaler_supported : PRESCALER_SUPPORTED"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_resume_supported(p):
+        """resume_supported : RESUME_SUPPORTED"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_optimisation_type(p):
+        """optimisation_type : OPTIMISATION_TYPE_DEFAULT
+                             | OPTIMISATION_TYPE_ODT_TYPE_16
+                             | OPTIMISATION_TYPE_ODT_TYPE_32
+                             | OPTIMISATION_TYPE_ODT_TYPE_64
+                             | OPTIMISATION_TYPE_ODT_TYPE_ALIGNMENT
+                             | OPTIMISATION_TYPE_MAX_ENTRY_SIZE"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_address_extension(p):
+        """address_extension : ADDRESS_EXTENSION_FREE
+                             | ADDRESS_EXTENSION_ODT
+                             | ADDRESS_EXTENSION_DAQ"""
+        p[0] = p[1]
 
     @staticmethod
     def p_identification_field_type(p):
@@ -752,6 +790,21 @@ class A2lParser(A2lNode):
                                      | IDENTIFICATION_FIELD_TYPE_RELATIVE_BYTE
                                      | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD
                                      | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD_ALIGNED"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_granularity_odt_entry(p):
+        """granularity_odt_entry : GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                                 | GRANULARITY_ODT_ENTRY_SIZE_DAQ_WORD
+                                 | GRANULARITY_ODT_ENTRY_SIZE_DAQ_DWORD
+                                 | GRANULARITY_ODT_ENTRY_SIZE_DAQ_DLONG"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_overload_indication(p):
+        """overload_indication : NO_OVERLOAD_INDICATION
+                               | OVERLOAD_INDICATION_PID
+                               | OVERLOAD_INDICATION_EVENT"""
         p[0] = p[1]
 
     @staticmethod

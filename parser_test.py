@@ -815,13 +815,14 @@ def test_module_if_data_xcp_daq_node():
                         1 /* max DAQ */
                         2 /* max event channel */
                         3 /* min DAQ */
-                    /end DAQ
-                    /begin DAQ
-                        DYNAMIC /* DAQ configuration type */
-                        4 /* max DAQ */
-                        5 /* max event channel */
-                        6 /* min DAQ */
+                        OPTIMISATION_TYPE_DEFAULT
+                        ADDRESS_EXTENSION_FREE
                         IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                        4
+                        NO_OVERLOAD_INDICATION
+                        PRESCALER_SUPPORTED
+                        RESUME_SUPPORTED
                     /end DAQ
                 /end IF_DATA
             /end MODULE
@@ -832,12 +833,14 @@ def test_module_if_data_xcp_daq_node():
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_daq == 1
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_event_channel == 2
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].min_daq == 3
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].identification_field_type is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[1].daq_config_type == 'DYNAMIC'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[1].max_daq == 4
-    assert a2l.tree.project.module[0].if_data_xcp.daq[1].max_event_channel == 5
-    assert a2l.tree.project.module[0].if_data_xcp.daq[1].min_daq == 6
-    assert a2l.tree.project.module[0].if_data_xcp.daq[1].identification_field_type == 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].optimisation_type == 'OPTIMISATION_TYPE_DEFAULT'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].address_extension == 'ADDRESS_EXTENSION_FREE'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].identification_field_type == 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].granularity_odt_entry == 'GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_odt_entry_size_daq == 4
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].overload_indication == 'NO_OVERLOAD_INDICATION'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].prescaler_supported == 'PRESCALER_SUPPORTED'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].resume_supported == 'RESUME_SUPPORTED'
 
 
 def test_module_if_data_xcp_pag_node():
