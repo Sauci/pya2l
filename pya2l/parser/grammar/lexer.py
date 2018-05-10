@@ -353,8 +353,6 @@ keywords = KeywordsList(('A2ML_VERSION',
                          'float'))
 
 tokens = list(keywords.values()) + [
-    r'C_COMMENT',
-    r'CPP_COMMENT',
     r'NUMERIC',
     r'STRING',
     r'IDENT',
