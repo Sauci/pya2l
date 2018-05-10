@@ -153,6 +153,12 @@ class A2lParser(A2lNode):
         self._yacc = yacc.yacc(module=self, optimize=True)
         self._yacc.parse(string)
 
+    def get_node(self, node_name):
+        if self.tree:
+            return self.tree.get_node(node_name)
+        else:
+            return []
+
     @staticmethod
     def p_error(p):
         if p:

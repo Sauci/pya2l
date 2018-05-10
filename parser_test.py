@@ -5316,3 +5316,38 @@ def test_fix_axis_par_list():
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[0] == 0
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[1] == 1
     assert a2l.tree.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[2] == 2
+
+
+def test_get_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin CHARACTERISTIC
+                    characteristic_name 
+                    "characteristic long identifier" 
+                    VALUE 
+                    0 
+                    DAMOS_SST 
+                    0 
+                    characteristic_conversion
+                    0 
+                    0
+                /end CHARACTERISTIC
+                /begin CHARACTERISTIC
+                    characteristic_name 
+                    "characteristic long identifier" 
+                    VALUE 
+                    0 
+                    DAMOS_SST 
+                    0 
+                    characteristic_conversion
+                    0 
+                    0
+                /end CHARACTERISTIC
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert len(a2l.get_node('PROJECT')) == 1
+    assert len(a2l.get_node('MODULE')) == 1
+    assert len(a2l.get_node('CHARACTERISTIC')) == 2
+    assert len(a2l.get_node('MEASUREMENT')) == 0

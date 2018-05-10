@@ -10,6 +10,11 @@ class A2lNode(object):
     def __init__(self, node, *args, **kwargs):
         self._parent = None
         self._children = list()
+        for attribute in self.get_properties():
+            attr = getattr(self, attribute)
+            if isinstance(attr, A2lNode):
+                attr.set_parent(self)
+                self.add_children(attr)
         for attribute, value in args:
             attr = getattr(self, attribute)
             if isinstance(attr, list):
@@ -28,6 +33,17 @@ class A2lNode(object):
 
     def add_children(self, a2l_node):
         self._children.append(a2l_node)
+
+    def get_properties(self):
+        return [p for p in self.__dict__.keys() if not p.startswith('_')]
+
+    def get_node(self, node_name):
+        nodes = list()
+        for node in self._children:
+            if node._node == node_name:
+                nodes.append(node)
+            nodes += node.get_node(node_name)
+        return nodes
 
 
 class Version(A2lNode):
