@@ -741,9 +741,18 @@ class A2lParser(A2lNode):
         """daq_optional : daq_list
                         | event
                         | timestamp_supported
+                        | identification_field_type
                         | IDENT
                         | NUMERIC"""
         p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_identification_field_type(p):
+        """identification_field_type : IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_BYTE
+                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD
+                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD_ALIGNE"""
+        p[0] = p[1]
 
     @staticmethod
     def p_daq_optional_list(p):

@@ -313,6 +313,7 @@ class Daq(A2lNode):
         self.max_daq = max_daq
         self.max_event_channel = max_event_channel
         self.min_daq = min_daq
+        self.identification_field_type = None
         self.daq_list = list()
         self.timestamp_supported = list()
         self.event = list()

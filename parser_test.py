@@ -816,6 +816,13 @@ def test_module_if_data_xcp_daq_node():
                         2 /* max event channel */
                         3 /* min DAQ */
                     /end DAQ
+                    /begin DAQ
+                        DYNAMIC /* DAQ configuration type */
+                        4 /* max DAQ */
+                        5 /* max event channel */
+                        6 /* min DAQ */
+                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                    /end DAQ
                 /end IF_DATA
             /end MODULE
         /end PROJECT"""
@@ -825,6 +832,12 @@ def test_module_if_data_xcp_daq_node():
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_daq == 1
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_event_channel == 2
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].min_daq == 3
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].identification_field_type is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[1].daq_config_type == 'DYNAMIC'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[1].max_daq == 4
+    assert a2l.tree.project.module[0].if_data_xcp.daq[1].max_event_channel == 5
+    assert a2l.tree.project.module[0].if_data_xcp.daq[1].min_daq == 6
+    assert a2l.tree.project.module[0].if_data_xcp.daq[1].identification_field_type == 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE'
 
 
 def test_module_if_data_xcp_pag_node():
