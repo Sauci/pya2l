@@ -751,7 +751,7 @@ class A2lParser(A2lNode):
         """identification_field_type : IDENTIFICATION_FIELD_TYPE_ABSOLUTE
                                      | IDENTIFICATION_FIELD_TYPE_RELATIVE_BYTE
                                      | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD
-                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD_ALIGNE"""
+                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD_ALIGNED"""
         p[0] = p[1]
 
     @staticmethod
