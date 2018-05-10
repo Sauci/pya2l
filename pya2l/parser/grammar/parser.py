@@ -150,7 +150,7 @@ class A2lParser(A2lNode):
 
     def __init__(self, string):
         self.tree = None
-        self._yacc = yacc.yacc(module=self)
+        self._yacc = yacc.yacc(module=self, optimize=True)
         self._yacc.parse(string)
 
     @staticmethod
