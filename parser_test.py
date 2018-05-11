@@ -940,6 +940,14 @@ def test_module_if_data_xcp_daq_daq_list_node():
                         1 /* max DAQ */
                         2 /* max event channel */
                         3 /* min DAQ */
+                        OPTIMISATION_TYPE_DEFAULT
+                        ADDRESS_EXTENSION_FREE
+                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                        4
+                        NO_OVERLOAD_INDICATION
+                        PRESCALER_SUPPORTED
+                        RESUME_SUPPORTED
                         /begin DAQ_LIST
                             0x4
                         /end DAQ_LIST
@@ -962,6 +970,14 @@ def test_module_if_data_xcp_daq_daq_list_daq_list_type_node():
                         1 /* max DAQ */
                         2 /* max event channel */
                         3 /* min DAQ */
+                        OPTIMISATION_TYPE_DEFAULT
+                        ADDRESS_EXTENSION_FREE
+                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                        4
+                        NO_OVERLOAD_INDICATION
+                        PRESCALER_SUPPORTED
+                        RESUME_SUPPORTED
                         /begin DAQ_LIST
                             0x4
                             DAQ_LIST_TYPE DAQ
@@ -984,6 +1000,14 @@ def test_module_if_data_xcp_daq_with_multiple_daq_list_node():
                         1 /* max DAQ */
                         2 /* max event channel */
                         3 /* min DAQ */
+                        OPTIMISATION_TYPE_DEFAULT
+                        ADDRESS_EXTENSION_FREE
+                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                        4
+                        NO_OVERLOAD_INDICATION
+                        PRESCALER_SUPPORTED
+                        RESUME_SUPPORTED
                         /begin DAQ_LIST
                             0x4
                         /end DAQ_LIST
@@ -1009,6 +1033,14 @@ def test_module_if_data_xcp_event_node():
                         1 /* max DAQ */
                         2 /* max event channel */
                         3 /* min DAQ */
+                        OPTIMISATION_TYPE_DEFAULT
+                        ADDRESS_EXTENSION_FREE
+                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                        4
+                        NO_OVERLOAD_INDICATION
+                        PRESCALER_SUPPORTED
+                        RESUME_SUPPORTED
                         /begin EVENT
                             "event name"
                             "event short name"
@@ -1045,6 +1077,14 @@ def test_module_if_data_xcp_timestamp_supported_node():
                         1 /* max DAQ */
                         2 /* max event channel */
                         3 /* min DAQ */
+                        OPTIMISATION_TYPE_DEFAULT
+                        ADDRESS_EXTENSION_FREE
+                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
+                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
+                        4
+                        NO_OVERLOAD_INDICATION
+                        PRESCALER_SUPPORTED
+                        RESUME_SUPPORTED
                         /begin TIMESTAMP_SUPPORTED
                             1
                             timestamp_supported_size
