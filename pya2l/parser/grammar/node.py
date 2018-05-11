@@ -370,7 +370,11 @@ class DaqList(A2lNode):
     def __init__(self, node, daq_list_number, args):
         self.daq_list_number = daq_list_number
         self.daq_list_type = None
-        self.generic_parameter_list = None
+        self.max_odt = None
+        self.max_odt_entries = None
+        self.first_pid = None
+        self.event_fixed = None
+        self.predefined = list()
         super(DaqList, self).__init__(node, *args)
 
 

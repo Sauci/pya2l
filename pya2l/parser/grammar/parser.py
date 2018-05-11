@@ -841,7 +841,11 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_daq_list_optional(p):
         """daq_list_optional : daq_list_type
-                             | generic_parameter_list"""
+                             | max_odt
+                             | max_odt_entries
+                             | first_pid
+                             | event_fixed
+                             | predefined"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -855,6 +859,31 @@ class A2lParser(A2lNode):
     def p_daq_list_type(p):
         """daq_list_type : DAQ_LIST_TYPE daq_list_type_enum"""
         p[0] = p[2]
+
+    @staticmethod
+    def p_max_odt(p):
+        """max_odt : MAX_ODT NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_max_odt_entries(p):
+        """max_odt_entries : MAX_ODT_ENTRIES NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_first_pid(p):
+        """first_pid : FIRST_PID NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_event_fixed(p):
+        """event_fixed : EVENT_FIXED NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_predefined(p):
+        """predefined : generic_parameter_list"""
+        p[0] = p[1] # TODO: implement according to a2ml specification.
 
     @staticmethod
     def p_daq_list_optional_list(p):

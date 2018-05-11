@@ -949,7 +949,15 @@ def test_module_if_data_xcp_daq_daq_list_node():
                         PRESCALER_SUPPORTED
                         RESUME_SUPPORTED
                         /begin DAQ_LIST
-                            0x4
+                            0x0
+                        /end DAQ_LIST
+                        /begin DAQ_LIST
+                            0x1
+                            DAQ_LIST_TYPE DAQ
+                            MAX_ODT 2
+                            MAX_ODT_ENTRIES 3
+                            FIRST_PID 4
+                            EVENT_FIXED 5
                         /end DAQ_LIST
                     /end DAQ
                 /end IF_DATA
@@ -957,70 +965,18 @@ def test_module_if_data_xcp_daq_daq_list_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'daq_list')
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_number == 4
-
-
-def test_module_if_data_xcp_daq_daq_list_daq_list_type_node():
-    a2l_string = """
-        /begin PROJECT project_name "project long identifier"
-            /begin MODULE first_module_name "first module long identifier"
-                /begin IF_DATA XCP
-                    /begin DAQ
-                        STATIC /* DAQ configuration type */
-                        1 /* max DAQ */
-                        2 /* max event channel */
-                        3 /* min DAQ */
-                        OPTIMISATION_TYPE_DEFAULT
-                        ADDRESS_EXTENSION_FREE
-                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
-                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
-                        4
-                        NO_OVERLOAD_INDICATION
-                        PRESCALER_SUPPORTED
-                        RESUME_SUPPORTED
-                        /begin DAQ_LIST
-                            0x4
-                            DAQ_LIST_TYPE DAQ
-                        /end DAQ_LIST
-                    /end DAQ
-                /end IF_DATA
-            /end MODULE
-        /end PROJECT"""
-    a2l = Parser(a2l_string)
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_type == 'DAQ'
-
-
-def test_module_if_data_xcp_daq_with_multiple_daq_list_node():
-    a2l_string = """
-        /begin PROJECT project_name "project long identifier"
-            /begin MODULE first_module_name "first module long identifier"
-                /begin IF_DATA XCP
-                    /begin DAQ
-                        STATIC /* DAQ configuration type */
-                        1 /* max DAQ */
-                        2 /* max event channel */
-                        3 /* min DAQ */
-                        OPTIMISATION_TYPE_DEFAULT
-                        ADDRESS_EXTENSION_FREE
-                        IDENTIFICATION_FIELD_TYPE_ABSOLUTE
-                        GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
-                        4
-                        NO_OVERLOAD_INDICATION
-                        PRESCALER_SUPPORTED
-                        RESUME_SUPPORTED
-                        /begin DAQ_LIST
-                            0x4
-                        /end DAQ_LIST
-                        /begin DAQ_LIST
-                            0x5
-                        /end DAQ_LIST
-                    /end DAQ
-                /end IF_DATA
-            /end MODULE
-        /end PROJECT"""
-    a2l = Parser(a2l_string)
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_number == 4
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].daq_list_number == 5
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_number == 0
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_type is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].max_odt is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].max_odt_entries is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].first_pid is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].event_fixed is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].daq_list_number == 1
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].daq_list_type == 'DAQ'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].max_odt == 2
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].max_odt_entries == 3
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].first_pid == 4
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].event_fixed == 5
 
 
 def test_module_if_data_xcp_event_node():
