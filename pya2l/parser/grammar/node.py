@@ -378,6 +378,14 @@ class DaqList(A2lNode):
         super(DaqList, self).__init__(node, *args)
 
 
+class DaqListCanId(A2lNode):
+    def __init__(self, node, identifier, args):
+        self.identifier = identifier
+        self.daq_list_can_id_type_fixed = None
+        self.daq_list_can_id_type_variable = None
+        super(DaqListCanId, self).__init__(node, *args)
+
+
 class DefaultEventList(A2lNode):
     def __init__(self, node, args):
         self.event = list()
@@ -589,6 +597,7 @@ class IfDataXcp(A2lNode):
         self.pgm = list()
         self.segment = list()
         self.daq_event = list()
+        self.xcp_on_can = list()
         self.generic_parameter_list = None
         super(IfDataXcp, self).__init__(node, *args)
 
@@ -1122,3 +1131,19 @@ class VirtualCharacteristic(A2lNode):
         self.formula = formula
         self.characteristic = list()
         super(VirtualCharacteristic, self).__init__(node, *args)
+
+
+class XcpOnCan(A2lNode):
+    def __init__(self, node, identifier, args):
+        self.identifier = identifier
+        self.can_id_broadcast = None
+        self.can_id_master = None
+        self.can_id_slave = None
+        self.baudrate = None
+        self.sample_point = None
+        self.sample_rate = None
+        self.btl_cycles = None
+        self.sjw = None
+        self.sync_edge = None
+        self.daq_list_can_id = list()
+        super(XcpOnCan, self).__init__(node, *args)

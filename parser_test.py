@@ -2541,6 +2541,74 @@ def test_if_data_xcp_daq_event_node():
     assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].name == 'VARIABLE'
 
 
+def test_if_data_xcp_xcp_on_can_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin XCP_ON_CAN 0
+                            CAN_ID_BROADCAST 1
+                            CAN_ID_MASTER 2
+                            CAN_ID_SLAVE 3
+                            BAUDRATE 4
+                            SAMPLE_POINT 5
+                            SAMPLE_RATE SINGLE
+                            BTL_CYCLES 6
+                            SJW 7
+                            SYNC_EDGE SINGLE
+                        /end XCP_ON_CAN
+                        /begin XCP_ON_CAN 0
+                            SAMPLE_RATE TRIPLE
+                            SYNC_EDGE DUAL
+                        /end XCP_ON_CAN
+                        /begin XCP_ON_CAN 0
+                            /begin DAQ_LIST_CAN_ID 0
+                            /end DAQ_LIST_CAN_ID
+                            /begin DAQ_LIST_CAN_ID 1
+                                VARIABLE
+                            /end DAQ_LIST_CAN_ID
+                            /begin DAQ_LIST_CAN_ID 2
+                                FIXED 12
+                            /end DAQ_LIST_CAN_ID
+                        /end XCP_ON_CAN
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].measurement[0].if_data_xcp[0], 'xcp_on_can')
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].identifier == 0
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_broadcast == 1
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_master == 2
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_slave == 3
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].baudrate == 4
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sample_point == 5
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sample_rate == 'SINGLE'
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].btl_cycles == 6
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sjw == 7
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sync_edge == 'SINGLE'
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[1].sample_rate == 'TRIPLE'
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[1].sync_edge == 'DUAL'
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[0].identifier == 0
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[0].daq_list_can_id_type_variable is None
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[0].daq_list_can_id_type_fixed is None
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[1].identifier == 1
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[1].daq_list_can_id_type_variable == 'VARIABLE'
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[1].daq_list_can_id_type_fixed is None
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].identifier == 2
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].daq_list_can_id_type_variable is None
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].daq_list_can_id_type_fixed == 12
+
+
 def test_if_data_xcp_segment_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

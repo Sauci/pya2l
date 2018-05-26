@@ -54,6 +54,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'DAQ': Daq,
             'DAQ_EVENT': DaqEvent,
             'DAQ_LIST': DaqList,
+            'DAQ_LIST_CAN_ID': DaqListCanId,
             'DEFAULT_EVENT_LIST': DefaultEventList,
             'DEF_CHARACTERISTIC': DefCharacteristic,
             'DEPENDENT_CHARACTERISTIC': DependentCharacteristic,
@@ -138,6 +139,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
             'VAR_CRITERION': VarCriterion,
             'VAR_FORBIDDEN_COMB': VarForbiddenComb,
             'VIRTUAL_CHARACTERISTIC': VirtualCharacteristic,
+            'XCP_ON_CAN': XcpOnCan,
         }[node_type](node_type, *args, **kwargs)
     except KeyError:
         raise NotImplementedError(str(node_type))
@@ -601,12 +603,122 @@ class A2lParser(A2lNode):
                                 | pgm
                                 | segment
                                 | daq_event
+                                | xcp_on_can
                                 | generic_parameter_list"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
+    def p_xcp_on_can(p):
+        """xcp_on_can : begin XCP_ON_CAN NUMERIC xcp_on_can_optional_list_optional end XCP_ON_CAN"""
+        p[0] = a2l_node_factory(*p[2:5])
+
+    @staticmethod
+    def p_xcp_on_can_optional(p):
+        """xcp_on_can_optional : can_id_broadcast
+                               | can_id_master
+                               | can_id_slave
+                               | baudrate
+                               | sample_point
+                               | sample_rate
+                               | btl_cycles
+                               | sjw
+                               | sync_edge
+                               | daq_list_can_id"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_xcp_on_can_optional_list(p):
+        """xcp_on_can_optional_list : xcp_on_can_optional
+                                    | xcp_on_can_optional xcp_on_can_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_xcp_on_can_optional_list_optional(p):
+        """xcp_on_can_optional_list_optional : empty
+                                             | xcp_on_can_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_can_id_broadcast(p):
+        """can_id_broadcast : CAN_ID_BROADCAST NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_can_id_master(p):
+        """can_id_master : CAN_ID_MASTER NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_can_id_slave(p):
+        """can_id_slave : CAN_ID_SLAVE NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_baudrate(p):
+        """baudrate : BAUDRATE NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_sample_point(p):
+        """sample_point : SAMPLE_POINT NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_sample_rate(p):
+        """sample_rate : SAMPLE_RATE SINGLE
+                       | SAMPLE_RATE TRIPLE"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_btl_cycles(p):
+        """btl_cycles : BTL_CYCLES NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_sjw(p):
+        """sjw : SJW NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_sync_edge(p):
+        """sync_edge : SYNC_EDGE SINGLE
+                     | SYNC_EDGE DUAL"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_daq_list_can_id(p):
+        """daq_list_can_id : begin DAQ_LIST_CAN_ID NUMERIC daq_list_can_id_optional_optional end DAQ_LIST_CAN_ID"""
+        p[0] = a2l_node_factory(*p[2:5])
+
+    @staticmethod
+    def p_daq_list_can_id_optional(p):
+        """daq_list_can_id_optional : daq_list_can_id_type_variable
+                                    | daq_list_can_id_type_fixed"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_daq_list_can_id_optional_optional(p):
+        """daq_list_can_id_optional_optional : empty
+                                             | daq_list_can_id_optional"""
+        p[0] = tuple() if p[1] is None else (p[1],)
+
+    @staticmethod
+    def p_daq_list_can_id_type_variable(p):
+        """daq_list_can_id_type_variable : VARIABLE"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_daq_list_can_id_type_fixed(p):
+        """daq_list_can_id_type_fixed : FIXED NUMERIC"""
+        p[0] = p[2]
+
+    @staticmethod
     def p_daq_event(p):
-        """daq_event : begin DAQ_EVENT IDENT daq_event_optional_list_optional end DAQ_EVENT"""
+        """daq_event : begin DAQ_EVENT FIXED_EVENT_LIST daq_event_optional_list_optional end DAQ_EVENT
+                     | begin DAQ_EVENT VARIABLE daq_event_optional_list_optional end DAQ_EVENT"""
         p[0] = a2l_node_factory(*p[2:5])
 
     @staticmethod
@@ -883,7 +995,7 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_predefined(p):
         """predefined : generic_parameter_list"""
-        p[0] = p[1] # TODO: implement according to a2ml specification.
+        p[0] = p[1]  # TODO: implement according to a2ml specification.
 
     @staticmethod
     def p_daq_list_optional_list(p):
