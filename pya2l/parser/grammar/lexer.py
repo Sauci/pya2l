@@ -5,6 +5,7 @@
 @date: 20.03.2018
 """
 
+import os
 import ply.lex as lex
 
 
@@ -494,4 +495,4 @@ def t_error(token):
     token.lexer.skip(1)
 
 
-lexer = lex.lex(optimize=True)  # , lextab='lexertab'
+lexer = lex.lex(optimize=True, outputdir=os.path.dirname(os.path.realpath(__file__)), lextab='lextab')

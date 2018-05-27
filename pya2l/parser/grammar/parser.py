@@ -5,6 +5,7 @@
 @date: 20.03.2018
 """
 
+import os
 import ply.yacc as yacc
 
 from .lexer import tokens as lex_tokens
@@ -152,7 +153,7 @@ class A2lParser(A2lNode):
 
     def __init__(self, string):
         self.tree = None
-        self._yacc = yacc.yacc(module=self, optimize=True)
+        self._yacc = yacc.yacc(debug=True, module=self, optimize=True, outputdir=os.path.dirname(os.path.realpath(__file__)))
         self._yacc.parse(string)
 
     def get_node(self, node_name):
