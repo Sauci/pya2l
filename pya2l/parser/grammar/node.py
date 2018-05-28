@@ -37,6 +37,9 @@ class A2lNode(object):
     def get_properties(self):
         return [p for p in self.__dict__.keys() if not p.startswith('_')]
 
+    def node(self):
+        return self._node
+
     def get_node(self, node_name):
         nodes = list()
         for node in self._children:

@@ -5415,3 +5415,24 @@ def test_get_node():
     assert len(a2l.get_node('MODULE')) == 1
     assert len(a2l.get_node('CHARACTERISTIC')) == 2
     assert len(a2l.get_node('MEASUREMENT')) == 0
+
+
+def test_type():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin CHARACTERISTIC
+                    characteristic_name 
+                    "characteristic long identifier" 
+                    VALUE 
+                    0 
+                    DAMOS_SST 
+                    0 
+                    characteristic_conversion
+                    0 
+                    0
+                /end CHARACTERISTIC
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].characteristic[0].node() == 'CHARACTERISTIC'
