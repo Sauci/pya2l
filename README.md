@@ -52,6 +52,20 @@ assert a2l.tree.project.module[0].characteristic[0].upper_limit == 12.0
 
 # access nodes by type.
 assert a2l.get_node('CHARACTERISTIC')[0].name == 'example_of_characteristic'
+
+# instantiate custom class for specified node.
+from pya2l.parser.grammar.node import Characteristic
+
+
+class CustomCharacteristic(Characteristic):
+    def node(self):
+        return 'my custom ' + super(CustomCharacteristic, self).node()
+
+
+a2l = Parser(a2l_string, CHARACTERISTIC=CustomCharacteristic)
+assert isinstance(a2l.tree.project.module[0].characteristic[0], CustomCharacteristic)
+assert a2l.tree.project.module[0].characteristic[0].node() == 'my custom CHARACTERISTIC'
+
 ```
 
 ## limitations

@@ -5466,3 +5466,16 @@ def test_type():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.tree.project.module[0].characteristic[0].node() == 'CHARACTERISTIC'
+
+
+def test_custom_class():
+    from pya2l.parser.grammar.node import Project
+
+    class CustomProject(Project):
+        pass
+
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+        /end PROJECT"""
+    a2l = Parser(a2l_string, PROJECT=CustomProject)
+    assert isinstance(a2l.tree.project, CustomProject)
