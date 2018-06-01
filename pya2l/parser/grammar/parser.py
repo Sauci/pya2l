@@ -350,7 +350,7 @@ class A2lParser(A2lNode):
 
     @staticmethod
     def p_a2ml_taggedunion_type_name(p):
-        """a2ml_taggedunion_type_name : taggedunion a2ml_identifier_optional CURLY_OPEN a2ml_taggedunion_member_list CURLY_CLOSE
+        """a2ml_taggedunion_type_name : taggedunion a2ml_identifier_optional CURLY_OPEN a2ml_taggedunion_member_list_optional CURLY_CLOSE
                                       | taggedunion a2ml_identifier"""
 
     @staticmethod
@@ -363,8 +363,15 @@ class A2lParser(A2lNode):
             p[0] = [p[1]]
 
     @staticmethod
+    def p_a2ml_taggedunion_member_list_optional(p):
+        """a2ml_taggedunion_member_list_optional : empty
+                                                 | a2ml_taggedunion_member_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
     def p_a2ml_taggedunion_member(p):
-        """a2ml_taggedunion_member : a2ml_tag a2ml_member SEMICOLON
+        """a2ml_taggedunion_member : a2ml_tag SEMICOLON
+                                   | a2ml_tag a2ml_member SEMICOLON
                                    | a2ml_block_definition SEMICOLON"""
 
     @staticmethod

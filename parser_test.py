@@ -33,6 +33,36 @@ def test_string_cpp_comment():
     Parser(a2l_sting)
 
 
+def test_a2ml_taggedunion():
+    a2l_string = """
+        /begin PROJECT project_name "project long indentifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin A2ML
+                    taggedunion first_tagged_union_identifier;
+                    taggedunion {};
+                    taggedunion third_tagged_union_identifier {};
+                /end A2ML
+            /end MODULE
+        /end PROJECT"""
+    Parser(a2l_string)
+
+
+def test_a2ml_taggedunion_member():
+    a2l_string = """
+        /begin PROJECT project_name "project long indentifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin A2ML
+                    taggedunion {
+                        "first_tag";
+                        "second_tag" ulong;
+                        block "third_tag" ulong;
+                    };
+                /end A2ML
+            /end MODULE
+        /end PROJECT"""
+    Parser(a2l_string)
+
+
 def test_a2ml_version():
     a2l_string = 'A2ML_VERSION 1'
     with pytest.raises(A2lFormatException):
