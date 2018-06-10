@@ -1454,7 +1454,7 @@ class A2lParser(A2lNode):
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
-    def p_memory_segment_optional_list(p):
+    def p_memory_segment_optional_parameter_list(p):
         """memory_segment_optional_parameter_list : memory_segment_optional
                                                   | memory_segment_optional memory_segment_optional_parameter_list"""
         try:
