@@ -2773,13 +2773,38 @@ def test_if_data_memory_segment_node():
                                 SERIAL_INTERFACE
                             /end ETK_XETK_ACCESS
                         /end IF_DATA
+                        /begin IF_DATA XCPplus 0x0102
+                            /begin SEGMENT
+                                2       /* segment logical number */
+                                0x02       /* number of pages */
+                                0x00       /* address extension */
+                                0x00       /* compression method */
+                                0x00       /* encryption method */
+                                /begin CHECKSUM
+                                    XCP_CRC_32 /* checksum: add bytes to 16bit result */
+                                    MAX_BLOCK_SIZE 0xFFFFFFFF
+                                /end CHECKSUM
+                                /begin PAGE
+                                    0x00       /* page number */
+                                    ECU_ACCESS_DONT_CARE
+                                    XCP_READ_ACCESS_DONT_CARE
+                                    XCP_WRITE_ACCESS_NOT_ALLOWED
+                                /end PAGE
+                                /begin PAGE
+                                    0x01       /* page number */
+                                    ECU_ACCESS_DONT_CARE
+                                    XCP_READ_ACCESS_DONT_CARE
+                                    XCP_WRITE_ACCESS_WITH_ECU_ONLY
+                                /end PAGE
+                            /end SEGMENT
+                        /end IF_DATA
                     /end MEMORY_SEGMENT
                 /end MOD_PAR
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0], 'generic_parameter')
-    assert len(a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].generic_parameter) == 1
+    assert len(a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].generic_parameter) != 0
 
 
 def test_measurement_read_write_node():
