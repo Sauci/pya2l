@@ -1509,7 +1509,8 @@ class A2lParser(A2lNode):
     @staticmethod
     def p_if_data_memory_segment_optional(p):
         """if_data_memory_segment_optional : address_mapping
-                                           | segment"""
+                                           | segment
+                                           | generic_parameter"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod

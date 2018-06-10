@@ -576,6 +576,7 @@ class IfDataMemorySegment(A2lNode):
         self.name = name
         self.address_mapping = list()
         self.segment = list()
+        self.generic_parameter = list()
         super(IfDataMemorySegment, self).__init__(node, *args)
 
 
