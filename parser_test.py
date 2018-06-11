@@ -2807,6 +2807,38 @@ def test_if_data_memory_segment_node():
     assert len(a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].generic_parameter) != 0
 
 
+def test_if_data_memory_segment_address_mapping_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MOD_PAR "mod_par comment"
+                    /begin MEMORY_SEGMENT
+                        Dst80100000
+                        ""
+                        DATA
+                        FLASH
+                        INTERN
+                        0x80100000
+                        0x7FAE0
+                        -1
+                        -1
+                        -1
+                        -1
+                        -1
+                        /begin IF_DATA ASAP1B_ETK
+                            ADDRESS_MAPPING 0x4000 0x8000 0x0200
+                        /end IF_DATA
+                    /end MEMORY_SEGMENT
+                /end MOD_PAR
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert hasattr(a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0], 'address_mapping')
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].address_mapping[0].orig_address == 0x4000
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].address_mapping[0].mapping_address == 0x8000
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].address_mapping[0].length == 0x0200
+
+
 def test_measurement_read_write_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
