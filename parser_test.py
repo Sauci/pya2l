@@ -9,6 +9,17 @@ import pytest
 
 from pya2l.parser.grammar.parser import A2lFormatException
 from pya2l.parser.grammar.parser import A2lParser as Parser
+from pya2l.parser.grammar.node import A2lNode
+
+
+def test_invalid_node_property():
+    class InvalidNode(A2lNode):
+        def __init__(self, node):
+            self.invalid_property = dict()
+            super(InvalidNode, self).__init__(node, ('invalid_property', None))
+
+    with pytest.raises(AttributeError, message='invalid_property'):
+        InvalidNode('name')
 
 
 def test_string_empty():

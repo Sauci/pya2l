@@ -10,11 +10,6 @@ class A2lNode(object):
     def __init__(self, node, *args, **kwargs):
         self._parent = None
         self._children = list()
-        for attribute in self.get_properties():
-            attr = getattr(self, attribute)
-            if isinstance(attr, A2lNode):
-                attr.set_parent(self)
-                self.add_children(attr)
         for attribute, value in args:
             attr = getattr(self, attribute)
             if isinstance(attr, list):
@@ -22,7 +17,7 @@ class A2lNode(object):
             elif attr is None:
                 setattr(self, attribute, value)
             else:
-                raise ValueError
+                raise AttributeError(attribute)
             if isinstance(value, A2lNode):
                 value.set_parent(self)
                 self.add_children(value)
