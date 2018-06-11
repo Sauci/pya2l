@@ -5547,6 +5547,14 @@ def test_get_node():
     assert len(a2l.get_node('MEASUREMENT')) == 0
 
 
+def test_get_properties():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert set(a2l.tree.project.get_properties()) == set(['name', 'module', 'header', 'long_identifier'])
+
+
 def test_type():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

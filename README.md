@@ -45,6 +45,10 @@ a2l_string = """
 """
 
 a2l = Parser(a2l_string)
+
+# get a list of available properties for a specific node.
+assert set(a2l.tree.project.get_properties()) == set(['name', 'module', 'header', 'long_identifier'])
+
 # access nodes explicitly.
 assert a2l.tree.project.module[0].characteristic[0].name == 'example_of_characteristic'
 assert a2l.tree.project.module[0].characteristic[0].lower_limit == -4.5
@@ -63,6 +67,7 @@ class CustomCharacteristic(Characteristic):
 
 
 a2l = Parser(a2l_string, CHARACTERISTIC=CustomCharacteristic)
+
 assert isinstance(a2l.tree.project.module[0].characteristic[0], CustomCharacteristic)
 assert a2l.tree.project.module[0].characteristic[0].node() == 'my custom CHARACTERISTIC'
 
