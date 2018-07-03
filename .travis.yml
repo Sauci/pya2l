@@ -9,4 +9,4 @@ install:
 after_success:
   - codecov
 script:
-  - py.test --cov-report html --cov pya2l --verbose
+  - py.test --cov-report html --cov pya2l --verbose --cov-fail-under 97
