@@ -1089,6 +1089,12 @@ def test_module_if_data_xcp_timestamp_supported_node():
                             timestamp_supported_size
                             timestamp_supported_unit
                         /end TIMESTAMP_SUPPORTED
+                        /begin TIMESTAMP_SUPPORTED
+                            1
+                            timestamp_supported_size
+                            timestamp_supported_unit
+                            TIMESTAMP_FIXED
+                        /end TIMESTAMP_SUPPORTED
                     /end DAQ
                 /end IF_DATA
             /end MODULE
@@ -1096,10 +1102,10 @@ def test_module_if_data_xcp_timestamp_supported_node():
     a2l = Parser(a2l_string)
     assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'timestamp_supported')
     assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].timestamp_ticks == 1
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[
-               0].size == 'timestamp_supported_size'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[
-               0].unit == 'timestamp_supported_unit'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].size == 'timestamp_supported_size'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].unit == 'timestamp_supported_unit'
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].timestamp_fixed is None
+    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[1].timestamp_fixed == 'TIMESTAMP_FIXED'
 
 
 def test_mod_par_version_node():
