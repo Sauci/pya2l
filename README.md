@@ -77,3 +77,5 @@ assert a2l.tree.project.module[0].characteristic[0].node() == 'my custom CHARACT
 ## limitations
 currently, the a2ml-formatted content is only described in the grammar, but the content of the node cannot be
 accessed as described above.
+
+[![HitCount](http://hits.dwyl.io/Sauci/pya2l.svg)](http://hits.dwyl.io/Sauci/pya2l)
