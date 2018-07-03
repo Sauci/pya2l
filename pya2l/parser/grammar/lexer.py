@@ -466,10 +466,7 @@ def t_NUMERIC(token):
         try:
             token.value = int(token.value, 16)
         except ValueError:
-            try:
-                token.value = float(token.value)
-            except ValueError:
-                raise Exception('internal regular expression issue...')
+            token.value = float(token.value)
     return token
 
 
