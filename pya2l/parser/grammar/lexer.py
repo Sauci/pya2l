@@ -470,12 +470,6 @@ def t_NUMERIC(token):
                 token.value = float(token.value)
             except ValueError:
                 raise Exception('internal regular expression issue...')
-            except:
-                raise
-        except:
-            raise
-    except:
-        raise
     return token
 
 
@@ -485,8 +479,6 @@ def t_IDENT(token):
         token.type = keywords[token.value.split('[')[0]]
     except KeyError:
         pass
-    except:
-        raise
     return token
 
 
