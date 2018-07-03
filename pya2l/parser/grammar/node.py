@@ -1247,13 +1247,14 @@ class SystemConstant(A2lNode):
 
 
 class TimestampSupported(A2lNode):
-    __slots__ = 'timestamp_ticks', 'size', 'unit'
+    __slots__ = 'timestamp_ticks', 'size', 'unit', 'timestamp_fixed'
 
     def __init__(self, node, timestamp_ticks, size, unit, args):
         self.timestamp_ticks = timestamp_ticks
         self.size = size
         self.unit = unit
-        super(TimestampSupported, self).__init__(node)
+        self.timestamp_fixed = None
+        super(TimestampSupported, self).__init__(node, *args)
 
 
 class Unit(A2lNode):

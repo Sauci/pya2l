@@ -1,8 +1,9 @@
 
 | branch  | build  | coverage |
 |:-------:|:------:| :-------:|
-| master  | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=master)](https://travis-ci.org/Sauci/pya2l)  | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/master/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l) |
-| develop | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=develop)](https://travis-ci.org/Sauci/pya2l)| [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/develop/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l)|
+| [master](https://github.com/Sauci/pya2l/tree/master)   | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=master)](https://travis-ci.org/Sauci/pya2l)  | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/master/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l)  |
+| [develop](https://github.com/Sauci/pya2l/tree/develop) | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=develop)](https://travis-ci.org/Sauci/pya2l) | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/develop/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l) |
+
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 ## package description
 the purpose of this package is to provide an easy way to access and navigate in [a2l](https://www.asam.net/standards/detail/mcd-2-mc/) formatted file.  

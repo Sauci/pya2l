@@ -1028,28 +1028,14 @@ class A2lParser(object):
 
     @staticmethod
     def p_timestamp_supported(p):
-        """timestamp_supported : begin TIMESTAMP_SUPPORTED NUMERIC IDENT IDENT timestamp_supported_optional_list_optional end TIMESTAMP_SUPPORTED"""
+        """timestamp_supported : begin TIMESTAMP_SUPPORTED NUMERIC IDENT IDENT timestamp_fixed end TIMESTAMP_SUPPORTED"""
         p[0] = a2l_node_factory(*p[2:7])
 
     @staticmethod
-    def p_timestamp_supported_optional(p):
-        """timestamp_supported_optional : IDENT"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_timestamp_supported_optional_list(p):
-        """timestamp_supported_optional_list : timestamp_supported_optional
-                                             | timestamp_supported_optional timestamp_supported_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_timestamp_supported_optional_list_optional(p):
-        """timestamp_supported_optional_list_optional : empty
-                                                      | timestamp_supported_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
+    def p_timestamp_fixed(p):
+        """timestamp_fixed : empty
+                           | TIMESTAMP_FIXED"""
+        p[0] = ((p.slice[0].type, p[1]),) if p[1] is not None else tuple()
 
     @staticmethod
     def p_protocol_layer(p):
