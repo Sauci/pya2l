@@ -151,7 +151,7 @@ def a2l_node_factory(node_type, *args, **kwargs):
         raise
 
 
-class A2lParser(A2lNode):
+class A2lParser(object):
     tokens = lex_tokens
 
     def __init__(self, string, **custom_classes):

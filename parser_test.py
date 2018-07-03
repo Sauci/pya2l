@@ -14,6 +14,8 @@ from pya2l.parser.grammar.node import A2lNode
 
 def test_invalid_node_property():
     class InvalidNode(A2lNode):
+        __slots__ = 'invalid_property'
+
         def __init__(self, node):
             self.invalid_property = dict()
             super(InvalidNode, self).__init__(node, ('invalid_property', None))

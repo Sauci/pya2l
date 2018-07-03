@@ -7,6 +7,8 @@
 
 
 class A2lNode(object):
+    __slots__ = '_node', '_parent', '_children'
+
     def __init__(self, node, *args, **kwargs):
         self._parent = None
         self._children = list()
@@ -30,7 +32,7 @@ class A2lNode(object):
         self._children.append(a2l_node)
 
     def get_properties(self):
-        return [p for p in self.__dict__.keys() if not p.startswith('_')]
+        return [p for p in self.__slots__ if not p.startswith('_')]
 
     def node(self):
         return self._node
@@ -45,6 +47,8 @@ class A2lNode(object):
 
 
 class Version(A2lNode):
+    __slots__ = 'version_no', 'upgrade_no'
+
     def __init__(self, node, version_no, upgrade_no):
         self.version_no = version_no
         self.upgrade_no = upgrade_no
@@ -52,6 +56,8 @@ class Version(A2lNode):
 
 
 class A2lFile(A2lNode):
+    __slots__ = 'asap2_version', 'a2ml_version', 'project'
+
     def __init__(self, node, args):
         self.asap2_version = None
         self.a2ml_version = None
@@ -60,6 +66,8 @@ class A2lFile(A2lNode):
 
 
 class Sector(A2lNode):
+    __slots__ = 'name', 'sector_number', 'address', 'length', 'erase_number', 'program_number', 'programming_method'
+
     def __init__(self, node, name, sector_number, address, length, erase_number, program_number, programming_method):
         self.name = name
         self.sector_number = sector_number
@@ -76,6 +84,8 @@ class A2MLVersion(Version):
 
 
 class AddressMapping(A2lNode):
+    __slots__ = 'orig_address', 'mapping_address', 'length'
+
     def __init__(self, node, orig_address, mapping_address, length):
         self.orig_address = orig_address
         self.mapping_address = mapping_address
@@ -84,6 +94,8 @@ class AddressMapping(A2lNode):
 
 
 class Annotation(A2lNode):
+    __slots__ = 'annotation_label', 'annotation_origin', 'annotation_text'
+
     def __init__(self, node, args):
         self.annotation_label = None
         self.annotation_origin = None
@@ -92,6 +104,8 @@ class Annotation(A2lNode):
 
 
 class AnnotationText(A2lNode):
+    __slots__ = 'annotation_text'
+
     def __init__(self, node, args):
         self.annotation_text = list()
         super(AnnotationText, self).__init__(node, *args)
@@ -102,12 +116,18 @@ class ASAP2Version(Version):
 
 
 class AvailableEventList(A2lNode):
+    __slots__ = 'event'
+
     def __init__(self, node, args):
         self.event = list()
         super(AvailableEventList, self).__init__(node, *args)
 
 
 class AxisDescr(A2lNode):
+    __slots__ = 'attribute', 'input_quantity', 'conversion', 'max_axis_points', 'lower_limit', 'upper_limit', \
+                'read_only', 'format', 'annotation', 'axis_pts_ref', 'max_grad', 'monotony', 'byte_order', \
+                'extended_limits', 'fix_axis_par', 'fix_axis_par_dist', 'fix_axis_par_list', 'deposit', 'curve_axis_ref'
+
     def __init__(self, node, attribute, input_quantity, conversion, max_axis_points, lower_limit, upper_limit, args):
         self.attribute = attribute
         self.input_quantity = input_quantity
@@ -132,6 +152,11 @@ class AxisDescr(A2lNode):
 
 
 class AxisPts(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'address', 'input_quantity', 'deposit', 'max_diff', 'conversion', \
+                'max_axis_points', 'lower_limit', 'upper_limit', 'display_identifier', 'read_only', 'format', \
+                'deposit', 'byte_order', 'function_list', 'ref_memory_segment', 'guard_rails', 'extended_limits', \
+                'annotation', 'if_data_axis_pts', 'calibration_access', 'ecu_address_extension'
+
     def __init__(self, node, name, long_identifier, address, input_quantity, deposit, max_diff, conversion,
                  max_axis_points, lower_limit, upper_limit, args):
         self.name = name
@@ -161,6 +186,8 @@ class AxisPts(A2lNode):
 
 
 class AxisPtsXYZ(A2lNode):
+    __slots__ = 'position', 'data_type', 'index_incr', 'addressing'
+
     def __init__(self, node, position, data_type, index_incr, addressing):
         self.position = position
         self.data_type = data_type
@@ -182,6 +209,8 @@ class AxisPtsZ(AxisPtsXYZ):
 
 
 class AxisRescale(A2lNode):
+    __slots__ = 'position', 'data_type', 'max_number_of_rescale_pairs', 'index_incr', 'addressing'
+
     def __init__(self, node, position, data_type, max_number_of_rescale_pairs, index_incr, addressing):
         self.position = position
         self.data_type = data_type
@@ -204,6 +233,8 @@ class AxisRescaleZ(AxisRescale):
 
 
 class BitOperation(A2lNode):
+    __slots__ = 'left_shift', 'right_shift', 'sign_extend'
+
     def __init__(self, node, args):
         self.left_shift = None
         self.right_shift = None
@@ -212,6 +243,8 @@ class BitOperation(A2lNode):
 
 
 class CalibrationMethod(A2lNode):
+    __slots__ = 'method', 'version', 'calibration_handle'
+
     def __init__(self, node, method, version, args):
         self.method = method
         self.version = version
@@ -220,6 +253,12 @@ class CalibrationMethod(A2lNode):
 
 
 class Characteristic(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'type', 'address', 'deposit', 'max_diff', 'conversion', 'lower_limit', \
+                'upper_limit', 'display_identifier', 'format', 'byte_order', 'bit_mask', 'function_list', 'number', \
+                'extended_limits', 'read_only', 'guard_rails', 'map_list', 'max_refresh', 'dependent_characteristic', \
+                'virtual_characteristic', 'ref_memory_segment', 'annotation', 'comparison_quantity', \
+                'if_data_characteristic', 'axis_descr', 'calibration_access', 'matrix_dim', 'ecu_address_extension'
+
     def __init__(self, node, name, long_identifier, type, address, deposit, max_diff, conversion, lower_limit,
                  upper_limit, args):
         self.name = name
@@ -256,6 +295,8 @@ class Characteristic(A2lNode):
 
 
 class Checksum(A2lNode):
+    __slots__ = 'checksum_dll', 'max_block_size'
+
     def __init__(self, node, checksum_dll, max_block_size):
         self.checksum_dll = checksum_dll
         self.max_block_size = max_block_size
@@ -263,6 +304,8 @@ class Checksum(A2lNode):
 
 
 class Coeffs(A2lNode):
+    __slots__ = 'a', 'b', 'c', 'd', 'e', 'f'
+
     def __init__(self, node, a, b, c, d, e, f):
         self.a = a
         self.b = b
@@ -274,6 +317,9 @@ class Coeffs(A2lNode):
 
 
 class CompuMethod(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'format', 'unit', 'formula', 'coeffs', 'coeffs_linear', \
+                'compu_tab_ref', 'ref_unit'
+
     def __init__(self, node, name, long_identifier, conversion_type, format, unit, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -289,6 +335,9 @@ class CompuMethod(A2lNode):
 
 
 class CompuTab(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pairs', 'in_val_out_val', 'default_value', \
+                'default_value_numeric'
+
     def __init__(self, node, name, long_identifier, conversion_type, number_value_pairs, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -301,6 +350,9 @@ class CompuTab(A2lNode):
 
 
 class CompuVTab(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pairs', 'compu_vtab_in_val_out_val', \
+                'default_value'
+
     def __init__(self, node, name, long_identifier, conversion_type, number_value_pairs, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -312,6 +364,8 @@ class CompuVTab(A2lNode):
 
 
 class CompuVTabRange(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'number_value_triples', 'compu_vtab_range_in_val_out_val', 'default_value'
+
     def __init__(self, node, name, long_identifier, number_value_triples, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -322,6 +376,11 @@ class CompuVTabRange(A2lNode):
 
 
 class Daq(A2lNode):
+    __slots__ = 'daq_config_type', 'max_daq', 'max_event_channel', 'min_daq', 'optimisation_type', \
+                'address_extension', 'identification_field_type', 'granularity_odt_entry', 'max_odt_entry_size_daq', \
+                'overload_indication', 'prescaler_supported', 'resume_supported', 'daq_list', 'timestamp_supported', \
+                'event', 'EVENT', 'IDENT', 'NUMERIC'
+
     def __init__(self,
                  node,
                  daq_config_type,
@@ -357,6 +416,8 @@ class Daq(A2lNode):
 
 
 class DaqEvent(A2lNode):
+    __slots__ = 'name', 'available_event_list', 'default_event_list'
+
     def __init__(self, node, name, args):
         self.name = name
         self.available_event_list = list()
@@ -365,6 +426,9 @@ class DaqEvent(A2lNode):
 
 
 class DaqList(A2lNode):
+    __slots__ = 'daq_list_number', 'daq_list_type', 'max_odt', 'max_odt_entries', 'first_pid', 'event_fixed', \
+                'predefined'
+
     def __init__(self, node, daq_list_number, args):
         self.daq_list_number = daq_list_number
         self.daq_list_type = None
@@ -377,6 +441,8 @@ class DaqList(A2lNode):
 
 
 class DaqListCanId(A2lNode):
+    __slots__ = 'identifier', 'daq_list_can_id_type_fixed', 'daq_list_can_id_type_variable'
+
     def __init__(self, node, identifier, args):
         self.identifier = identifier
         self.daq_list_can_id_type_fixed = None
@@ -385,18 +451,24 @@ class DaqListCanId(A2lNode):
 
 
 class DefaultEventList(A2lNode):
+    __slots__ = 'event'
+
     def __init__(self, node, args):
         self.event = list()
         super(DefaultEventList, self).__init__(node, *args)
 
 
 class DefCharacteristic(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(DefCharacteristic, self).__init__(node, *args)
 
 
 class DependentCharacteristic(A2lNode):
+    __slots__ = 'formula', 'characteristic'
+
     def __init__(self, node, formula, args):
         self.formula = formula
         self.characteristic = list()
@@ -404,6 +476,8 @@ class DependentCharacteristic(A2lNode):
 
 
 class DistOp(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -423,6 +497,9 @@ class DistOpZ(DistOp):
 
 
 class Event(A2lNode):
+    __slots__ = 'name', 'short_name', 'event_channel_number', 'daq_list_type', 'max_daq_list', 'time_cycle', \
+                'time_unit', 'priority'
+
     def __init__(self, node, name, short_name, event_channel_number, daq_list_type, max_daq_list, time_cycle, time_unit,
                  priority):
         self.name = name
@@ -437,6 +514,8 @@ class Event(A2lNode):
 
 
 class EventGroup(A2lNode):
+    __slots__ = 'raster_grp_name', 'short_name', 'raster_id'
+
     def __init__(self, node, raster_grp_name, short_name, raster_id):
         self.raster_grp_name = raster_grp_name
         self.short_name = short_name
@@ -445,6 +524,8 @@ class EventGroup(A2lNode):
 
 
 class FixAxisPar(A2lNode):
+    __slots__ = 'offset', 'shift', 'numberapo'
+
     def __init__(self, node, offset, shift, numberapo):
         self.offset = offset
         self.shift = shift
@@ -453,6 +534,8 @@ class FixAxisPar(A2lNode):
 
 
 class FixAxisParList(FixAxisPar):
+    __slots__ = 'offset', 'distance', 'numberapo'
+
     def __init__(self, node, offset, distance, numberapo):
         self.offset = offset
         self.distance = distance
@@ -461,6 +544,8 @@ class FixAxisParList(FixAxisPar):
 
 
 class FixNoAxisPts(A2lNode):
+    __slots__ = 'number_of_axis_points'
+
     def __init__(self, node, number_of_axis_points):
         self.number_of_axis_points = number_of_axis_points
         super(FixNoAxisPts, self).__init__(node)
@@ -479,6 +564,8 @@ class FixNoAxisPtsZ(FixNoAxisPts):
 
 
 class FncValues(A2lNode):
+    __slots__ = 'position', 'data_type', 'index_mode', 'addresstype'
+
     def __init__(self, node, position, data_type, index_mode, addresstype):
         self.position = position
         self.data_type = data_type
@@ -488,6 +575,8 @@ class FncValues(A2lNode):
 
 
 class Formula(A2lNode):
+    __slots__ = 'f', 'formula_inv'
+
     def __init__(self, node, f, args):
         self.f = f
         self.formula_inv = None
@@ -495,6 +584,8 @@ class Formula(A2lNode):
 
 
 class Frame(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'scaling_unit', 'rate', 'frame_measurement', 'if_data_frame'
+
     def __init__(self, node, name, long_identifier, scaling_unit, rate, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -506,12 +597,17 @@ class Frame(A2lNode):
 
 
 class FrameMeasurement(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(FrameMeasurement, self).__init__(node, *args)
 
 
 class Function(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'annotation', 'def_characteristic', 'ref_characteristic', 'in_measurement', \
+                'out_measurement', 'loc_measurement', 'sub_function', 'function_version'
+
     def __init__(self, node, name, long_identifier, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -527,12 +623,17 @@ class Function(A2lNode):
 
 
 class FunctionList(A2lNode):
+    __slots__ = 'name'
+
     def __init__(self, node, args):
         self.name = list()
         super(FunctionList, self).__init__(node, *args)
 
 
 class Group(A2lNode):
+    __slots__ = 'group_name', 'group_long_identifier', 'annotation', 'root', 'ref_characteristic', 'ref_measurement', \
+                'function_list', 'sub_group'
+
     def __init__(self, node, group_name, group_long_identifier, args):
         self.group_name = group_name
         self.group_long_identifier = group_long_identifier
@@ -546,6 +647,8 @@ class Group(A2lNode):
 
 
 class Header(A2lNode):
+    __slots__ = 'comment', 'version', 'project_no'
+
     def __init__(self, node, comment, args):
         self.comment = comment
         self.version = None
@@ -554,6 +657,8 @@ class Header(A2lNode):
 
 
 class Identification(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -561,12 +666,16 @@ class Identification(A2lNode):
 
 
 class IfDataFrame(A2lNode):
+    __slots__ = 'name'
+
     def __init__(self, node, name, args):
         self.name = name
         super(IfDataFrame, self).__init__(node, *args)
 
 
 class IfDataMemorySegment(A2lNode):
+    __slots__ = 'name', 'address_mapping', 'segment', 'generic_parameter'
+
     def __init__(self, node, name, args):
         self.name = name
         self.address_mapping = list()
@@ -576,6 +685,8 @@ class IfDataMemorySegment(A2lNode):
 
 
 class IfDataModule(A2lNode):
+    __slots__ = 'name', 'source', 'raster', 'event_group', 'seed_key', 'checksum', 'tp_blob', 'tp_data'
+
     def __init__(self, node, name, args):
         self.name = name
         self.source = list()
@@ -589,6 +700,8 @@ class IfDataModule(A2lNode):
 
 
 class IfDataXcp(A2lNode):
+    __slots__ = 'protocol_layer', 'daq', 'pag', 'pgm', 'segment', 'daq_event', 'xcp_on_can', 'generic_parameter_list'
+
     def __init__(self, node, args):
         self.protocol_layer = list()
         self.daq = list()
@@ -602,18 +715,24 @@ class IfDataXcp(A2lNode):
 
 
 class InMeasurement(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(InMeasurement, self).__init__(node, *args)
 
 
 class LocMeasurement(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(LocMeasurement, self).__init__(node, *args)
 
 
 class MaxRefresh(A2lNode):
+    __slots__ = 'scaling_unit', 'rate'
+
     def __init__(self, node, scaling_unit, rate):
         self.scaling_unit = scaling_unit
         self.rate = rate
@@ -621,6 +740,12 @@ class MaxRefresh(A2lNode):
 
 
 class Measurement(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'data_type', 'conversion', 'resolution', 'accuracy', 'lower_limit', \
+                'upper_limit', 'display_identifier', 'read_write', 'format', 'array_size', 'bit_mask', \
+                'bit_operation', 'byte_order', 'max_refresh', 'virtual', 'function_list', 'ecu_address', 'error_mask', \
+                'ref_memory_segment', 'annotation', 'if_data_xcp', 'if_data_measurement', 'matrix_dim', \
+                'ecu_address_extension'
+
     def __init__(self, node, name, long_identifier, data_type, conversion, resolution, accuracy, lower_limit,
                  upper_limit, args):
         self.name = name
@@ -653,6 +778,8 @@ class Measurement(A2lNode):
 
 
 class MemoryLayout(A2lNode):
+    __slots__ = 'prg_type', 'address', 'size', 'offset', 'if_data_memory_layout'
+
     def __init__(self, node, prg_type, address, size, offset, args):
         self.prg_type = prg_type
         self.address = address
@@ -663,6 +790,9 @@ class MemoryLayout(A2lNode):
 
 
 class MemorySegment(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'prg_type', 'memory_type', 'attribute', 'address', 'size', 'offset', \
+                'if_data_memory_segment', 'if_data_xcp'
+
     def __init__(self, node, name, long_identifier, prg_type, memory_type, attribute, address, size, offset, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -678,6 +808,11 @@ class MemorySegment(A2lNode):
 
 
 class Module(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'a2ml', 'mod_par', 'mod_common', 'if_data_xcp', 'if_data_module', \
+                'characteristic', 'axis_pts', 'measurement', 'compu_method', 'compu_tab', 'compu_vtab', \
+                'compu_vtab_range', 'function', 'group', 'record_layout', 'variant_coding', 'frame', 'user_rights', \
+                'unit'
+
     def __init__(self, node, name, long_identifier, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -704,6 +839,9 @@ class Module(A2lNode):
 
 
 class ModCommon(A2lNode):
+    __slots__ = 'comment', 's_rec_layout', 'deposit', 'byte_order', 'data_size', 'alignment_byte', 'alignment_word', \
+                'alignment_long', 'alignment_float32_ieee', 'alignment_float64_ieee'
+
     def __init__(self, node, comment, args):
         self.comment = comment
         self.s_rec_layout = None
@@ -719,6 +857,10 @@ class ModCommon(A2lNode):
 
 
 class ModPar(A2lNode):
+    __slots__ = 'comment', 'version', 'addr_epk', 'epk', 'supplier', 'customer', 'customer_no', 'user', 'phone_no', \
+                'ecu', 'cpu_type', 'no_of_interfaces', 'ecu_calibration_offset', 'calibration_method', \
+                'memory_layout', 'memory_segment', 'system_constant'
+
     def __init__(self, node, comment, args):
         self.comment = comment
         self.version = None
@@ -741,6 +883,8 @@ class ModPar(A2lNode):
 
 
 class NoAxisPts(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -760,6 +904,8 @@ class NoAxisPtsZ(NoAxisPts):
 
 
 class NoRescale(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -779,6 +925,8 @@ class NoRescaleZ(NoRescale):
 
 
 class Offset(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -798,12 +946,16 @@ class OffsetZ(Offset):
 
 
 class OutMeasurement(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(OutMeasurement, self).__init__(node, *args)
 
 
 class Pag(A2lNode):
+    __slots__ = 'max_segments', 'freeze_supported'
+
     def __init__(self, node, max_segments, args):
         self.max_segments = max_segments
         self.freeze_supported = None
@@ -811,6 +963,8 @@ class Pag(A2lNode):
 
 
 class Pgm(A2lNode):
+    __slots__ = 'mode', 'max_sectors', 'max_cto_pgm', 'sector', 'generic_parameter_list'
+
     def __init__(self, node, mode, max_sectors, max_cto_pgm, args):
         self.mode = mode
         self.max_sectors = max_sectors
@@ -821,6 +975,8 @@ class Pgm(A2lNode):
 
 
 class Project(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'header', 'module'
+
     def __init__(self, node, name, long_identifier, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -830,6 +986,8 @@ class Project(A2lNode):
 
 
 class ProtocolLayer(A2lNode):
+    __slots__ = 'xcp_protocol_layer_version', 't1', 't2', 't3', 't4', 't5', 't6', 't7', 'max_cto', 'max_dto'
+
     def __init__(self, node, xcp_protocol_layer_version, t1, t2, t3, t4, t5, t6, t7, max_cto, max_dto):
         self.xcp_protocol_layer_version = xcp_protocol_layer_version
         self.t1 = t1
@@ -845,6 +1003,8 @@ class ProtocolLayer(A2lNode):
 
 
 class Raster(A2lNode):
+    __slots__ = 'raster_name', 'short_name', 'raster_id', 'scaling_unit', 'rate'
+
     def __init__(self, node, raster_name, short_name, raster_id, scaling_unit, rate):
         self.raster_name = raster_name
         self.short_name = short_name
@@ -855,6 +1015,14 @@ class Raster(A2lNode):
 
 
 class RecordLayout(A2lNode):
+    __slots__ = 'name', 'fnc_values', 'identification', 'axis_pts_x', 'axis_pts_y', 'axis_pts_z', 'axis_rescale_x', \
+                'axis_rescale_y', 'axis_rescale_z', 'no_axis_pts_x', 'no_axis_pts_y', 'no_axis_pts_z', 'no_rescale_x', \
+                'no_rescale_y', 'no_rescale_z', 'fix_no_axis_pts_x', 'fix_no_axis_pts_y', 'fix_no_axis_pts_z', \
+                'src_addr_x', 'src_addr_y', 'src_addr_z', 'rip_addr_x', 'rip_addr_y', 'rip_addr_z', 'rip_addr_w', \
+                'shift_op_x', 'shift_op_y', 'shift_op_z', 'offset_x', 'offset_y', 'offset_z', 'dist_op_x', \
+                'dist_op_y', 'dist_op_z', 'alignment_byte', 'alignment_word', 'alignment_long', \
+                'alignment_float32_ieee', 'alignment_float64_ieee', 'reserved'
+
     def __init__(self, node, name, args):
         self.name = name
         self.fnc_values = None
@@ -900,24 +1068,32 @@ class RecordLayout(A2lNode):
 
 
 class RefCharacteristic(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(RefCharacteristic, self).__init__(node, *args)
 
 
 class RefGroup(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(RefGroup, self).__init__(node, *args)
 
 
 class RefMeasurement(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(RefMeasurement, self).__init__(node, *args)
 
 
 class Reserved(A2lNode):
+    __slots__ = 'position', 'data_size'
+
     def __init__(self, node, position, data_size):
         self.position = position
         self.data_size = data_size
@@ -925,6 +1101,8 @@ class Reserved(A2lNode):
 
 
 class RipAddr(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -948,6 +1126,8 @@ class RipAddrW(RipAddr):
 
 
 class SeedKey(A2lNode):
+    __slots__ = 'cal_dll', 'daq_dll', 'pgm_dll'
+
     def __init__(self, node, cal_dll, daq_dll, pgm_dll):
         self.cal_dll = cal_dll
         self.daq_dll = daq_dll
@@ -956,6 +1136,9 @@ class SeedKey(A2lNode):
 
 
 class Segment(A2lNode):
+    __slots__ = 'segment_logical_number', 'number_of_pages', 'address_extension', 'compression_method', \
+                'encryption_method', 'checksum', 'page'
+
     def __init__(self, node, segment_logical_number, number_of_pages, address_extension, compression_method,
                  encryption_method, args):
         self.segment_logical_number = segment_logical_number
@@ -969,6 +1152,8 @@ class Segment(A2lNode):
 
 
 class ShiftOp(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -988,6 +1173,8 @@ class ShiftOpZ(ShiftOp):
 
 
 class SiExponents(A2lNode):
+    __slots__ = 'length', 'mass', 'time', 'electric_current', 'temperature', 'amount_of_substance', 'luminous_intensity'
+
     def __init__(self, node, length, mass, time, electric_current, temperature, amount_of_substance,
                  luminous_intensity):
         self.length = length
@@ -1001,6 +1188,8 @@ class SiExponents(A2lNode):
 
 
 class Source(A2lNode):
+    __slots__ = 'name', 'scaling_unit', 'rate', 'display_identifier', 'qp_blob', 'qp_data'
+
     def __init__(self, node, name, scaling_unit, rate, args):
         self.name = name
         self.scaling_unit = scaling_unit
@@ -1012,6 +1201,8 @@ class Source(A2lNode):
 
 
 class SrcAddr(A2lNode):
+    __slots__ = 'position', 'data_type'
+
     def __init__(self, node, position, data_type):
         self.position = position
         self.data_type = data_type
@@ -1031,18 +1222,24 @@ class SrcAddrZ(SrcAddr):
 
 
 class SubFunction(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(SubFunction, self).__init__(node, *args)
 
 
 class SubGroup(A2lNode):
+    __slots__ = 'identifier'
+
     def __init__(self, node, args):
         self.identifier = list()
         super(SubGroup, self).__init__(node, *args)
 
 
 class SystemConstant(A2lNode):
+    __slots__ = 'name', 'value'
+
     def __init__(self, node, name, value):
         self.name = name
         self.value = value
@@ -1050,6 +1247,8 @@ class SystemConstant(A2lNode):
 
 
 class TimestampSupported(A2lNode):
+    __slots__ = 'timestamp_ticks', 'size', 'unit'
+
     def __init__(self, node, timestamp_ticks, size, unit, args):
         self.timestamp_ticks = timestamp_ticks
         self.size = size
@@ -1058,6 +1257,8 @@ class TimestampSupported(A2lNode):
 
 
 class Unit(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'display', 'type', 'si_exponents', 'ref_unit', 'unit_conversion'
+
     def __init__(self, node, name, long_identifier, display, type, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -1070,6 +1271,8 @@ class Unit(A2lNode):
 
 
 class UnitConversion(A2lNode):
+    __slots__ = 'gradient', 'offset'
+
     def __init__(self, node, gradient, offset):
         self.gradient = gradient
         self.offset = offset
@@ -1077,6 +1280,8 @@ class UnitConversion(A2lNode):
 
 
 class UserRights(A2lNode):
+    __slots__ = 'user_level_id', 'read_only', 'ref_group'
+
     def __init__(self, node, user_level_id, args):
         self.user_level_id = user_level_id
         self.read_only = None
@@ -1085,6 +1290,8 @@ class UserRights(A2lNode):
 
 
 class VariantCoding(A2lNode):
+    __slots__ = 'var_separator', 'var_naming', 'var_criterion', 'var_forbidden_comb', 'var_characteristic'
+
     def __init__(self, node, args):
         self.var_separator = None
         self.var_naming = None
@@ -1095,12 +1302,16 @@ class VariantCoding(A2lNode):
 
 
 class VarAddress(A2lNode):
+    __slots__ = 'address'
+
     def __init__(self, node, args):
         self.address = list()
         super(VarAddress, self).__init__(node, *args)
 
 
 class VarCharacteristic(A2lNode):
+    __slots__ = 'name', 'criterion_name', 'var_address'
+
     def __init__(self, node, name, criterion_name, args):
         self.name = name
         self.criterion_name = criterion_name
@@ -1109,6 +1320,8 @@ class VarCharacteristic(A2lNode):
 
 
 class VarCriterion(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'value', 'var_measurement', 'var_selection_characteristic'
+
     def __init__(self, node, name, long_identifier, value, args):
         self.name = name
         self.long_identifier = long_identifier
@@ -1119,6 +1332,8 @@ class VarCriterion(A2lNode):
 
 
 class VarForbiddenComb(A2lNode):
+    __slots__ = 'criterion_name', 'criterion_value'
+
     def __init__(self, node, *args):
         self.criterion_name = list()
         self.criterion_value = list()
@@ -1126,6 +1341,8 @@ class VarForbiddenComb(A2lNode):
 
 
 class VirtualCharacteristic(A2lNode):
+    __slots__ = 'formula', 'characteristic'
+
     def __init__(self, node, formula, args):
         self.formula = formula
         self.characteristic = list()
@@ -1133,6 +1350,9 @@ class VirtualCharacteristic(A2lNode):
 
 
 class XcpOnCan(A2lNode):
+    __slots__ = 'identifier', 'can_id_broadcast', 'can_id_master', 'can_id_slave', 'baudrate', 'sample_point', \
+                'sample_rate', 'btl_cycles', 'sjw', 'sync_edge', 'daq_list_can_id'
+
     def __init__(self, node, identifier, args):
         self.identifier = identifier
         self.can_id_broadcast = None
