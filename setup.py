@@ -2,9 +2,9 @@ from setuptools import setup
 
 setup(
     name='pya2l',
-    version='0.0.11',
+    version='0.0.1',
     packages=['pya2l', 'pya2l.parser', 'pya2l.parser.grammar'],
-    url='',
+    url='https://github.com/Sauci/pya2l',
     license='BSD',
     author='Guillaume Sottas',
     author_email='guillaumesottas@gmail.com',
