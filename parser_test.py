@@ -5563,6 +5563,131 @@ def test_get_properties():
     assert set(a2l.tree.project.properties) == set(['name', 'module', 'header', 'long_identifier'])
 
 
+def test_get_json():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin CHARACTERISTIC
+                    characteristic_name 
+                    "characteristic long identifier" 
+                    VALUE 
+                    0 
+                    DAMOS_SST 
+                    0 
+                    characteristic_conversion
+                    0 
+                    0
+                /end CHARACTERISTIC
+                /begin CHARACTERISTIC
+                    characteristic_name 
+                    "characteristic long identifier" 
+                    VALUE 
+                    0 
+                    DAMOS_SST 
+                    0 
+                    characteristic_conversion
+                    0 
+                    0
+                /end CHARACTERISTIC
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.json == {
+        'header': None,
+        'long_identifier': 'project long identifier',
+        'module': [
+            {
+                'compu_tab': [],
+                'record_layout': [],
+                'long_identifier': 'first module long identifier',
+                'unit': [],
+                'compu_method': [],
+                'function': [],
+                'variant_coding': None,
+                'characteristic': [
+                    {
+                        'if_data_characteristic': [],
+                        'long_identifier': 'characteristic long identifier',
+                        'format': None,
+                        'read_only': None,
+                        'matrix_dim': None,
+                        'extended_limits': None,
+                        'dependent_characteristic': None,
+                        'byte_order': None,
+                        'virtual_characteristic': None,
+                        'deposit': 'DAMOS_SST',
+                        'ref_memory_segment': None,
+                        'conversion': 'characteristic_conversion',
+                        'type': 'VALUE',
+                        'display_identifier': None,
+                        'max_diff': 0,
+                        'lower_limit': 0,
+                        'address': 0,
+                        'guard_rails': None,
+                        'ecu_address_extension': None,
+                        'annotation': [],
+                        'name': 'characteristic_name',
+                        'map_list': None,
+                        'calibration_access': None,
+                        'comparison_quantity': None,
+                        'upper_limit': 0,
+                        'bit_mask': None,
+                        'max_refresh': None,
+                        'function_list': None,
+                        'number': None,
+                        'axis_descr': []
+                    },
+                    {
+                        'if_data_characteristic': [],
+                        'long_identifier': 'characteristic long identifier',
+                        'format': None,
+                        'read_only': None,
+                        'matrix_dim': None,
+                        'extended_limits': None,
+                        'dependent_characteristic': None,
+                        'byte_order': None,
+                        'virtual_characteristic': None,
+                        'deposit': 'DAMOS_SST',
+                        'ref_memory_segment': None,
+                        'conversion': 'characteristic_conversion',
+                        'type': 'VALUE',
+                        'display_identifier': None,
+                        'max_diff': 0,
+                        'lower_limit': 0,
+                        'address': 0,
+                        'guard_rails': None,
+                        'ecu_address_extension': None,
+                        'annotation': [],
+                        'name': 'characteristic_name',
+                        'map_list': None,
+                        'calibration_access': None,
+                        'comparison_quantity': None,
+                        'upper_limit': 0,
+                        'bit_mask': None,
+                        'max_refresh': None,
+                        'function_list': None,
+                        'number': None,
+                        'axis_descr': []
+                    }],
+                'group': [],
+                'compu_vtab_range': [],
+                'name': 'first_module_name',
+                'frame': None,
+                'a2ml': None,
+                'user_rights': [],
+                'compu_vtab': [],
+                'measurement': [],
+                'if_data_xcp': None,
+                'axis_pts': [],
+                'mod_par': None,
+                'mod_common': None,
+                'if_data_module': []
+            }
+        ],
+        'name': 'project_name'
+    }
+
+
 def test_type():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

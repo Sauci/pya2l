@@ -45,7 +45,25 @@ class A2lNode(object):
             nodes += node.get_node(node_name)
         return nodes
 
+    def get_json(self):
+        tmp = dict()
+        for p in self.properties:
+            v = getattr(self, p)
+            if isinstance(v, A2lNode):
+                tmp[p] = v.json
+            elif isinstance(v, list):
+                tmp[p] = list()
+                for e in v:
+                    if isinstance(e, A2lNode):
+                        tmp[p].append(e.json)
+                    else:
+                        tmp[p].append(e)
+            else:
+                tmp[p] = v
+        return tmp
+
     properties = property(fget=get_properties)
+    json = property(fget=get_json)
 
 
 class Version(A2lNode):
