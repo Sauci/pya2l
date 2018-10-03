@@ -21,6 +21,8 @@ class A2lNode(object):
     __slots__ = '_node', '_parent', '_children'
 
     def __init__(self, *args, **kwargs):
+        if not isinstance(self.__slots__, tuple):
+            raise ValueError('__slot__ attribute must be a list (maybe \',\' is missing at the end?).')
         self._parent = None
         self._children = list()
         for attribute, value in args:
@@ -126,7 +128,7 @@ class Annotation(A2lNode):
 
 @a2l_node_type('ANNOTATION_TEXT')
 class AnnotationText(A2lNode):
-    __slots__ = 'annotation_text'
+    __slots__ = 'annotation_text',
 
     def __init__(self, args):
         self.annotation_text = list()
@@ -140,7 +142,7 @@ class ASAP2Version(Version):
 
 @a2l_node_type('AVAILABLE_EVENT_LIST')
 class AvailableEventList(A2lNode):
-    __slots__ = 'event'
+    __slots__ = 'event',
 
     def __init__(self, args):
         self.event = list()
@@ -496,7 +498,7 @@ class DaqListCanId(A2lNode):
 
 @a2l_node_type('DEFAULT_EVENT_LIST')
 class DefaultEventList(A2lNode):
-    __slots__ = 'event'
+    __slots__ = 'event',
 
     def __init__(self, args):
         self.event = list()
@@ -505,7 +507,7 @@ class DefaultEventList(A2lNode):
 
 @a2l_node_type('DEF_CHARACTERISTIC')
 class DefCharacteristic(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -598,7 +600,7 @@ class FixAxisParDist(FixAxisPar):
 
 
 class FixNoAxisPts(A2lNode):
-    __slots__ = 'number_of_axis_points'
+    __slots__ = 'number_of_axis_points',
 
     def __init__(self, number_of_axis_points):
         self.number_of_axis_points = number_of_axis_points
@@ -658,7 +660,7 @@ class Frame(A2lNode):
 
 @a2l_node_type('FRAME_MEASUREMENT')
 class FrameMeasurement(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -686,7 +688,7 @@ class Function(A2lNode):
 
 @a2l_node_type('FUNCTION_LIST')
 class FunctionList(A2lNode):
-    __slots__ = 'name'
+    __slots__ = 'name',
 
     def __init__(self, args):
         self.name = list()
@@ -733,7 +735,7 @@ class Identification(A2lNode):
 
 @a2l_node_type('if_data_frame')
 class IfDataFrame(A2lNode):
-    __slots__ = 'name'
+    __slots__ = 'name',
 
     def __init__(self, name, args):
         self.name = name
@@ -786,7 +788,7 @@ class IfDataXcp(A2lNode):
 
 @a2l_node_type('IN_MEASUREMENT')
 class InMeasurement(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -795,7 +797,7 @@ class InMeasurement(A2lNode):
 
 @a2l_node_type('LOC_MEASUREMENT')
 class LocMeasurement(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1035,7 +1037,7 @@ class OffsetZ(Offset):
 
 @a2l_node_type('OUT_MEASUREMENT')
 class OutMeasurement(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1164,7 +1166,7 @@ class RecordLayout(A2lNode):
 
 @a2l_node_type('REF_CHARACTERISTIC')
 class RefCharacteristic(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1173,7 +1175,7 @@ class RefCharacteristic(A2lNode):
 
 @a2l_node_type('REF_GROUP')
 class RefGroup(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1182,7 +1184,7 @@ class RefGroup(A2lNode):
 
 @a2l_node_type('REF_MEASUREMENT')
 class RefMeasurement(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1351,7 +1353,7 @@ class SrcAddrZ(SrcAddr):
 
 @a2l_node_type('SUB_FUNCTION')
 class SubFunction(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1360,7 +1362,7 @@ class SubFunction(A2lNode):
 
 @a2l_node_type('SUB_GROUP')
 class SubGroup(A2lNode):
-    __slots__ = 'identifier'
+    __slots__ = 'identifier',
 
     def __init__(self, args):
         self.identifier = list()
@@ -1440,7 +1442,7 @@ class VariantCoding(A2lNode):
 
 @a2l_node_type('VAR_ADDRESS')
 class VarAddress(A2lNode):
-    __slots__ = 'address'
+    __slots__ = 'address',
 
     def __init__(self, args):
         self.address = list()
