@@ -5560,7 +5560,7 @@ def test_get_properties():
         /begin PROJECT project_name "project long identifier"
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert set(a2l.tree.project.get_properties()) == set(['name', 'module', 'header', 'long_identifier'])
+    assert set(a2l.tree.project.properties) == set(['name', 'module', 'header', 'long_identifier'])
 
 
 def test_type():

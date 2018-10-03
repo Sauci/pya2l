@@ -32,7 +32,7 @@ class A2lNode(object):
         self._children.append(a2l_node)
 
     def get_properties(self):
-        return [p for p in self.__slots__ if not p.startswith('_')]
+        return (p for p in self.__slots__ if not p.startswith('_'))
 
     def node(self):
         return self._node
@@ -44,6 +44,8 @@ class A2lNode(object):
                 nodes.append(node)
             nodes += node.get_node(node_name)
         return nodes
+
+    properties = property(fget=get_properties)
 
 
 class Version(A2lNode):
