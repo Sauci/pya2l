@@ -79,6 +79,46 @@ a2l = Parser(a2l_string, CHARACTERISTIC=CustomCharacteristic)
 assert isinstance(a2l.tree.project.module[0].characteristic[0], CustomCharacteristic)
 assert a2l.tree.project.module[0].characteristic[0].node() == 'my custom CHARACTERISTIC'
 
+# convert node to json-formatted string.
+from json import dumps as python_object_to_json_string
+
+a2l = Parser("""
+    /begin PROJECT project_name "example project"
+        /begin MODULE first_module "first module long identifier"
+        /end MODULE
+    /end PROJECT
+    """)
+
+assert python_object_to_json_string(a2l.tree.project.json, sort_keys=True, indent=4) == """{
+    "header": null,
+    "long_identifier": "example project",
+    "module": [
+        {
+            "a2ml": null,
+            "axis_pts": [],
+            "characteristic": [],
+            "compu_method": [],
+            "compu_tab": [],
+            "compu_vtab": [],
+            "compu_vtab_range": [],
+            "frame": null,
+            "function": [],
+            "group": [],
+            "if_data_module": [],
+            "if_data_xcp": null,
+            "long_identifier": "first module long identifier",
+            "measurement": [],
+            "mod_common": null,
+            "mod_par": null,
+            "name": "first_module",
+            "record_layout": [],
+            "unit": [],
+            "user_rights": [],
+            "variant_coding": null
+        }
+    ],
+    "name": "project_name"
+}"""
 ```
 
 ## limitations
