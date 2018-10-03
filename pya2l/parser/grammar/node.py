@@ -40,7 +40,7 @@ class A2lNode(object):
     def get_node(self, node_name):
         nodes = list()
         for node in self._children:
-            if node._node == node_name:
+            if node.node() == node_name:
                 nodes.append(node)
             nodes += node.get_node(node_name)
         return nodes
