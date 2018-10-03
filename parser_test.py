@@ -5593,10 +5593,12 @@ def test_get_json():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.tree.project.json == {
+        'node': 'PROJECT',
         'header': None,
         'long_identifier': 'project long identifier',
         'module': [
             {
+                'node': 'MODULE',
                 'compu_tab': [],
                 'record_layout': [],
                 'long_identifier': 'first module long identifier',
@@ -5606,6 +5608,7 @@ def test_get_json():
                 'variant_coding': None,
                 'characteristic': [
                     {
+                        'node': 'CHARACTERISTIC',
                         'if_data_characteristic': [],
                         'long_identifier': 'characteristic long identifier',
                         'format': None,
@@ -5638,6 +5641,7 @@ def test_get_json():
                         'axis_descr': []
                     },
                     {
+                        'node': 'CHARACTERISTIC',
                         'if_data_characteristic': [],
                         'long_identifier': 'characteristic long identifier',
                         'format': None,

@@ -46,7 +46,7 @@ class A2lNode(object):
         return nodes
 
     def get_json(self):
-        tmp = dict()
+        tmp = dict(node=self.node())
         for p in self.properties:
             v = getattr(self, p)
             if isinstance(v, A2lNode):

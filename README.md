@@ -111,14 +111,17 @@ assert python_object_to_json_string(a2l.tree.project.json, sort_keys=True, inden
             "mod_common": null,
             "mod_par": null,
             "name": "first_module",
+            "node": "MODULE",
             "record_layout": [],
             "unit": [],
             "user_rights": [],
             "variant_coding": null
         }
     ],
-    "name": "project_name"
+    "name": "project_name",
+    "node": "PROJECT"
 }"""
+
 ```
 
 ## limitations
