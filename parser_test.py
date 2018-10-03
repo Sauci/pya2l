@@ -16,12 +16,12 @@ def test_invalid_node_property():
     class InvalidNode(A2lNode):
         __slots__ = 'invalid_property'
 
-        def __init__(self, node):
+        def __init__(self):
             self.invalid_property = dict()
-            super(InvalidNode, self).__init__(node, ('invalid_property', None))
+            super(InvalidNode, self).__init__(('invalid_property', None))
 
     with pytest.raises(AttributeError, message='invalid_property'):
-        InvalidNode('name')
+        InvalidNode()
 
 
 def test_string_empty():
@@ -5714,7 +5714,7 @@ def test_type():
 
 
 def test_custom_class():
-    from pya2l.parser.grammar.node import Project
+    from pya2l.parser.grammar.node import Project, A2lNode, a2l_node_type
 
     class CustomProject(Project):
         pass
