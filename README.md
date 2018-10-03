@@ -12,8 +12,11 @@ once the file has been loaded, a tree of Python objects is generated, allowing t
 ## installation  
   
 ### using `pip`
-install the package by running the following command:  
-`pip install git+https://github.com/Sauci/pya2l.git@master`  
+install the most recent version of the package (master branch) by running the following command:
+`pip install git+https://github.com/Sauci/pya2l.git@master`
+
+or install the last released version of the package by running the following command:
+`pip install pya2l`
   
 ### from source
 this package uses [ply](https://pypi.python.org/pypi/ply) package. if it is not already installed, install it first.  
