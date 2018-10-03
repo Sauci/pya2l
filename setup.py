@@ -13,6 +13,9 @@ setup(
     author='Guillaume Sottas',
     author_email='guillaumesottas@gmail.com',
     description='utility for a2l files',
+    entry_points={
+        'console_scripts': [ 'pya2l=pya2l:main' ]
+    },
     long_description='this package provides an API to access different nodes in an a2l-formatted file',
     install_requires=[
         'ply',
