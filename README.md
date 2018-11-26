@@ -1,8 +1,8 @@
 
 | branch  | build  | coverage |
 |:-------:|:------:| :-------:|
-| [master](https://github.com/Sauci/pya2l/tree/master)   | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=master)](https://travis-ci.org/Sauci/pya2l)  | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/master/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l)  |
-| [develop](https://github.com/Sauci/pya2l/tree/develop) | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=develop)](https://travis-ci.org/Sauci/pya2l) | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/develop/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l) |
+| [master](https://github.com/Sauci/pya2l/tree/master)   | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=master)](https://travis-ci.org/Sauci/pya2l) [![Build status](https://ci.appveyor.com/api/projects/status/wwq1r9y3ot0d6lea/branch/master?svg=true)](https://ci.appveyor.com/project/Sauci/pya2l/branch/develop) | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/master/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l)  |
+| [develop](https://github.com/Sauci/pya2l/tree/develop) | [![tests status](https://travis-ci.org/Sauci/pya2l.svg?branch=develop)](https://travis-ci.org/Sauci/pya2l) [![Build status](https://ci.appveyor.com/api/projects/status/wwq1r9y3ot0d6lea/branch/develop?svg=true)](https://ci.appveyor.com/project/Sauci/pya2l/branch/develop) | [![code coverage](https://codecov.io/gh/Sauci/pya2l/branch/develop/graph/badge.svg?token=Q5aceZRFXh)](https://codecov.io/gh/Sauci/pya2l) |
 
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://raw.githubusercontent.com/Sauci/pya2l/master/LICENSE.md) [![Gitter](https://img.shields.io/gitter/room/Sauci/pya2l.svg)](https://gitter.im/pya2l/Lobby)
 
