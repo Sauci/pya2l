@@ -14,14 +14,26 @@ from pya2l.parser.grammar.node import A2lNode
 
 def test_invalid_node_property():
     class InvalidNode(A2lNode):
-        __slots__ = 'invalid_property'
+        __slots__ = 'invalid_property',
 
-        def __init__(self, node):
+        def __init__(self):
             self.invalid_property = dict()
-            super(InvalidNode, self).__init__(node, ('invalid_property', None))
+            super(InvalidNode, self).__init__(('invalid_property', None))
 
     with pytest.raises(AttributeError, message='invalid_property'):
-        InvalidNode('name')
+        InvalidNode()
+
+
+def test_invalid_node_slot_property():
+    class InvalidNode(A2lNode):
+        __slots__ = 'property_value'
+
+        def __init__(self, property_value):
+            self.property_value = property_value
+            super(InvalidNode, self).__init__()
+
+    with pytest.raises(ValueError, message='__slot__ attribute must be a list (maybe \',\' is missing at the end?).'):
+        InvalidNode(1)
 
 
 def test_string_empty():
@@ -5593,10 +5605,12 @@ def test_get_json():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.tree.project.json == {
+        'node': 'PROJECT',
         'header': None,
         'long_identifier': 'project long identifier',
         'module': [
             {
+                'node': 'MODULE',
                 'compu_tab': [],
                 'record_layout': [],
                 'long_identifier': 'first module long identifier',
@@ -5606,6 +5620,7 @@ def test_get_json():
                 'variant_coding': None,
                 'characteristic': [
                     {
+                        'node': 'CHARACTERISTIC',
                         'if_data_characteristic': [],
                         'long_identifier': 'characteristic long identifier',
                         'format': None,
@@ -5638,6 +5653,7 @@ def test_get_json():
                         'axis_descr': []
                     },
                     {
+                        'node': 'CHARACTERISTIC',
                         'if_data_characteristic': [],
                         'long_identifier': 'characteristic long identifier',
                         'format': None,
@@ -5710,7 +5726,7 @@ def test_type():
 
 
 def test_custom_class():
-    from pya2l.parser.grammar.node import Project
+    from pya2l.parser.grammar.node import Project, A2lNode, a2l_node_type
 
     class CustomProject(Project):
         pass

@@ -6,3 +6,4 @@
 """
 
 from .parser import A2lParser, A2lFormatException
+from .cli import main
