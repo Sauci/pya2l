@@ -2838,6 +2838,61 @@ def test_if_data_memory_segment_node():
     assert len(a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].generic_parameter) != 0
 
 
+def test_if_data_memory_segment_segment_page_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MOD_PAR "mod_par comment"
+                    /begin MEMORY_SEGMENT
+                        Dst80100000
+                        ""
+                        DATA
+                        FLASH
+                        INTERN
+                        0x80100000
+                        0x7FAE0
+                        -1
+                        -1
+                        -1
+                        -1
+                        -1
+                        /begin IF_DATA XCPplus 0x0102
+                            /begin SEGMENT
+                                2       /* segment logical number */
+                                0x02       /* number of pages */
+                                0x00       /* address extension */
+                                0x00       /* compression method */
+                                0x00       /* encryption method */
+                                /begin PAGE
+                                    0x00       /* page number */
+                                    ECU_ACCESS_NOT_ALLOWED
+                                    XCP_READ_ACCESS_NOT_ALLOWED
+                                    XCP_WRITE_ACCESS_NOT_ALLOWED
+                                /end PAGE
+                                /begin PAGE
+                                    0x01       /* page number */
+                                    ECU_ACCESS_DONT_CARE
+                                    XCP_READ_ACCESS_DONT_CARE
+                                    XCP_WRITE_ACCESS_DONT_CARE
+                                    INIT_SEGMENT 0xFE
+                                /end PAGE
+                            /end SEGMENT
+                        /end IF_DATA
+                    /end MEMORY_SEGMENT
+                /end MOD_PAR
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[0].ecu_access == 'ECU_ACCESS_NOT_ALLOWED'
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[0].xcp_read_access == 'XCP_READ_ACCESS_NOT_ALLOWED'
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[0].xcp_write_access == 'XCP_WRITE_ACCESS_NOT_ALLOWED'
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[0].init_segment is None
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[1].ecu_access == 'ECU_ACCESS_DONT_CARE'
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[1].xcp_read_access == 'XCP_READ_ACCESS_DONT_CARE'
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[1].xcp_write_access == 'XCP_WRITE_ACCESS_DONT_CARE'
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[1].init_segment == 0xFE
+
+
 def test_if_data_memory_segment_address_mapping_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

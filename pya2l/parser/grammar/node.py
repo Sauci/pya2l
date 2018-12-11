@@ -1054,6 +1054,19 @@ class Pag(A2lNode):
         super(Pag, self).__init__(*args)
 
 
+@a2l_node_type('PAGE')
+class Page(A2lNode):
+    __slots__ = 'identifier', 'ecu_access', 'xcp_read_access', 'xcp_write_access', 'init_segment'
+
+    def __init__(self, identifier, ecu_access, xcp_read_access, xcp_write_access, args):
+        self.identifier = identifier
+        self.ecu_access = ecu_access
+        self.xcp_read_access = xcp_read_access
+        self.xcp_write_access = xcp_write_access
+        self.init_segment = None
+        super(Page, self).__init__(*args)
+
+
 @a2l_node_type('PGM')
 class Pgm(A2lNode):
     __slots__ = 'mode', 'max_sectors', 'max_cto_pgm', 'sector', 'generic_parameter_list'
@@ -1269,7 +1282,7 @@ class Segment(A2lNode):
         self.compression_method = compression_method
         self.encryption_method = encryption_method
         self.checksum = None
-        self.page = None
+        self.page = list()
         super(Segment, self).__init__(*args)
 
 

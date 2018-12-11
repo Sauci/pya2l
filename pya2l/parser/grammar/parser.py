@@ -1418,29 +1418,38 @@ class A2lParser(object):
 
     @staticmethod
     def p_page(p):
-        """page : begin PAGE NUMERIC IDENT IDENT IDENT page_optional_parameter_list_optional end PAGE"""
+        """page : begin PAGE NUMERIC page_ecu_access_enum page_xcp_read_access_enum page_xcp_write_access_enum init_segment end PAGE"""
+        p[0] = a2l_node_factory(*p[2:8])
 
     @staticmethod
-    def p_page_optional_parameter(p):
-        """page_optional_parameter : init_segment"""
+    def p_page_ecu_access_enum(p):
+        """page_ecu_access_enum : ECU_ACCESS_NOT_ALLOWED
+                                | ECU_ACCESS_WITHOUT_XCP_ONLY
+                                | ECU_ACCESS_WITH_XCP_ONLY
+                                | ECU_ACCESS_DONT_CARE"""
+        p[0] = p[1]
 
     @staticmethod
-    def p_page_optional_parameter_list(p):
-        """page_optional_parameter_list : page_optional_parameter
-                                        | page_optional_parameter page_optional_parameter_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
+    def p_page_xcp_read_access_enum(p):
+        """page_xcp_read_access_enum : XCP_READ_ACCESS_NOT_ALLOWED
+                                     | XCP_READ_ACCESS_WITHOUT_ECU_ONLY
+                                     | XCP_READ_ACCESS_WITH_ECU_ONLY
+                                     | XCP_READ_ACCESS_DONT_CARE"""
+        p[0] = p[1]
 
     @staticmethod
-    def p_page_optional_parameter_list_optional(p):
-        """page_optional_parameter_list_optional : empty
-                                                 | page_optional_parameter_list"""
+    def p_page_xcp_write_access_enum(p):
+        """page_xcp_write_access_enum : XCP_WRITE_ACCESS_NOT_ALLOWED
+                                      | XCP_WRITE_ACCESS_WITHOUT_ECU_ONLY
+                                      | XCP_WRITE_ACCESS_WITH_ECU_ONLY
+                                      | XCP_WRITE_ACCESS_DONT_CARE"""
+        p[0] = p[1]
 
     @staticmethod
     def p_init_segment(p):
-        """init_segment : INIT_SEGMENT NUMERIC"""
+        """init_segment : empty
+                        | INIT_SEGMENT NUMERIC"""
+        p[0] = tuple() if p[1] is None else [(p.slice[0].type, p[2])]
 
     @staticmethod
     def p_address_mapping(p):
