@@ -1398,6 +1398,7 @@ class A2lParser(object):
     @staticmethod
     def p_segment_optional_parameter(p):
         """segment_optional_parameter : page
+                                      | address_mapping
                                       | checksum"""
         p[0] = p.slice[1].type, p[1]
 
@@ -1453,8 +1454,12 @@ class A2lParser(object):
 
     @staticmethod
     def p_address_mapping(p):
-        """address_mapping : ADDRESS_MAPPING NUMERIC NUMERIC NUMERIC"""
-        p[0] = a2l_node_factory(*p[1:5])
+        """address_mapping : ADDRESS_MAPPING NUMERIC NUMERIC NUMERIC
+                           | begin ADDRESS_MAPPING NUMERIC NUMERIC NUMERIC end ADDRESS_MAPPING"""
+        if len(p) == 5:
+            p[0] = a2l_node_factory(*p[1:5])
+        else:
+            p[0] = a2l_node_factory(*p[2:6])
 
     @staticmethod
     def p_characteristic(p):
