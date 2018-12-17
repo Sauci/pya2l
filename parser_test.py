@@ -2893,6 +2893,48 @@ def test_if_data_memory_segment_segment_page_node():
     assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].page[1].init_segment == 0xFE
 
 
+def test_if_data_memory_segment_segment_address_mapping_node():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MOD_PAR "mod_par comment"
+                    /begin MEMORY_SEGMENT
+                        Dst80100000
+                        ""
+                        DATA
+                        FLASH
+                        INTERN
+                        0x80100000
+                        0x7FAE0
+                        -1
+                        -1
+                        -1
+                        -1
+                        -1
+                        /begin IF_DATA XCPplus 0x0102
+                            /begin SEGMENT
+                                2       /* segment logical number */
+                                0x02       /* number of pages */
+                                0x00       /* address extension */
+                                0x00       /* compression method */
+                                0x00       /* encryption method */
+                                /begin ADDRESS_MAPPING
+                                    0xe0000
+                                    0x40000400
+                                    0x21c
+                                /end ADDRESS_MAPPING
+                            /end SEGMENT
+                        /end IF_DATA
+                    /end MEMORY_SEGMENT
+                /end MOD_PAR
+            /end MODULE
+        /end PROJECT"""
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].address_mapping[0].orig_address == 0xE0000
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].address_mapping[0].mapping_address == 0x40000400
+    assert a2l.tree.project.module[0].mod_par.memory_segment[0].if_data_memory_segment[0].segment[0].address_mapping[0].length == 0x21C
+
+
 def test_if_data_memory_segment_address_mapping_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

@@ -1272,7 +1272,7 @@ class SeedKey(A2lNode):
 @a2l_node_type('SEGMENT')
 class Segment(A2lNode):
     __slots__ = 'segment_logical_number', 'number_of_pages', 'address_extension', 'compression_method', \
-                'encryption_method', 'checksum', 'page'
+                'encryption_method', 'checksum', 'page', 'address_mapping'
 
     def __init__(self, segment_logical_number, number_of_pages, address_extension, compression_method,
                  encryption_method, args):
@@ -1283,6 +1283,7 @@ class Segment(A2lNode):
         self.encryption_method = encryption_method
         self.checksum = None
         self.page = list()
+        self.address_mapping = list()
         super(Segment, self).__init__(*args)
 
 
