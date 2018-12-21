@@ -494,12 +494,18 @@ class A2lParser(object):
                                 | daq_event
                                 | xcp_on_can
                                 | xcp_on_tcp_ip
+                                | xcp_on_udp_ip
                                 | generic_parameter_list"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
     def p_xcp_on_tcp_ip(p):
         """xcp_on_tcp_ip : begin XCP_ON_TCP_IP NUMERIC NUMERIC xcp_on_tcp_ip_optional_list_optional end XCP_ON_TCP_IP"""
+        p[0] = a2l_node_factory(*p[2:6])
+
+    @staticmethod
+    def p_xcp_on_udp_ip(p):
+        """xcp_on_udp_ip : begin XCP_ON_UDP_IP NUMERIC NUMERIC xcp_on_tcp_ip_optional_list_optional end XCP_ON_UDP_IP"""
         p[0] = a2l_node_factory(*p[2:6])
 
     @staticmethod

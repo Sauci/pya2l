@@ -2724,6 +2724,60 @@ def test_if_data_xcp_xcp_on_tcp_ip_node(xcp_on_tcp_ip, identifier, port, host_na
     assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_tcp_ip[0].daq_event == daq_event
 
 
+@pytest.mark.parametrize('xcp_on_udp_ip, identifier, port, host_name, address, protocol_layer, segment, daq, pag, pgm, daq_event', (
+    ("""0 10""",
+     0, 10, None, None, [], [], [], [], [], []),
+    ("""1 11 HOST_NAME "host name" """,
+     1, 11, 'host name', None, [], [], [], [], [], []),
+    ("""2 12 ADDRESS "address" """,
+     2, 12, None, 'address', [], [], [], [], [], []),
+    ("""3 13 /begin PROTOCOL_LAYER 0 0 0 0 0 0 0 0 0 0 /end PROTOCOL_LAYER """,
+     3, 13, None, None, [ProtocolLayer(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)], [], [], [], [], []),
+    ("""4 14 /begin SEGMENT 0 0 0 0 0 /end SEGMENT """,
+     4, 14, None, None, [], [Segment(0, 0, 0, 0, 0, [])], [], [], [], []),
+    ("""5 15 /begin DAQ STATIC 0 0 0 OPTIMISATION_TYPE_DEFAULT ADDRESS_EXTENSION_FREE IDENTIFICATION_FIELD_TYPE_ABSOLUTE GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE 4 NO_OVERLOAD_INDICATION /end DAQ """,
+     5, 15, None, None, [], [], [Daq('STATIC', 0, 0, 0, 'OPTIMISATION_TYPE_DEFAULT', 'ADDRESS_EXTENSION_FREE', 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE', 'GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE', 4, 'NO_OVERLOAD_INDICATION', [])], [], [], []),
+    ("""6 16 /begin PAG 0 /end PAG """,
+     6, 16, None, None, [], [], [], [Pag(0, [])], [], []),
+    ("""7 17 /begin PGM PGM_MODE_ABSOLUTE_AND_FUNCTIONAL 0 0 /end PGM """,
+     7, 17, None, None, [], [], [], [], [Pgm('PGM_MODE_ABSOLUTE_AND_FUNCTIONAL', 0, 0, [])], []),
+    ("""8 18 /begin DAQ_EVENT VARIABLE /end DAQ_EVENT """,
+     8, 18, None, None, [], [], [], [], [], [DaqEvent('VARIABLE', [])]),
+))
+def test_if_data_xcp_xcp_on_udp_ip_node(xcp_on_udp_ip, identifier, port, host_name, address, protocol_layer, segment, daq, pag, pgm, daq_event):
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin XCP_ON_UDP_IP
+                            {}
+                        /end XCP_ON_UDP_IP
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT""".format(xcp_on_udp_ip)
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].identifier == identifier
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].port == port
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].host_name == host_name
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].address == address
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].protocol_layer == protocol_layer
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].segment == segment
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].daq == daq
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].pag == pag
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].pgm == pgm
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_udp_ip[0].daq_event == daq_event
+
+
 def test_if_data_xcp_segment_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"

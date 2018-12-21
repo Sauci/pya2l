@@ -274,6 +274,7 @@ keywords = KeywordsList(('A2ML_VERSION',
 
                          'XCP_ON_CAN',
                          'XCP_ON_TCP_IP',
+                         'XCP_ON_UDP_IP',
                          'HOST_NAME',
                          'ADDRESS',
                          'CAN_ID_BROADCAST',
