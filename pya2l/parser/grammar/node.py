@@ -37,6 +37,14 @@ class A2lNode(object):
                 value.set_parent(self)
                 self.add_children(value)
 
+    def __eq__(self, other):
+        if len(set(self.__slots__) - set(other.__slots__)):
+            return False
+        for s in self.__slots__:
+            if getattr(self, s) != getattr(other, s):
+                return False
+        return True
+
     def set_parent(self, a2l_node):
         self._parent = a2l_node
 
@@ -772,7 +780,8 @@ class IfDataModule(A2lNode):
 
 @a2l_node_type('if_data_xcp')
 class IfDataXcp(A2lNode):
-    __slots__ = 'protocol_layer', 'daq', 'pag', 'pgm', 'segment', 'daq_event', 'xcp_on_can', 'generic_parameter_list'
+    __slots__ = 'protocol_layer', 'daq', 'pag', 'pgm', 'segment', 'daq_event', 'xcp_on_can', 'xcp_on_tcp_ip', \
+                'generic_parameter_list'
 
     def __init__(self, args):
         self.protocol_layer = list()
@@ -782,6 +791,7 @@ class IfDataXcp(A2lNode):
         self.segment = list()
         self.daq_event = list()
         self.xcp_on_can = list()
+        self.xcp_on_tcp_ip = list()
         self.generic_parameter_list = None
         super(IfDataXcp, self).__init__(*args)
 
@@ -1525,6 +1535,25 @@ class XcpOnCan(A2lNode):
         self.sync_edge = None
         self.daq_list_can_id = list()
         super(XcpOnCan, self).__init__(*args)
+
+
+@a2l_node_type('XCP_ON_TCP_IP')
+class XcpOnTcpIp(A2lNode):
+    __slots__ = 'identifier', 'port', 'host_name', 'address', 'protocol_layer', 'segment', 'daq', 'pag', 'pgm', \
+                'daq_event'
+
+    def __init__(self, identifier, port, args):
+        self.identifier = identifier
+        self.port = port
+        self.host_name = None
+        self.address = None
+        self.protocol_layer = list()
+        self.segment = list()
+        self.daq = list()
+        self.pag = list()
+        self.pgm = list()
+        self.daq_event = list()
+        super(XcpOnTcpIp, self).__init__(*args)
 
 
 def a2l_node_factory(node_type, *args, **kwargs):
