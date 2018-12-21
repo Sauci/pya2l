@@ -493,8 +493,45 @@ class A2lParser(object):
                                 | segment
                                 | daq_event
                                 | xcp_on_can
+                                | xcp_on_tcp_ip
                                 | generic_parameter_list"""
         p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_xcp_on_tcp_ip(p):
+        """xcp_on_tcp_ip : begin XCP_ON_TCP_IP NUMERIC xcp_on_tcp_ip_optional_list_optional end XCP_ON_TCP_IP"""
+        p[0] = a2l_node_factory(*p[2:5])
+
+    @staticmethod
+    def p_xcp_on_tcp_ip_optional(p):
+        """xcp_on_tcp_ip_optional : host_name
+                                  | address"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_xcp_on_tcp_ip_optional_list(p):
+        """xcp_on_tcp_ip_optional_list : xcp_on_tcp_ip_optional
+                                       | xcp_on_tcp_ip_optional xcp_on_tcp_ip_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_xcp_on_tcp_ip_optional_list_optional(p):
+        """xcp_on_tcp_ip_optional_list_optional : empty
+                                                | xcp_on_tcp_ip_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_host_name(p):
+        """host_name : HOST_NAME STRING"""
+        p[0] = p[2]
+
+    @staticmethod
+    def p_address(p):
+        """address : ADDRESS STRING"""
+        p[0] = p[2]
 
     @staticmethod
     def p_xcp_on_can(p):

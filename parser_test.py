@@ -2670,6 +2670,38 @@ def test_if_data_xcp_xcp_on_can_node():
     assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].daq_list_can_id_type_fixed == 12
 
 
+@pytest.mark.parametrize('xcp_on_tcp_ip, identifier, host_name, address', (
+    ("""0""", 0, None, None),
+    ("""1 HOST_NAME "host name" """, 1, 'host name', None),
+    ("""2 ADDRESS "address" """, 2, None, 'address')
+))
+def test_if_data_xcp_xcp_on_tcp_ip_node(xcp_on_tcp_ip, identifier, host_name, address):
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE first_module_name "first module long identifier"
+                /begin MEASUREMENT
+                    measurement_name 
+                    "measurement long identifier"  
+                    UWORD
+                    conversion 
+                    0
+                    0
+                    0
+                    0
+                    /begin IF_DATA XCP
+                        /begin XCP_ON_TCP_IP
+                            {}
+                        /end XCP_ON_TCP_IP
+                    /end IF_DATA 
+                /end MEASUREMENT
+            /end MODULE
+        /end PROJECT""".format(xcp_on_tcp_ip)
+    a2l = Parser(a2l_string)
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_tcp_ip[0].identifier == identifier
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_tcp_ip[0].host_name == host_name
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_tcp_ip[0].address == address
+
+
 def test_if_data_xcp_segment_node():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
