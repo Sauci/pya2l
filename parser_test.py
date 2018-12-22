@@ -36,6 +36,25 @@ def test_invalid_node_slot_property():
         InvalidNode(1)
 
 
+def test_node_equality_operator():
+    class A(A2lNode):
+        __slots__ = 'a',
+
+    class B(A2lNode):
+        __slots__ = 'b',
+
+    assert A() != B()
+
+    class C(A2lNode):
+        __slots__ = 'a',
+
+        def __init__(self, a):
+            self.a = a
+
+    assert C(0) != C(1)
+    assert C(0) == C(0)
+
+
 def test_string_empty():
     a2l_string = ''
     a2l = Parser(a2l_string)
