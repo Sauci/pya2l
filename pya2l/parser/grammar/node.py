@@ -1521,7 +1521,8 @@ class VirtualCharacteristic(A2lNode):
 @a2l_node_type('XCP_ON_CAN')
 class XcpOnCan(A2lNode):
     __slots__ = 'identifier', 'can_id_broadcast', 'can_id_master', 'can_id_slave', 'baudrate', 'sample_point', \
-                'sample_rate', 'btl_cycles', 'sjw', 'sync_edge', 'daq_list_can_id'
+                'sample_rate', 'btl_cycles', 'sjw', 'sync_edge', 'daq_list_can_id', 'protocol_layer', 'segment', 'daq', \
+                'pag', 'pgm', 'daq_event'
 
     def __init__(self, identifier, args):
         self.identifier = identifier
@@ -1535,6 +1536,12 @@ class XcpOnCan(A2lNode):
         self.sjw = None
         self.sync_edge = None
         self.daq_list_can_id = list()
+        self.protocol_layer = list()
+        self.segment = list()
+        self.daq = list()
+        self.pag = list()
+        self.pgm = list()
+        self.daq_event = list()
         super(XcpOnCan, self).__init__(*args)
 
 

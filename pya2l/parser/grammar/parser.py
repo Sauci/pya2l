@@ -561,7 +561,13 @@ class A2lParser(object):
                                | btl_cycles
                                | sjw
                                | sync_edge
-                               | daq_list_can_id"""
+                               | daq_list_can_id
+                               | protocol_layer
+                               | segment
+                               | daq
+                               | pag
+                               | pgm
+                               | daq_event"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -626,6 +632,7 @@ class A2lParser(object):
                      | SYNC_EDGE DUAL"""
         p[0] = p[2]
 
+    # TODO: simplify DAQ_LIST_CAN_ID grammar.
     @staticmethod
     def p_daq_list_can_id(p):
         """daq_list_can_id : begin DAQ_LIST_CAN_ID NUMERIC daq_list_can_id_optional_optional end DAQ_LIST_CAN_ID"""

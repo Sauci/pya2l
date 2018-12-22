@@ -9,7 +9,7 @@ import pytest
 
 from pya2l.parser.grammar.parser import A2lFormatException
 from pya2l.parser.grammar.parser import A2lParser as Parser
-from pya2l.parser.grammar.node import A2lNode, ProtocolLayer, Segment, Daq, Pag, Pgm, DaqEvent
+from pya2l.parser.grammar.node import A2lNode, ProtocolLayer, Segment, Daq, Pag, Pgm, DaqEvent, DaqListCanId
 
 
 def test_invalid_node_property():
@@ -2621,72 +2621,83 @@ def test_if_data_xcp_daq_event_node():
     assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].daq_event[0].name == 'VARIABLE'
 
 
-def test_if_data_xcp_xcp_on_can_node():
+@pytest.mark.parametrize(
+    'xcp_on_can, identifier, can_id_broadcast, can_id_master, can_id_slave, baudrate, sample_point, sample_rate, btl_cycles, sjw, sync_edge, daq_list_can_id, protocol_layer, segment, daq, pag, pgm, daq_event',
+    (
+            (""" 0 """,
+             0, None, None, None, None, None, None, None, None, None, [], [], [], [], [], [], []),
+            (""" 1 CAN_ID_BROADCAST 1 """,
+             1, 1, None, None, None, None, None, None, None, None, [], [], [], [], [], [], []),
+            (""" 2 CAN_ID_MASTER 1 """,
+             2, None, 1, None, None, None, None, None, None, None, [], [], [], [], [], [], []),
+            (""" 3 CAN_ID_SLAVE 1 """,
+            3, None, None, 1, None, None, None, None, None, None, [], [], [], [], [], [], []),
+            (""" 4 BAUDRATE 1 """,
+             4, None, None, None, 1, None, None, None, None, None, [], [], [], [], [], [], []),
+            (""" 5 SAMPLE_POINT 1 """,
+             5, None, None, None, None, 1, None, None, None, None, [], [], [], [], [], [], []),
+            (""" 6 SAMPLE_RATE SINGLE """,
+             6, None, None, None, None, None, 'SINGLE', None, None, None, [], [], [], [], [], [], []),
+            (""" 7 BTL_CYCLES 1 """,
+             7, None, None, None, None, None, None, 1, None, None, [], [], [], [], [], [], []),
+            (""" 8 SJW 1 """,
+             8, None, None, None, None, None, None, None, 1, None, [], [], [], [], [], [], []),
+            (""" 9 SYNC_EDGE SINGLE """,
+             9, None, None, None, None, None, None, None, None, 'SINGLE', [], [], [], [], [], [], []),
+            (""" 10 /begin DAQ_LIST_CAN_ID 1 /end DAQ_LIST_CAN_ID """,
+             10, None, None, None, None, None, None, None, None, None, [DaqListCanId(1, [])], [], [], [], [], [], []),
+            (""" 11 /begin PROTOCOL_LAYER 0 0 0 0 0 0 0 0 0 0 /end PROTOCOL_LAYER """,
+             11, None, None, None, None, None, None, None, None, None, [], [ProtocolLayer(0, 0, 0, 0, 0, 0, 0, 0, 0, 0)], [], [], [], [], []),
+            (""" 12 /begin SEGMENT 0 0 0 0 0 /end SEGMENT """,
+             12, None, None, None, None, None, None, None, None, None, [], [], [Segment(0, 0, 0, 0, 0, [])], [], [], [], []),
+            (""" 13 /begin DAQ STATIC 0 0 0 OPTIMISATION_TYPE_DEFAULT ADDRESS_EXTENSION_FREE IDENTIFICATION_FIELD_TYPE_ABSOLUTE GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE 4 NO_OVERLOAD_INDICATION /end DAQ """,
+             13, None, None, None, None, None, None, None, None, None, [], [], [], [Daq('STATIC', 0, 0, 0, 'OPTIMISATION_TYPE_DEFAULT', 'ADDRESS_EXTENSION_FREE', 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE', 'GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE', 4, 'NO_OVERLOAD_INDICATION', [])], [], [], []),
+            (""" 14 /begin PAG 0 /end PAG """,
+             14, None, None, None, None, None, None, None, None, None, [], [], [], [], [Pag(0, [])], [], []),
+            (""" 15 /begin PGM PGM_MODE_ABSOLUTE_AND_FUNCTIONAL 0 0 /end PGM """,
+             15, None, None, None, None, None, None, None, None, None, [], [], [], [], [], [Pgm('PGM_MODE_ABSOLUTE_AND_FUNCTIONAL', 0, 0, [])], []),
+            (""" 16 /begin DAQ_EVENT VARIABLE /end DAQ_EVENT """,
+             16, None, None, None, None, None, None, None, None, None, [], [], [], [], [], [], [DaqEvent('VARIABLE', [])]),
+    ))
+def test_if_data_xcp_xcp_on_can_node(xcp_on_can, identifier, can_id_broadcast, can_id_master, can_id_slave, baudrate, sample_point, sample_rate, btl_cycles, sjw, sync_edge, daq_list_can_id, protocol_layer, segment, daq, pag, pgm, daq_event):
     a2l_string = """
-        /begin PROJECT project_name "project long identifier"
-            /begin MODULE first_module_name "first module long identifier"
-                /begin MEASUREMENT
-                    measurement_name 
-                    "measurement long identifier"  
-                    UWORD
-                    conversion 
-                    0
-                    0
-                    0
-                    0
-                    /begin IF_DATA XCP
-                        /begin XCP_ON_CAN 0
-                            CAN_ID_BROADCAST 1
-                            CAN_ID_MASTER 2
-                            CAN_ID_SLAVE 3
-                            BAUDRATE 4
-                            SAMPLE_POINT 5
-                            SAMPLE_RATE SINGLE
-                            BTL_CYCLES 6
-                            SJW 7
-                            SYNC_EDGE SINGLE
-                        /end XCP_ON_CAN
-                        /begin XCP_ON_CAN 0
-                            SAMPLE_RATE TRIPLE
-                            SYNC_EDGE DUAL
-                        /end XCP_ON_CAN
-                        /begin XCP_ON_CAN 0
-                            /begin DAQ_LIST_CAN_ID 0
-                            /end DAQ_LIST_CAN_ID
-                            /begin DAQ_LIST_CAN_ID 1
-                                VARIABLE
-                            /end DAQ_LIST_CAN_ID
-                            /begin DAQ_LIST_CAN_ID 2
-                                FIXED 12
-                            /end DAQ_LIST_CAN_ID
-                        /end XCP_ON_CAN
-                    /end IF_DATA 
-                /end MEASUREMENT
-            /end MODULE
-        /end PROJECT"""
+            /begin PROJECT project ""
+                /begin MODULE module ""
+                    /begin MEASUREMENT
+                        measurement 
+                        ""  
+                        UWORD
+                        conversion
+                        0
+                        0
+                        0
+                        0
+                        /begin IF_DATA XCP
+                            /begin XCP_ON_CAN
+                                {}
+                            /end XCP_ON_CAN
+                        /end IF_DATA 
+                    /end MEASUREMENT
+                /end MODULE
+            /end PROJECT""".format(xcp_on_can)
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].measurement[0].if_data_xcp[0], 'xcp_on_can')
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].identifier == 0
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_broadcast == 1
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_master == 2
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_slave == 3
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].baudrate == 4
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sample_point == 5
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sample_rate == 'SINGLE'
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].btl_cycles == 6
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sjw == 7
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sync_edge == 'SINGLE'
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[1].sample_rate == 'TRIPLE'
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[1].sync_edge == 'DUAL'
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[0].identifier == 0
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[0].daq_list_can_id_type_variable is None
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[0].daq_list_can_id_type_fixed is None
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[1].identifier == 1
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[1].daq_list_can_id_type_variable == 'VARIABLE'
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[1].daq_list_can_id_type_fixed is None
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].identifier == 2
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].daq_list_can_id_type_variable is None
-    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[2].daq_list_can_id[2].daq_list_can_id_type_fixed == 12
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].identifier == identifier
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_broadcast == can_id_broadcast
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_master == can_id_master
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].can_id_slave == can_id_slave
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].baudrate == baudrate
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sample_point == sample_point
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sample_rate == sample_rate
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].btl_cycles == btl_cycles
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sjw == sjw
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].sync_edge == sync_edge
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].daq_list_can_id == daq_list_can_id
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].protocol_layer == protocol_layer
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].segment == segment
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].daq == daq
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].pag == pag
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].pgm == pgm
+    assert a2l.tree.project.module[0].measurement[0].if_data_xcp[0].xcp_on_can[0].daq_event == daq_event
 
 
 @pytest.mark.parametrize('xcp_on_tcp_ip, identifier, port, host_name, address, protocol_layer, segment, daq, pag, pgm, daq_event', (
