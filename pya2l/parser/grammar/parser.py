@@ -48,7 +48,7 @@ class A2lParser(object):
         if p:
             raise A2lFormatException('invalid sequence at position ', p.lexpos, string=p.lexer.lexdata)
         else:
-            raise A2lFormatException('unvalid sequence in root node ', 0, string='')
+            raise A2lFormatException('invalid sequence in root node', 0, string='')
 
     def p_a2l(self, p):
         """a2l : a2l_optional_list_optional"""
