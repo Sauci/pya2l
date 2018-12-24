@@ -898,10 +898,9 @@ class MemorySegment(A2lNode):
 
 @a2l_node_type('MODULE')
 class Module(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'a2ml', 'mod_par', 'mod_common', 'if_data_xcp', 'if_data_module', \
-                'characteristic', 'axis_pts', 'measurement', 'compu_method', 'compu_tab', 'compu_vtab', \
-                'compu_vtab_range', 'function', 'group', 'record_layout', 'variant_coding', 'frame', 'user_rights', \
-                'unit'
+    __slots__ = 'name', 'long_identifier', 'a2ml', 'mod_par', 'mod_common', 'if_data', 'characteristic', 'axis_pts', \
+                'measurement', 'compu_method', 'compu_tab', 'compu_vtab', 'compu_vtab_range', 'function', 'group', \
+                'record_layout', 'variant_coding', 'frame', 'user_rights', 'unit'
 
     def __init__(self, name, long_identifier, args):
         self.name = name
@@ -909,8 +908,7 @@ class Module(A2lNode):
         self.a2ml = None
         self.mod_par = None
         self.mod_common = None
-        self.if_data_xcp = None
-        self.if_data_module = list()
+        self.if_data = list()
         self.characteristic = list()
         self.axis_pts = list()
         self.measurement = list()

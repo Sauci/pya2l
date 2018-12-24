@@ -63,11 +63,13 @@ def test_string_empty():
     assert a2l.tree.project is None
 
 
-def test_string_c_comment():
-    a2l_string = """
-        /* comment */
-    """
-    Parser(a2l_string)
+@pytest.mark.parametrize('comment', (
+    '/* comment */',
+    pytest.param('/* /* comment in comment */ */', marks=pytest.mark.xfail(strict=True, raises=A2lFormatException)),
+    '/*\rcomment with line feed\r\n\n*/'
+))
+def test_string_c_comment(comment):
+    Parser(comment)
 
 
 def test_string_cpp_comment():
@@ -263,8 +265,7 @@ def test_module_if_data_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0],
-                   'if_data_module')  # TODO: set attribute if_data instead of if_data_module.
+    assert hasattr(a2l.tree.project.module[0], 'if_data')
 
 
 def test_module_with_multiple_if_data_node():
@@ -278,7 +279,7 @@ def test_module_with_multiple_if_data_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert len(a2l.tree.project.module[0].if_data_module) == 2
+    assert len(a2l.tree.project.module[0].if_data) == 2
 
 
 def test_module_characteristic_node():
@@ -722,8 +723,8 @@ def test_module_if_data_source_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'source')
-    assert a2l.tree.project.module[0].if_data_module[0].source[0].name == 'first_source_name'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'source')
+    assert a2l.tree.project.module[0].if_data[0].source[0].name == 'first_source_name'
 
 
 def test_module_if_data_raster_node():
@@ -737,8 +738,8 @@ def test_module_if_data_raster_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'raster')
-    assert a2l.tree.project.module[0].if_data_module[0].raster[0].raster_name == 'raster name'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'raster')
+    assert a2l.tree.project.module[0].if_data[0].raster[0].raster_name == 'raster name'
 
 
 def test_module_if_data_event_group_node():
@@ -752,8 +753,8 @@ def test_module_if_data_event_group_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'event_group')
-    assert a2l.tree.project.module[0].if_data_module[0].event_group[0].raster_grp_name == 'raster group name'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'event_group')
+    assert a2l.tree.project.module[0].if_data[0].event_group[0].raster_grp_name == 'raster group name'
 
 
 def test_module_if_data_seed_key_node():
@@ -767,8 +768,8 @@ def test_module_if_data_seed_key_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'seed_key')
-    assert a2l.tree.project.module[0].if_data_module[0].seed_key.cal_dll == 'cal_dll_name.dll'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'seed_key')
+    assert a2l.tree.project.module[0].if_data[0].seed_key.cal_dll == 'cal_dll_name.dll'
 
 
 def test_module_if_data_checksum_node():
@@ -782,8 +783,8 @@ def test_module_if_data_checksum_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_module[0], 'checksum')
-    assert a2l.tree.project.module[0].if_data_module[0].checksum.checksum_dll == 'checksum_dll_name.dll'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'checksum')
+    assert a2l.tree.project.module[0].if_data[0].checksum.checksum_dll == 'checksum_dll_name.dll'
 
 
 def test_module_if_data_tp_blob_tp_data_node():
@@ -799,7 +800,7 @@ def test_module_if_data_xcp():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0], 'if_data_xcp')
+    assert hasattr(a2l.tree.project.module[0], 'if_data')
 
 
 def test_module_if_data_xcp_protocol_layer_node():
@@ -825,17 +826,17 @@ def test_module_if_data_xcp_protocol_layer_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'protocol_layer')
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].xcp_protocol_layer_version == 0x100
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t1 == 10
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t2 == 20
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t3 == 30
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t4 == 40
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t5 == 50
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t6 == 60
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t7 == 70
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].max_cto == 8
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].max_dto == 9
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'protocol_layer')
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].xcp_protocol_layer_version == 0x100
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t1 == 10
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t2 == 20
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t3 == 30
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t4 == 40
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t5 == 50
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t6 == 60
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t7 == 70
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].max_cto == 8
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].max_dto == 9
 
 
 def test_module_if_data_xcp_with_multiple_protocol_layer_node():
@@ -875,8 +876,8 @@ def test_module_if_data_xcp_with_multiple_protocol_layer_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[0].t1 == 1
-    assert a2l.tree.project.module[0].if_data_xcp.protocol_layer[1].t1 == 2
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[0].t1 == 1
+    assert a2l.tree.project.module[0].if_data[0].protocol_layer[1].t1 == 2
 
 
 def test_module_if_data_xcp_daq_node():
@@ -902,37 +903,41 @@ def test_module_if_data_xcp_daq_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'daq')
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_config_type == 'STATIC'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_daq == 1
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_event_channel == 2
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].min_daq == 3
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].optimisation_type == 'OPTIMISATION_TYPE_DEFAULT'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].address_extension == 'ADDRESS_EXTENSION_FREE'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].identification_field_type == 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].granularity_odt_entry == 'GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].max_odt_entry_size_daq == 4
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].overload_indication == 'NO_OVERLOAD_INDICATION'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].prescaler_supported == 'PRESCALER_SUPPORTED'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].resume_supported == 'RESUME_SUPPORTED'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'daq')
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_config_type == 'STATIC'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].max_daq == 1
+    assert a2l.tree.project.module[0].if_data[0].daq[0].max_event_channel == 2
+    assert a2l.tree.project.module[0].if_data[0].daq[0].min_daq == 3
+    assert a2l.tree.project.module[0].if_data[0].daq[0].optimisation_type == 'OPTIMISATION_TYPE_DEFAULT'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].address_extension == 'ADDRESS_EXTENSION_FREE'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].identification_field_type == 'IDENTIFICATION_FIELD_TYPE_ABSOLUTE'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].granularity_odt_entry == 'GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].max_odt_entry_size_daq == 4
+    assert a2l.tree.project.module[0].if_data[0].daq[0].overload_indication == 'NO_OVERLOAD_INDICATION'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].prescaler_supported == 'PRESCALER_SUPPORTED'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].resume_supported == 'RESUME_SUPPORTED'
 
 
-def test_module_if_data_xcp_pag_node():
+PAG = (('1', 1, None),
+       ('2 FREEZE_SUPPORTED', 2, 'FREEZE_SUPPORTED'))
+
+
+@pytest.mark.parametrize('pag, max_segments, freeze_supported', PAG)
+def test_module_if_data_xcp_pag_node(pag, max_segments, freeze_supported):
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
             /begin MODULE first_module_name "first module long identifier"
                 /begin IF_DATA XCP
                     /begin PAG
-                        1
-                        FREEZE_SUPPORTED
+                        {}
                     /end PAG
                 /end IF_DATA
             /end MODULE
-        /end PROJECT"""
+        /end PROJECT""".format(pag)
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'pag')
-    assert a2l.tree.project.module[0].if_data_xcp.pag[0].max_segments == 1
-    assert a2l.tree.project.module[0].if_data_xcp.pag[0].freeze_supported == 'FREEZE_SUPPORTED'
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'pag')
+    assert a2l.tree.project.module[0].if_data[0].pag[0].max_segments == max_segments
+    assert a2l.tree.project.module[0].if_data[0].pag[0].freeze_supported == freeze_supported
 
 
 def test_module_if_data_xcp_pgm_node():
@@ -949,10 +954,10 @@ def test_module_if_data_xcp_pgm_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp, 'pgm')
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].mode == 'PGM_MODE_ABSOLUTE_AND_FUNCTIONAL'
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].max_sectors == 1
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].max_cto_pgm == 2
+    assert hasattr(a2l.tree.project.module[0].if_data[0], 'pgm')
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].mode == 'PGM_MODE_ABSOLUTE_AND_FUNCTIONAL'
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].max_sectors == 1
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].max_cto_pgm == 2
 
 
 def test_module_if_data_xcp_pgm_sector_node():
@@ -987,21 +992,21 @@ def test_module_if_data_xcp_pgm_sector_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp.pgm[0], 'sector')
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].name == 'first sector name'
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].sector_number == 1
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].address == 2
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].length == 3
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].erase_number == 4
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].program_number == 5
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[0].programming_method == 6
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].name == 'second sector name'
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].sector_number == 7
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].address == 8
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].length == 9
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].erase_number == 10
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].program_number == 11
-    assert a2l.tree.project.module[0].if_data_xcp.pgm[0].sector[1].programming_method == 12
+    assert hasattr(a2l.tree.project.module[0].if_data[0].pgm[0], 'sector')
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].name == 'first sector name'
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].sector_number == 1
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].address == 2
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].length == 3
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].erase_number == 4
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].program_number == 5
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[0].programming_method == 6
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].name == 'second sector name'
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].sector_number == 7
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].address == 8
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].length == 9
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].erase_number == 10
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].program_number == 11
+    assert a2l.tree.project.module[0].if_data[0].pgm[0].sector[1].programming_method == 12
 
 
 def test_module_if_data_xcp_daq_daq_list_node():
@@ -1038,19 +1043,19 @@ def test_module_if_data_xcp_daq_daq_list_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'daq_list')
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_number == 0
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].daq_list_type is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].max_odt is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].max_odt_entries is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].first_pid is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[0].event_fixed is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].daq_list_number == 1
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].daq_list_type == 'DAQ'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].max_odt == 2
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].max_odt_entries == 3
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].first_pid == 4
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].daq_list[1].event_fixed == 5
+    assert hasattr(a2l.tree.project.module[0].if_data[0].daq[0], 'daq_list')
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[0].daq_list_number == 0
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[0].daq_list_type is None
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[0].max_odt is None
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[0].max_odt_entries is None
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[0].first_pid is None
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[0].event_fixed is None
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[1].daq_list_number == 1
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[1].daq_list_type == 'DAQ'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[1].max_odt == 2
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[1].max_odt_entries == 3
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[1].first_pid == 4
+    assert a2l.tree.project.module[0].if_data[0].daq[0].daq_list[1].event_fixed == 5
 
 
 def test_module_if_data_xcp_event_node():
@@ -1086,15 +1091,15 @@ def test_module_if_data_xcp_event_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'event')
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].name == 'event name'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].short_name == 'event short name'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].event_channel_number == 0
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].daq_list_type == 'DAQ_STIM'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].max_daq_list == 1
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].time_cycle == 2
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].time_unit == 3
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].event[0].priority == 4
+    assert hasattr(a2l.tree.project.module[0].if_data[0].daq[0], 'event')
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].name == 'event name'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].short_name == 'event short name'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].event_channel_number == 0
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].daq_list_type == 'DAQ_STIM'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].max_daq_list == 1
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].time_cycle == 2
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].time_unit == 3
+    assert a2l.tree.project.module[0].if_data[0].daq[0].event[0].priority == 4
 
 
 def test_module_if_data_xcp_timestamp_supported_node():
@@ -1131,12 +1136,12 @@ def test_module_if_data_xcp_timestamp_supported_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert hasattr(a2l.tree.project.module[0].if_data_xcp.daq[0], 'timestamp_supported')
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].timestamp_ticks == 1
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].size == 'timestamp_supported_size'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].unit == 'timestamp_supported_unit'
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[0].timestamp_fixed is None
-    assert a2l.tree.project.module[0].if_data_xcp.daq[0].timestamp_supported[1].timestamp_fixed == 'TIMESTAMP_FIXED'
+    assert hasattr(a2l.tree.project.module[0].if_data[0].daq[0], 'timestamp_supported')
+    assert a2l.tree.project.module[0].if_data[0].daq[0].timestamp_supported[0].timestamp_ticks == 1
+    assert a2l.tree.project.module[0].if_data[0].daq[0].timestamp_supported[0].size == 'timestamp_supported_size'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].timestamp_supported[0].unit == 'timestamp_supported_unit'
+    assert a2l.tree.project.module[0].if_data[0].daq[0].timestamp_supported[0].timestamp_fixed is None
+    assert a2l.tree.project.module[0].if_data[0].daq[0].timestamp_supported[1].timestamp_fixed == 'TIMESTAMP_FIXED'
 
 
 def test_mod_par_version_node():
@@ -5928,11 +5933,11 @@ def test_get_json():
                 'user_rights': [],
                 'compu_vtab': [],
                 'measurement': [],
-                'if_data_xcp': None,
+                'if_data': None,
                 'axis_pts': [],
                 'mod_par': None,
                 'mod_common': None,
-                'if_data_module': []
+                'if_data': []
             }
         ],
         'name': 'project_name'

@@ -432,6 +432,12 @@ class A2lParser(object):
         p[0] = p[2]
 
     @staticmethod
+    def p_if_data(p):
+        """if_data : if_data_xcp
+                   | if_data_module"""
+        p[0] = p[1]
+
+    @staticmethod
     def p_module(p):
         """module : begin MODULE IDENT STRING module_optional_list_optional end MODULE"""
         p[0] = a2l_node_factory(*p[2:6])
@@ -441,8 +447,7 @@ class A2lParser(object):
         """module_optional : a2ml
                            | mod_par
                            | mod_common
-                           | if_data_xcp
-                           | if_data_module
+                           | if_data
                            | characteristic
                            | axis_pts
                            | measurement
