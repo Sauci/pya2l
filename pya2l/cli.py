@@ -24,7 +24,7 @@ def main():
 
     if args.sub_command == JSON_CMD:
         with open(args.o[0] if args.o is not None else args.input_file[0] + '.json', 'wb') as fp:
-            dump(a2l.tree.json, fp, indent=4, sort_keys=True, ensure_ascii=False)
+            dump(a2l.ast.json, fp, indent=4, sort_keys=True, ensure_ascii=False)
 
 
 if __name__ == '__main__':

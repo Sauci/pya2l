@@ -8,475 +8,336 @@
 import os
 import ply.lex as lex
 
+from .exception import A2lLexerException
 
-class KeywordsList(dict):
-    def __init__(self, keywords):
-        super(KeywordsList, self).__init__([(kw, kw) for kw in set(keywords)])  # .encode('string-escape')
+a2l_keywords = dict((k, k) for k in {
+    'A2ML',
+    'A2ML_VERSION',  # TODO: check, as not defined in specification's keyword list.
+    'ABSOLUTE',
+    #    'ADDRESS_MAPPING' defined but used in IF_DATA node.
+    'ADDR_EPK',
+    'ALIGNMENT_BYTE',
+    'ALIGNMENT_FLOAT32_IEEE',
+    'ALIGNMENT_FLOAT64_IEEE',
+    'ALIGNMENT_LONG',
+    'ALIGNMENT_WORD',
+    'ALTERNATE_CURVES',
+    'ALTERNATE_WITH_X',
+    'ALTERNATE_WITH_Y',
+    'ANNOTATION',
+    'ANNOTATION_LABEL',
+    'ANNOTATION_ORIGIN',
+    'ANNOTATION_TEXT',
+    'ARRAY_SIZE',
+    'ASAP2_VERSION',
+    'ASCII',
+    'AXIS_DESCR',
+    'AXIS_PTS',
+    'AXIS_PTS_REF',
+    'AXIS_PTS_X',
+    'AXIS_PTS_Y',
+    'AXIS_PTS_Z',
+    'AXIS_RESCALE_X',
+    'AXIS_RESCALE_Y',
+    'AXIS_RESCALE_Z',
+    'BIT_MASK',
+    'BIT_OPERATION',
+    'BYTE',
+    'BYTE_ORDER',
+    'CALIBRATION',
+    'CALIBRATION_ACCESS',
+    'CALIBRATION_HANDLE',
+    'CALIBRATION_METHOD',
+    'CALIBRATION_VARIABLES',
+    'CHARACTERISTIC',
+    #    'CHECKSUM' defined but used in IF_DATA node.
+    'CODE',
+    'COEFFS',
+    'COLUMN_DIR',
+    'COMPARISON_QUANTITY',
+    'COMPU_METHOD',
+    'COMPU_TAB',
+    'COMPU_TAB_REF',
+    'COMPU_VTAB',
+    'COMPU_VTAB_RANGE',
+    'COM_AXIS',
+    'CPU_TYPE',
+    'CUBOID',
+    'CURVE',
+    'CURVE_AXIS',
+    'CURVE_AXIS_REF',
+    'CUSTOMER',
+    'CUSTOMER_NO',
+    'DATA',
+    'DATA_SIZE',
+    'DEFAULT_VALUE',
+    'DEF_CHARACTERISTIC',
+    'DEPENDENT_CHARACTERISTIC',
+    'DEPOSIT',
+    'DERIVED',
+    'DIFFERENCE',
+    'DIRECT',
+    'DISPLAY_IDENTIFIER',
+    'DIST_OP_X',
+    'DIST_OP_Y',
+    'DIST_OP_Z',
+    #    'DP_BLOB' defined but used in IF_DATA node.
+    'ECU',
+    'ECU_ADDRESS',
+    'ECU_ADDRESS_EXTENSION',
+    'ECU_CALIBRATION_OFFSET',
+    'EEPROM',
+    'EPK',
+    'EPROM',
+    'ERROR_MASK',
+    #    'EVENT_GROUP' defined but used in IF_DATA node.
+    'EXCLUDE_FROM_FLASH',
+    'EXTENDED_LIMITS',
+    'EXTENDED_SI',
+    'EXTERN',
+    'FIX_AXIS',
+    'FIX_AXIS_PAR',
+    'FIX_AXIS_PAR_DIST',
+    'FIX_AXIS_PAR_LIST',
+    'FIX_NO_AXIS_PTS_X',
+    'FIX_NO_AXIS_PTS_Y',
+    'FIX_NO_AXIS_PTS_Z',
+    'FLASH',
+    'FLOAT32_IEEE',
+    'FLOAT64_IEEE',
+    'FNC_VALUES',
+    'FORM',
+    'FORMAT',
+    'FORMULA',
+    'FORMULA_INV',
+    'FRAME',
+    'FRAME_MEASUREMENT',
+    'FUNCTION',
+    'FUNCTION_LIST',
+    'FUNCTION_VERSION',
+    'GROUP',
+    'GUARD_RAILS',
+    'HEADER',
+    'IDENTIFICATION',
+    'IF_DATA',
+    'INDEX_DECR',
+    'INDEX_INCR',
+    'INTERN',
+    'IN_MEASUREMENT',  # TODO: check, as not defined in specification's keyword list.
+    #    'KP_BLOB' defined but used in IF_DATA node.
+    'LEFT_SHIFT',  # TODO: check, as not defined in specification's keyword list.
+    'LOC_MEASUREMENT',  # TODO: check, as not defined in specification's keyword list.
+    'LONG',
+    'MAP',
+    'MAP_LIST',
+    'MATRIX_DIM',
+    'MAX_GRAD',
+    'MAX_REFRESH',
+    'MEASUREMENT',
+    'MEMORY_LAYOUT',
+    'MEMORY_SEGMENT',
+    'MODULE',
+    'MOD_COMMON',
+    'MOD_PAR',
+    'MONOTONY',
+    'MON_DECREASE',
+    'MON_INCREASE',
+    'MSB_FIRST',
+    'MSB_LAST',
+    #    'MULTIPLEX' defined but used in IF_DATA node.
+    'NOT_IN_MCD_SYSTEM',
+    'NO_AXIS_PTS_X',
+    'NO_AXIS_PTS_Y',
+    'NO_AXIS_PTS_Z',
+    'NO_CALIBRATION',
+    'NO_OF_INTERFACES',
+    'NO_RESCALE_X',
+    'NO_RESCALE_Y',
+    'NO_RESCALE_Z',
+    'NUMBER',
+    'NUMERIC',
+    'OFFLINE_CALIBRATION',
+    'OFFLINE_DATA',
+    'OFFSET_X',
+    'OFFSET_Y',
+    'OFFSET_Z',
+    'OUT_MEASUREMENT',  # TODO: check, as not defined in specification's keyword list.
+    #    'PA_BLOB' defined but used in IF_DATA node.
+    'PBYTE',
+    'PHONE_NO',
+    'PLONG',
+    'PRG_CODE',
+    'PRG_DATA',
+    'PRG_RESERVED',
+    'PROJECT',
+    'PROJECT_NO',
+    'PWORD',
+    #    'QP_BLOB' defined but used in IF_DATA node.
+    'RAM',
+    #    'RASTER' defined but used in IF_DATA node.
+    'RAT_FUNC',
+    'READ_ONLY',
+    'READ_WRITE',
+    'RECORD_LAYOUT',
+    'REF_CHARACTERISTIC',
+    'REF_GROUP',  # TODO: check, as not defined in specification's keyword list.
+    'REF_MEASUREMENT',
+    'REF_MEMORY_SEGMENT',
+    'REF_UNIT',
+    'REGISTER',
+    'RESERVED',
+    'RES_AXIS',  # TODO: check, as not defined in specification's keyword list.
+    'RIGHT_SHIFT',
+    'RIP_ADDR_W',
+    'RIP_ADDR_X',
+    'RIP_ADDR_Y',
+    'RIP_ADDR_Z',
+    'ROM',
+    'ROOT',
+    'ROW_DIR',
+    'SBYTE',
+    #    'SEED_KEY' defined but used in IF_DATA node.
+    'SERAM',
+    'SHIFT_OP_X',
+    'SHIFT_OP_Y',
+    'SHIFT_OP_Z',
+    'SIGN_EXTEND',
+    'SI_EXPONENTS',
+    'SLONG',
+    #    'SOURCE' defined but used in IF_DATA node.
+    'SRC_ADDR_X',
+    'SRC_ADDR_Y',
+    'SRC_ADDR_Z',
+    'STD_AXIS',
+    'STRICT_DECREASE',
+    'STRICT_INCREASE',
+    'SUB_FUNCTION',  # TODO: check, as not defined in specification's keyword list.
+    'SUB_GROUP',  # TODO: check, as not defined in specification's keyword list.
+    'SUPPLIER',
+    'SWORD',
+    'SYSTEM_CONSTANT',
+    'S_REC_LAYOUT',
+    'TAB_INTP',
+    'TAB_NOINTP',
+    'TAB_VERB',
+    #    'TP_BLOB' defined but used in IF_DATA node.
+    'UBYTE',
+    'ULONG',
+    'UNIT',
+    'UNIT_CONVERSION',
+    'USER',
+    'USER_RIGHTS',
+    'UWORD',
+    'VALUE',
+    'VAL_BLK',
+    'VARIABLES',
+    'VARIANT_CODING',
+    'VAR_ADDRESS',
+    'VAR_CHARACTERISTIC',
+    'VAR_CRITERION',
+    'VAR_FORBIDDEN_COMB',
+    'VAR_MEASUREMENT',
+    'VAR_NAMING',
+    'VAR_SELECTION_CHARACTERISTIC',
+    'VAR_SEPARATOR',
+    'VERSION',
+    'VIRTUAL',
+    'VIRTUAL_CHARACTERISTIC',
+    'WORD'
+})
 
+a2ml_keywords = dict((k, k) for k in {
+    'block',
+    'char',
+    'double',
+    'enum',
+    'float',
+    'int',
+    'long',
+    'struct',
+    'taggedstruct',
+    'taggedunion',
+    'uchar',
+    'uint',
+    'ulong'
+})
 
-keywords = KeywordsList(('A2ML_VERSION',
-                         'ASAP2_VERSION',
-                         'AVAILABLE_EVENT_LIST',
-                         'HEADER',
-                         'MODULE',
-                         'PROJECT',
+if_data_keywords = dict((k, k) for k in {})
 
-                         'A2ML',
-                         'AXIS_PTS',
-                         # 'BLOB',
-                         'CHARACTERISTIC',
-                         'COMPU_METHOD',
-                         'COMPU_TAB',
-                         'COMPU_VTAB',
-                         'COMPU_VTAB_RANGE',
-                         'DEFAULT_EVENT_LIST',
-                         'FRAME',
-                         'FUNCTION',
-                         'GROUP',
-                         'IF_DATA',
-                         # 'INSTANCE',
-                         'MEASUREMENT',
-                         'MOD_COMMON',
-                         'MOD_PAR',
-                         'RECORD_LAYOUT',
-                         # 'TRANSFORMER',
-                         # 'TYPEDEF_AXIS',
-                         # 'TYPEDEF_BLOB',
-                         # 'TYPEDEF_CHARACTERISTIC',
-                         # 'TYPEDEF_MEASUREMENT',
-                         # 'TYPEDEF_STRUCTURE',
-                         'UNIT',
-                         'USER_RIGHTS',
-                         'VARIANT_CODING',
-                         'ADDRESS_EXTENSION_FREE',
-                         'ADDRESS_EXTENSION_ODT',
-                         'ADDRESS_EXTENSION_DAQ',
-                         'ADDRESS_MAPPING',
-                         'ADDR_EPK',
-                         'ALIGNMENT_BYTE',
-                         'ALIGNMENT_FLOAT32_IEEE',
-                         'ALIGNMENT_FLOAT64_IEEE',
-                         # 'ALIGNMENT_INT64',
-                         'ALIGNMENT_LONG',
-                         'ALIGNMENT_WORD',
-                         'ANNOTATION',
-                         'ANNOTATION_LABEL',
-                         'ANNOTATION_ORIGIN',
-                         'ANNOTATION_TEXT',
-                         'ARRAY_SIZE',
-                         'AXIS_DESCR',
-                         'AXIS_PTS_REF',
-                         'AXIS_PTS_X',
-                         'AXIS_PTS_Y',
-                         'AXIS_PTS_Z',
-                         # 'AXIS_PTS_4',
-                         # 'AXIS_PTS_5',
-                         'AXIS_RESCALE_X',
-                         'AXIS_RESCALE_Y',
-                         'AXIS_RESCALE_Z',
-                         'BIT_MASK',
-                         'BIT_OPERATION',
-                         'BYTE_ORDER',
-                         'CALIBRATION_ACCESS',
-                         'CALIBRATION_HANDLE',
-                         # 'CALIBRATION_HANDLE_TEXT',
-                         'CALIBRATION_METHOD',
-                         'COEFFS',
-                         'COEFFS_LINEAR',
-                         'COMPARISON_QUANTITY',
-                         'COMPU_TAB_REF',
-                         'CPU_TYPE',
-                         'CURVE_AXIS_REF',
-                         'CUSTOMER',
-                         'CUSTOMER_NO',
-                         'DAQ',
-                         'DAQ_EVENT',
-                         'DAQ_LIST',
-                         'DAQ_LIST_TYPE',
-                         'DAQ_STIM',
-                         'DATA_SIZE',
-                         'DEFAULT_VALUE',
-                         'DEFAULT_VALUE_NUMERIC',
-                         'DEF_CHARACTERISTIC',
-                         'DEPENDENT_CHARACTERISTIC',
-                         'DEPOSIT',
-                         # 'DISCRETE',
-                         'DISPLAY_IDENTIFIER',
-                         'DIST_OP_X',
-                         'DIST_OP_Y',
-                         'DIST_OP_Z',
-                         'DYNAMIC',
-                         # 'DIST_OP_4',
-                         # 'DIST_OP_5',
-                         'ECU',
-                         'ECU_ADDRESS',
-                         'ECU_ADDRESS_EXTENSION',
-                         'ECU_CALIBRATION_OFFSET',
-                         'EPK',
-                         'ERROR_MASK',
-                         'EVENT',
-                         'EVENT_FIXED',
-                         'EXTENDED_LIMITS',
-                         'FIRST_PID',
-                         'FIX_AXIS_PAR',
-                         'FIX_AXIS_PAR_DIST',
-                         'FIX_AXIS_PAR_LIST',
-                         'FIX_NO_AXIS_PTS_X',
-                         'FIX_NO_AXIS_PTS_Y',
-                         'FIX_NO_AXIS_PTS_Z',
-                         # 'FIX_NO_AXIS_PTS_4',
-                         # 'FIX_NO_AXIS_PTS_5',
-                         'FNC_VALUES',
-                         'FORMAT',
-                         'FORMULA',
-                         'FORMULA_INV',
-                         'FRAME_MEASUREMENT',
-                         'FREEZE_SUPPORTED',
-                         'FUNCTION_LIST',
-                         'FUNCTION_VERSION',
-                         'GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE',
-                         'GRANULARITY_ODT_ENTRY_SIZE_DAQ_WORD',
-                         'GRANULARITY_ODT_ENTRY_SIZE_DAQ_DWORD',
-                         'GRANULARITY_ODT_ENTRY_SIZE_DAQ_DLONG',
-                         'GUARD_RAILS',
-                         'IDENTIFICATION',
-                         'IDENTIFICATION_FIELD_TYPE_ABSOLUTE',
-                         'IDENTIFICATION_FIELD_TYPE_RELATIVE_BYTE',
-                         'IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD',
-                         'IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD_ALIGNED',
-                         'IF_DATA',
-                         'IN_MEASUREMENT',
-                         # 'LAYOUT',
-                         'LEFT_SHIFT',
-                         'LINEAR',
-                         'LOC_MEASUREMENT',
-                         'MAP_LIST',
-                         'MATRIX_DIM',
-                         'MAX_BLOCK_SIZE',
-                         'MAX_GRAD',
-                         'MAX_ODT',
-                         'MAX_ODT_ENTRIES',
-                         'MAX_REFRESH',
-                         'MEMORY_LAYOUT',
-                         'MEMORY_SEGMENT',
-                         'MONOTONY',
-                         'NO_AXIS_PTS_X',
-                         'NO_AXIS_PTS_Y',
-                         'NO_AXIS_PTS_Z',
-                         # 'NO_AXIS_PTS_4',
-                         # 'NO_AXIS_PTS_5',
-                         'NO_OVERLOAD_INDICATION',
-                         'NO_OF_INTERFACES',
-                         'NO_RESCALE_X',
-                         'NO_RESCALE_Y',
-                         'NO_RESCALE_Z',
-                         'NUMBER',
-                         'OFFSET_X',
-                         'OFFSET_Y',
-                         'OFFSET_Z',
-                         # 'OFFSET_4',
-                         # 'OFFSET_5',
-                         'OPTIMISATION_TYPE_DEFAULT',
-                         'OPTIMISATION_TYPE_ODT_TYPE_16',
-                         'OPTIMISATION_TYPE_ODT_TYPE_32',
-                         'OPTIMISATION_TYPE_ODT_TYPE_64',
-                         'OPTIMISATION_TYPE_ODT_TYPE_ALIGNMENT',
-                         'OPTIMISATION_TYPE_MAX_ENTRY_SIZE',
-                         'OUT_MEASUREMENT',
-                         'OVERLOAD_INDICATION_EVENT',
-                         'OVERLOAD_INDICATION_PID',
-                         'PAG',
-                         'PGM',
-                         'PHONE_NO',
-                         # 'PHYS_UNIT',
-                         'PRESCALER_SUPPORTED',
-                         'PROJECT_NO',
-                         'PROTOCOL_LAYER',
-                         'READ_ONLY',
-                         'READ_WRITE',
-                         'REF_CHARACTERISTIC',
-                         'REF_GROUP',
-                         'REF_MEASUREMENT',
-                         'REF_MEMORY_SEGMENT',
-                         'REF_UNIT',
-                         'RESERVED',
-                         'RIGHT_SHIFT',
-                         'RIP_ADDR_W',
-                         'RIP_ADDR_X',
-                         'RIP_ADDR_Y',
-                         'RIP_ADDR_Z',
-                         # 'RIP_ADDR_4',
-                         # 'RIP_ADDR_5',
-                         'ROOT',
-                         'SECTOR',
-                         'SHIFT_OP_X',
-                         'SHIFT_OP_Y',
-                         'SHIFT_OP_Z',
-                         # 'SHIFT_OP_4',
-                         # 'SHIFT_OP_5',
-                         'SIGN_EXTEND',
-                         'SI_EXPONENTS',
-                         'SRC_ADDR_X',
-                         'SRC_ADDR_Y',
-                         'SRC_ADDR_Z',
-                         # 'SRC_ADDR_4',
-                         # 'SRC_ADDR_5',
-                         'STATIC',
-                         # 'STATIC_RECORD_LAYOUT',
-                         # 'STATUS_STRING_REF',
-                         # 'STEP_SIZE',
-                         'STIM',
-                         'SUB_FUNCTION',
-                         'SUB_GROUP',
-                         'SUPPLIER',
-                         # 'SYMBOL_LINK',
-                         'SYSTEM_CONSTANT',
-                         'S_REC_LAYOUT',
-                         'UNIT_CONVERSION',
-                         'USER',
-                         'TIMESTAMP_SUPPORTED',
-                         'TIMESTAMP_FIXED',
-                         'VAR_ADDRESS',
-                         'VAR_CHARACTERISTIC',
-                         'VAR_CRITERION',
-                         'VAR_FORBIDDEN_COMB',
-                         'VAR_MEASUREMENT',
-                         'VAR_NAMING',
-                         'VAR_SELECTION_CHARACTERISTIC',
-                         # 'VAR_SEPERATOR',
-                         'VERSION',
-                         'VIRTUAL',
-                         'VIRTUAL_CHARACTERISTIC',
-                         'XCP',
-                         'RASTER',
-                         'EVENT_GROUP',
-                         'SEED_KEY',
-                         'CHECKSUM',
-                         'TP_BLOB',
-                         'SOURCE',
-                         'QP_BLOB',
+tokens = tuple(set(list(a2l_keywords.values()) + \
+                   list(a2ml_keywords.values()) + \
+                   list(if_data_keywords.values()) + \
+                   [
+                       r'NUMERIC',
+                       r'STRING',
+                       r'IDENT',
+                       r'begin',
+                       r'end',
+                       r'PARENTHESE_OPEN',
+                       r'PARENTHESE_CLOSE',
+                       r'CURLY_OPEN',
+                       r'CURLY_CLOSE',
+                       r'BRACE_OPEN',
+                       r'BRACE_CLOSE',
+                       r'SEMICOLON',
+                       r'ASTERISK',
+                       r'EQUAL',
+                       r'COMMA'
+                   ]))
 
-                         'SEGMENT',
-                         'PAGE',
-                         'INIT_SEGMENT',
-                         'ECU_ACCESS_NOT_ALLOWED',
-                         'ECU_ACCESS_WITHOUT_XCP_ONLY',
-                         'ECU_ACCESS_WITH_XCP_ONLY',
-                         'ECU_ACCESS_DONT_CARE',
-                         'XCP_READ_ACCESS_NOT_ALLOWED',
-                         'XCP_READ_ACCESS_WITHOUT_ECU_ONLY',
-                         'XCP_READ_ACCESS_WITH_ECU_ONLY',
-                         'XCP_READ_ACCESS_DONT_CARE',
-                         'XCP_WRITE_ACCESS_NOT_ALLOWED',
-                         'XCP_WRITE_ACCESS_WITHOUT_ECU_ONLY',
-                         'XCP_WRITE_ACCESS_WITH_ECU_ONLY',
-                         'XCP_WRITE_ACCESS_DONT_CARE',
+states = (
+    ('a2ml', 'exclusive'),
+    ('ifdata', 'exclusive')
+)
 
-                         'XCP_ON_CAN',
-                         'XCP_ON_TCP_IP',
-                         'XCP_ON_UDP_IP',
-                         'HOST_NAME',
-                         'ADDRESS',
-                         'CAN_ID_BROADCAST',
-                         'CAN_ID_MASTER',
-                         'CAN_ID_SLAVE',
-                         'BAUDRATE',
-                         'SAMPLE_POINT',
-                         'SAMPLE_RATE',
-                         'BTL_CYCLES',
-                         'SJW',
-                         'SYNC_EDGE',
-                         'DAQ_LIST_CAN_ID',
-                         'SINGLE',
-                         'DUAL',
-                         'TRIPLE',
-                         'FIXED_EVENT_LIST',
-
-                         'VARIABLE',
-                         'FIXED',
-
-                         'DP_BLOB',
-                         'BA_BLOB',
-
-                         'KP_BLOB',
-                         'PA_BLOB',
-
-                         'UBYTE',
-                         'SBYTE',
-                         'UWORD',
-                         'SWORD',
-                         'ULONG',
-                         'SLONG',
-                         'A_UINT64',
-                         'A_INT64',
-                         'FLOAT32_IEEE',
-                         'FLOAT64_IEEE',
-
-                         'BYTE',
-                         'WORD',
-                         'LONG',
-
-                         'PBYTE',
-                         'PWORD',
-                         'PLONG',
-                         'DIRECT',
-
-                         'INDEX_INCR',
-                         'INDEX_DECR',
-
-                         'VALUE',
-                         'CURVE',
-                         'MAP',
-                         'CUBOID',
-                         'VAL_BLK',
-                         'ASCII',
-
-                         'MSB_FIRST',
-                         'MSB_LAST',
-
-                         'MON_INCREASE',
-                         'MON_DECREASE',
-                         'STRICT_INCREASE',
-                         'STRICT_DECREASE',
-
-                         'STD_AXIS',
-                         'FIX_AXIS',
-                         'COM_AXIS',
-                         'RES_AXIS',
-                         'CURVE_AXIS',
-
-                         'CALIBRATION',
-                         'NO_CALIBRATION',
-                         'NOT_IN_MCD_SYSTEM',
-                         'OFFLINE_CALIBRATION',
-
-                         'ABSOLUTE',
-                         'DIFFERENCE',
-
-                         'TAB_INTP',
-                         'TAB_NOINTP',
-                         'TAB_VERB',
-                         'RAT_FUNC',
-                         'FORM',
-                         'IDENTICAL',
-
-                         'TAB_INTP',
-                         'TAB_NOINTP',
-
-                         'TAB_VERB',
-
-                         'COLUMN_DIR',
-                         'ROW_DIR',
-                         'ALTERNATE_WITH_X',
-                         'ALTERNATE_WITH_Y',
-                         'ALTERNATE_CURVES',
-
-                         'VAR_SEPARATOR',
-
-                         'EXTENDED_SI',
-                         'DERIVED',
-
-                         'PRG_CODE',
-                         'PRG_DATA',
-                         'PRG_RESERVED',
-
-                         'CODE',
-                         'DATA',
-                         'OFFLINE_DATA',
-                         'VARIABLES',
-                         'SERAM',
-                         'RESERVED',
-                         'RESUME_SUPPORTED',
-                         'CALIBRATION_VARIABLES',
-                         'EXCLUDE_FROM_FLASH',
-
-                         'RAM',
-                         'EEPROM',
-                         'EPROM',
-                         'ROM',
-                         'REGISTER',
-                         'FLASH',
-
-                         'INTERN',
-                         'EXTERN',
-
-                         'block',
-
-                         'struct',
-                         'taggedstruct',
-                         'taggedunion',
-                         'enum',
-
-                         'char',
-                         'int',
-                         'long',
-                         'uchar',
-                         'uint',
-                         'ulong',
-                         'double',
-                         'float'))
-
-tokens = list(keywords.values()) + [
-    r'NUMERIC',
-    r'STRING',
-    r'IDENT',
-    r'begin',
-    r'end',
-    r'PARENTHESE_OPEN',
-    r'PARENTHESE_CLOSE',
-    r'CURLY_OPEN',
-    r'CURLY_CLOSE',
-    r'BRACE_OPEN',
-    r'BRACE_CLOSE',
-    r'SEMICOLON',
-    r'ASTERISK',
-    r'EQUAL',
-    r'COMMA'
-]
-
-t_ignore = ' \t\r\n'
+t_ANY_ignore = ' \t'
 
 
 @lex.TOKEN(r'(/\*(.|\n)*?\*/)')
-def t_ignore_C_COMMENT(token):
-    pass
+def t_ANY_ignore_C_COMMENT(token):
+    token.lexer.lineno += len(token.value.splitlines())
 
 
 @lex.TOKEN(r'(\/{2}.+\n)')
-def t_ignore_CPP_COMMENT(token):
-    pass
+def t_ANY_ignore_CPP_COMMENT(token):
+    token.lexer.lineno += len(token.value.splitlines())
 
 
-t_PARENTHESE_OPEN = r'\('
-t_PARENTHESE_CLOSE = r'\)'
-t_CURLY_OPEN = r'\{'
-t_CURLY_CLOSE = r'\}'
-t_BRACE_OPEN = r'\['
-t_BRACE_CLOSE = r'\]'
-t_SEMICOLON = r';'
-t_ASTERISK = r'\*'
-t_EQUAL = r'='
-t_COMMA = r','
+@lex.TOKEN(r'((\r\n)|(\r)|(\n))')
+def t_ANY_ignore_NEW_LINE(token):
+    token.lexer.lineno += 1
+
+
+t_ANY_PARENTHESE_OPEN = r'\('
+t_ANY_PARENTHESE_CLOSE = r'\)'
+t_ANY_CURLY_OPEN = r'\{'
+t_ANY_CURLY_CLOSE = r'\}'
+t_ANY_BRACE_OPEN = r'\['
+t_ANY_BRACE_CLOSE = r'\]'
+t_ANY_SEMICOLON = r';'
+t_ANY_ASTERISK = r'\*'
+t_ANY_EQUAL = r'='
+t_ANY_COMMA = r','
 
 
 @lex.TOKEN(r'(\/begin)')
-def t_begin(token):
+def t_ANY_begin(token):
     return token
 
 
 @lex.TOKEN(r'(\/end)')
-def t_end(token):
+def t_ANY_end(token):
     return token
 
 
 @lex.TOKEN(r'"(?:[^"\\]|\\.)*"')
-def t_STRING(token):
+def t_ANY_STRING(token):
     token.value = token.value[1:-1]
     return token
 
 
 @lex.TOKEN(r'[+-]?(([0]{1}[Xx]{1}[A-Fa-f0-9]+)|(\d+(\.(\d*([eE][+-]?\d+)?)?|([eE][+-]?\d+)?)?))')
-def t_NUMERIC(token):
+def t_ANY_NUMERIC(token):
     try:
         token.value = int(token.value, 10)
     except ValueError:
@@ -488,17 +349,49 @@ def t_NUMERIC(token):
 
 
 @lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_\.\[\]]*')
-def t_IDENT(token):
-    try:
-        token.type = keywords[token.value.split('[')[0]]
-    except KeyError:
-        pass
+def t_INITIAL_IDENT(token):
+    if token.value == 'IF_DATA':
+        token.type = token.value
+        token.lexer.push_state('ifdata')
+    elif token.value == 'A2ML':
+        token.type = token.value
+        token.lexer.push_state('a2ml')
+    else:
+        try:
+            token.type = a2l_keywords[token.value.split('[')[0]]
+        except KeyError:
+            pass
     return token
 
 
-def t_error(token):
-    print('invalid character at line ' + str(token.lineno) + ', position ' + str(token.lexpos))
-    token.lexer.skip(1)
+@lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_]{0,}')
+def t_a2ml_IDENT(token):
+    if token.value == 'A2ML':
+        token.type = token.value
+        token.lexer.pop_state()
+    else:
+        try:
+            token.type = a2ml_keywords[token.value]
+        except KeyError:
+            pass
+    return token
+
+
+@lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_\.\[\]]*')
+def t_ifdata_IDENT(token):
+    if token.value == 'IF_DATA':
+        token.type = token.value
+        token.lexer.pop_state()
+    else:
+        try:
+            token.type = if_data_keywords[token.value.split('[')[0]]
+        except KeyError:
+            pass
+    return token
+
+
+def t_ANY_error(token):
+    raise A2lLexerException(token.value[0], token.lineno, token.lexpos)
 
 
 lexer = lex.lex(optimize=True, outputdir=os.path.dirname(os.path.realpath(__file__)), lextab='lextab')

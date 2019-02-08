@@ -4,7 +4,8 @@ python:
   - "3.6"
 install:
   - pip install codecov
-  - pip install pytest pytest-cov
+  - pip install pytest>=3.6
+  - pip install pytest-cov==2.6.1
   - pip install git+https://github.com/Sauci/pya2l.git@master
 after_success:
   - codecov

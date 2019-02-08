@@ -6,31 +6,22 @@
 """
 
 import os
+import warnings
 import ply.yacc as yacc
 
-from .lexer import tokens as lex_tokens
-from .node import *
-
-
-class A2lFormatException(Exception):
-    def __init__(self, message, position, string=None):
-        self.value = str(message) + str(position)
-        if string:
-            delta = 120
-            s = position - delta if position >= delta else 0
-            e = position + delta if len(string) >= position + delta else -1
-            substring = string[s:e].replace('\r', ' ').replace('\n', ' ')
-            indicator = ' ' * (delta if position >= delta else position) + '^'
-            self.value += '\r\n\t' + ('...' if s else '   ') + substring + '\r\n\t   ' + indicator
-
-        super(A2lFormatException, self).__init__(self.value)
+from .exception import A2lFormatException
+from .lexer import tokens as lex_tokens, lexer
+from .a2l_node import *
+from .a2ml_node import a2ml_node_factory, BlockDefinition, A2ML
 
 
 class A2lParser(object):
     tokens = lex_tokens
 
     def __init__(self, string, **custom_classes):
-        self.tree = None
+        self.ast = None
+        self.a2ml = A2ML()
+        lexer.lineno = 1
         for node, cls in custom_classes.items():
             node_to_class[node] = cls
         self._yacc = yacc.yacc(debug=True, module=self, optimize=True,
@@ -38,22 +29,24 @@ class A2lParser(object):
         self._yacc.parse(string)
 
     def get_node(self, node_name):
-        if self.tree:
-            return self.tree.get_node(node_name)
+        if self.ast:
+            return self.ast.get_node(node_name)
         else:
             return []
 
     @staticmethod
     def p_error(p):
         if p:
+            for _ in range(len(p.lexer.lexstatestack)):
+                p.lexer.pop_state()
             raise A2lFormatException('invalid sequence at position ', p.lexpos, string=p.lexer.lexdata)
         else:
             raise A2lFormatException('invalid sequence in root node', 0, string='')
 
     def p_a2l(self, p):
         """a2l : a2l_optional_list_optional"""
-        p[0] = a2l_node_factory('ROOT', p[1])
-        self.tree = p[0]
+        p[0] = a2l_node_factory(p.slice[0].type, p[1])
+        self.ast = p[0]
 
     @staticmethod
     def p_a2l_optional(p):
@@ -81,7 +74,7 @@ class A2lParser(object):
     def p_a2ml_declaration(p):
         """a2ml_declaration : a2ml_type_definition SEMICOLON
                             | a2ml_block_definition SEMICOLON"""
-        p[0] = p[1]
+        p[0] = a2ml_node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_declaration_list(p):
@@ -95,7 +88,7 @@ class A2lParser(object):
     @staticmethod
     def p_a2ml_type_definition(p):
         """a2ml_type_definition : a2ml_type_name"""
-        p[0] = p[1]
+        p[0] = 'definition', a2ml_node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_type_name(p):
@@ -116,20 +109,16 @@ class A2lParser(object):
                                      | ulong
                                      | double
                                      | float"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_a2ml_block_definition(p):
-        """a2ml_block_definition : block a2ml_tag a2ml_type_name"""
+        p[0] = 'type_name', a2ml_node_factory(p[1], ('type_name', p[1]))
 
     @staticmethod
     def p_a2ml_enum_type_name(p):
         """a2ml_enum_type_name : enum a2ml_identifier_optional CURLY_OPEN a2ml_enumerator_list CURLY_CLOSE
                                | enum a2ml_identifier"""
         try:
-            p[0] = [p[2]] + p[4]
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
         except IndexError:
-            p[0] = [p[2]]
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_enumerator_list(p):
@@ -144,19 +133,25 @@ class A2lParser(object):
     def p_a2ml_enumerator(p):
         """a2ml_enumerator : a2ml_keyword EQUAL a2ml_constant
                            | a2ml_keyword"""
-        p[0] = p[1]
+        try:
+            p[0] = 'enumerator', a2ml_node_factory(p.slice[0].type, p[1], p[3])
+        except IndexError:
+            p[0] = 'enumerator', a2ml_node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_struct_type_name(p):
         """a2ml_struct_type_name : struct a2ml_identifier_optional CURLY_OPEN a2ml_struct_member_list_optional CURLY_CLOSE
                                  | struct a2ml_identifier"""
-        p[0] = p[1]
+        try:
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+        except IndexError:
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_struct_member_list_optional(p):
         """a2ml_struct_member_list_optional : empty
                                             | a2ml_struct_member_list"""
-        p[0] = p[1]
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_a2ml_struct_member_list(p):
@@ -170,42 +165,51 @@ class A2lParser(object):
     @staticmethod
     def p_a2ml_struct_member(p):
         """a2ml_struct_member : a2ml_member SEMICOLON"""
-        p[0] = p[1]
+        p[0] = 'member', a2ml_node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_member(p):
         """a2ml_member : a2ml_type_name a2ml_array_specifier_optional"""
-        p[0] = p[1]
+        p[0] = 'member', a2ml_node_factory(p.slice[0].type, *p[1:3])
 
     @staticmethod
     def p_a2ml_member_optional(p):
         """a2ml_member_optional : empty
                                 | a2ml_member"""
-        p[0] = p[1]
+        if p[1]:
+            p[0] = p[1]
+        else:
+            p[0] = 'member', p[1]
 
     @staticmethod
     def p_a2ml_array_specifier_optional(p):
         """a2ml_array_specifier_optional : empty
                                          | a2ml_array_specifier"""
-        p[0] = p[1]
+        p[0] = 'array_specifier', p[1]
 
     @staticmethod
     def p_a2ml_array_specifier(p):
         """a2ml_array_specifier : BRACE_OPEN a2ml_constant BRACE_CLOSE
                                 | BRACE_OPEN a2ml_constant BRACE_CLOSE a2ml_array_specifier"""
-        p[0] = p[1]
+        try:
+            p[0] = [p[2]] + p[4]
+        except IndexError:
+            p[0] = [p[2]]
 
     @staticmethod
     def p_a2ml_taggedstruct_type_name(p):
         """a2ml_taggedstruct_type_name : taggedstruct a2ml_identifier_optional CURLY_OPEN a2ml_taggedstruct_member_list_optional CURLY_CLOSE
                                        | taggedstruct a2ml_identifier"""
-        p[0] = p[1]
+        try:
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+        except IndexError:
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_taggedstruct_member_list_optional(p):
         """a2ml_taggedstruct_member_list_optional : empty
                                                   | a2ml_taggedstruct_member_list"""
-        p[0] = p[1]
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_a2ml_taggedstruct_member_list(p):
@@ -217,22 +221,50 @@ class A2lParser(object):
             p[0] = [p[1]]
 
     @staticmethod
-    def p_a2ml_taggedstruct_member(p):
-        """a2ml_taggedstruct_member : a2ml_taggedstruct_definition SEMICOLON
-                                    | PARENTHESE_OPEN a2ml_taggedstruct_definition PARENTHESE_CLOSE ASTERISK SEMICOLON
-                                    | a2ml_block_definition SEMICOLON
-                                    | PARENTHESE_OPEN a2ml_block_definition PARENTHESE_CLOSE ASTERISK SEMICOLON"""
+    def p_a2ml_semicolon_optional(p):
+        """a2ml_semicolon_optional : SEMICOLON
+                                   | empty"""
+        if p[1]:
+            warnings.warn('non-standard format at position {}'.format(p.lexer.lexpos), SyntaxWarning)
 
     @staticmethod
-    def p_a2ml_taggedstruct_definition(
-            p):  # TODO: check if the optional member is really optional (seems to be optional in example).
+    def p_a2ml_taggedstruct_member(p):
+        # the bellow semicolon before parenthese close is not part of the specification. however, as described in
+        # example http://www.msr-wg.de/medoc/download/msrsw/v222/msrsw-tr-intro/msrsw-tr-intro.pdf at page 55, the top
+        # struct definition contains a semicolon at the end. as it does not alter the format, it is possible to support
+        # it.
+        """a2ml_taggedstruct_member : a2ml_taggedstruct_definition SEMICOLON
+                                    | PARENTHESE_OPEN a2ml_taggedstruct_definition a2ml_semicolon_optional PARENTHESE_CLOSE ASTERISK SEMICOLON
+                                    | a2ml_block_definition SEMICOLON
+                                    | PARENTHESE_OPEN a2ml_block_definition a2ml_semicolon_optional PARENTHESE_CLOSE ASTERISK SEMICOLON"""
+        if len(p) == 7:
+            p[0] = 'member', a2ml_node_factory(p.slice[0].type, ('type_name', p[2]), True)
+        else:
+            p[0] = 'member', a2ml_node_factory(p.slice[0].type, ('type_name', p[1]), False)
+
+    @staticmethod
+    def p_a2ml_block_definition(p):
+        """a2ml_block_definition : block a2ml_tag a2ml_type_name"""
+        p[0] = 'definition', a2ml_node_factory(p[1], *p[2:4])
+
+    @staticmethod
+    def p_a2ml_taggedstruct_definition(p):
         """a2ml_taggedstruct_definition : a2ml_tag a2ml_member_optional
                                         | a2ml_tag PARENTHESE_OPEN a2ml_member PARENTHESE_CLOSE ASTERISK"""
+        try:
+            node = a2ml_node_factory(p.slice[0].type, p[1], p[3], True)
+        except IndexError:
+            node = a2ml_node_factory(p.slice[0].type, p[1], p[2], False)
+        p[0] = 'definition', node
 
     @staticmethod
     def p_a2ml_taggedunion_type_name(p):
         """a2ml_taggedunion_type_name : taggedunion a2ml_identifier_optional CURLY_OPEN a2ml_taggedunion_member_list_optional CURLY_CLOSE
                                       | taggedunion a2ml_identifier"""
+        try:
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+        except IndexError:
+            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_taggedunion_member_list(p):
@@ -251,30 +283,41 @@ class A2lParser(object):
 
     @staticmethod
     def p_a2ml_taggedunion_member(p):
-        """a2ml_taggedunion_member : a2ml_tag SEMICOLON
-                                   | a2ml_tag a2ml_member SEMICOLON
+        """a2ml_taggedunion_member : a2ml_tag a2ml_member_optional SEMICOLON
                                    | a2ml_block_definition SEMICOLON"""
+        if len(p) == 4:
+            p[0] = 'member', a2ml_node_factory(p.slice[0].type, p[1], p[2])
+        else:
+            p[0] = 'member', p[1][1]
 
     @staticmethod
     def p_a2ml_tag(p):
         """a2ml_tag : STRING"""
+        p[0] = 'tag', p[1]
 
     @staticmethod
     def p_a2ml_identifier(p):
         """a2ml_identifier : IDENT"""
+        p[0] = 'identifier', p[1]
 
     @staticmethod
     def p_a2ml_identifier_optional(p):
         """a2ml_identifier_optional : empty
                                     | a2ml_identifier"""
+        if p[1]:
+            p[0] = p[1]
+        else:
+            p[0] = 'identifier', p[1]
 
     @staticmethod
     def p_a2ml_keyword(p):
         """a2ml_keyword : STRING"""
+        p[0] = 'keyword', p[1]
 
     @staticmethod
     def p_a2ml_constant(p):
         """a2ml_constant : NUMERIC"""
+        p[0] = p[1]
 
     @staticmethod
     def p_datatype(p):
@@ -284,8 +327,6 @@ class A2lParser(object):
                     | SWORD
                     | ULONG
                     | SLONG
-                    | A_UINT64
-                    | A_INT64
                     | FLOAT32_IEEE
                     | FLOAT64_IEEE"""
         p[0] = p[1]
@@ -327,20 +368,25 @@ class A2lParser(object):
                              | STRING
                              | NUMERIC
                              | begin IDENT generic_parameter_list_optional end IDENT"""
+        try:
+            p[0] = [p[2]] + p[3]
+        except IndexError:
+            p[0] = [p[1]]
 
     @staticmethod
     def p_generic_parameter_list(p):
         """generic_parameter_list : generic_parameter
                                   | generic_parameter generic_parameter_list"""
         try:
-            p[0] = [p[1]] + p[2]
+            p[0] = p[1] + p[2]
         except IndexError:
-            p[0] = [p[1]]
+            p[0] = p[1]
 
     @staticmethod
     def p_generic_parameter_list_optional(p):
         """generic_parameter_list_optional : empty
                                            | generic_parameter_list"""
+        p[0] = list() if p[1] is None else p[1]
 
     @staticmethod
     def p_number_list(p):
@@ -431,11 +477,9 @@ class A2lParser(object):
         """project_no : PROJECT_NO IDENT"""
         p[0] = p[2]
 
-    @staticmethod
-    def p_if_data(p):
-        """if_data : if_data_xcp
-                   | if_data_module"""
-        p[0] = p[1]
+    def p_if_data(self, p):
+        """if_data : begin IF_DATA IDENT generic_parameter_list_optional end IF_DATA"""
+        p[0] = p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3])
 
     @staticmethod
     def p_module(p):
@@ -479,627 +523,10 @@ class A2lParser(object):
                                          | module_optional_list"""
         p[0] = tuple() if p[1] is None else p[1]
 
-    @staticmethod
-    def p_a2ml(p):
+    def p_a2ml(self, p):
         """a2ml : begin A2ML a2ml_declaration_list end A2ML"""
+        self.a2ml += p[3]
         p[0] = p[3]
-
-    @staticmethod
-    def p_if_data_xcp(p):
-        """if_data_xcp : begin IF_DATA XCP if_data_xcp_optional_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory('if_data_xcp', p[4])
-
-    @staticmethod
-    def p_if_data_xcp_optional(p):
-        """if_data_xcp_optional : protocol_layer
-                                | daq
-                                | pag
-                                | pgm
-                                | segment
-                                | daq_event
-                                | xcp_on_can
-                                | xcp_on_tcp_ip
-                                | xcp_on_udp_ip
-                                | generic_parameter_list"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_xcp_on_tcp_ip(p):
-        """xcp_on_tcp_ip : begin XCP_ON_TCP_IP NUMERIC NUMERIC xcp_on_tcp_ip_optional_list_optional end XCP_ON_TCP_IP"""
-        p[0] = a2l_node_factory(*p[2:6])
-
-    @staticmethod
-    def p_xcp_on_udp_ip(p):
-        """xcp_on_udp_ip : begin XCP_ON_UDP_IP NUMERIC NUMERIC xcp_on_tcp_ip_optional_list_optional end XCP_ON_UDP_IP"""
-        p[0] = a2l_node_factory(*p[2:6])
-
-    @staticmethod
-    def p_xcp_on_tcp_ip_optional(p):
-        """xcp_on_tcp_ip_optional : host_name
-                                  | address
-                                  | protocol_layer
-                                  | segment
-                                  | daq
-                                  | pag
-                                  | pgm
-                                  | daq_event"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_xcp_on_tcp_ip_optional_list(p):
-        """xcp_on_tcp_ip_optional_list : xcp_on_tcp_ip_optional
-                                       | xcp_on_tcp_ip_optional xcp_on_tcp_ip_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_xcp_on_tcp_ip_optional_list_optional(p):
-        """xcp_on_tcp_ip_optional_list_optional : empty
-                                                | xcp_on_tcp_ip_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_host_name(p):
-        """host_name : HOST_NAME STRING"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_address(p):
-        """address : ADDRESS STRING"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_xcp_on_can(p):
-        """xcp_on_can : begin XCP_ON_CAN NUMERIC xcp_on_can_optional_list_optional end XCP_ON_CAN"""
-        p[0] = a2l_node_factory(*p[2:5])
-
-    @staticmethod
-    def p_xcp_on_can_optional(p):
-        """xcp_on_can_optional : can_id_broadcast
-                               | can_id_master
-                               | can_id_slave
-                               | baudrate
-                               | sample_point
-                               | sample_rate
-                               | btl_cycles
-                               | sjw
-                               | sync_edge
-                               | daq_list_can_id
-                               | protocol_layer
-                               | segment
-                               | daq
-                               | pag
-                               | pgm
-                               | daq_event"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_xcp_on_can_optional_list(p):
-        """xcp_on_can_optional_list : xcp_on_can_optional
-                                    | xcp_on_can_optional xcp_on_can_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_xcp_on_can_optional_list_optional(p):
-        """xcp_on_can_optional_list_optional : empty
-                                             | xcp_on_can_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_can_id_broadcast(p):
-        """can_id_broadcast : CAN_ID_BROADCAST NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_can_id_master(p):
-        """can_id_master : CAN_ID_MASTER NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_can_id_slave(p):
-        """can_id_slave : CAN_ID_SLAVE NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_baudrate(p):
-        """baudrate : BAUDRATE NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_sample_point(p):
-        """sample_point : SAMPLE_POINT NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_sample_rate(p):
-        """sample_rate : SAMPLE_RATE SINGLE
-                       | SAMPLE_RATE TRIPLE"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_btl_cycles(p):
-        """btl_cycles : BTL_CYCLES NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_sjw(p):
-        """sjw : SJW NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_sync_edge(p):
-        """sync_edge : SYNC_EDGE SINGLE
-                     | SYNC_EDGE DUAL"""
-        p[0] = p[2]
-
-    # TODO: simplify DAQ_LIST_CAN_ID grammar.
-    @staticmethod
-    def p_daq_list_can_id(p):
-        """daq_list_can_id : begin DAQ_LIST_CAN_ID NUMERIC daq_list_can_id_optional_optional end DAQ_LIST_CAN_ID"""
-        p[0] = a2l_node_factory(*p[2:5])
-
-    @staticmethod
-    def p_daq_list_can_id_optional(p):
-        """daq_list_can_id_optional : daq_list_can_id_type_variable
-                                    | daq_list_can_id_type_fixed"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_daq_list_can_id_optional_optional(p):
-        """daq_list_can_id_optional_optional : empty
-                                             | daq_list_can_id_optional"""
-        p[0] = tuple() if p[1] is None else (p[1],)
-
-    @staticmethod
-    def p_daq_list_can_id_type_variable(p):
-        """daq_list_can_id_type_variable : VARIABLE"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_daq_list_can_id_type_fixed(p):
-        """daq_list_can_id_type_fixed : FIXED NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_daq_event(p):
-        """daq_event : begin DAQ_EVENT FIXED_EVENT_LIST daq_event_optional_list_optional end DAQ_EVENT
-                     | begin DAQ_EVENT VARIABLE daq_event_optional_list_optional end DAQ_EVENT"""
-        p[0] = a2l_node_factory(*p[2:5])
-
-    @staticmethod
-    def p_daq_event_optional(p):
-        """daq_event_optional : available_event_list
-                              | default_event_list"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_daq_event_optional_list(p):
-        """daq_event_optional_list : daq_event_optional
-                                   | daq_event_optional daq_event_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_daq_event_optional_list_optional(p):
-        """daq_event_optional_list_optional : empty
-                                            | daq_event_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_default_event_list(p):
-        """default_event_list : begin DEFAULT_EVENT_LIST available_event_list_optional_list_optional end DEFAULT_EVENT_LIST"""
-        p[0] = a2l_node_factory(*p[2:4])
-
-    @staticmethod
-    def p_available_event_list(p):
-        """available_event_list : begin AVAILABLE_EVENT_LIST available_event_list_optional_list_optional end AVAILABLE_EVENT_LIST"""
-        p[0] = a2l_node_factory(*p[2:4])
-
-    @staticmethod
-    def p_available_event_list_optional(p):
-        """available_event_list_optional : EVENT NUMERIC"""
-        p[0] = 'event', p[2]
-
-    @staticmethod
-    def p_available_event_list_optional_list(p):
-        """available_event_list_optional_list : available_event_list_optional
-                                              | available_event_list_optional available_event_list_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_available_event_list_optional_list_optional(p):
-        """available_event_list_optional_list_optional : empty
-                                                       | available_event_list_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_if_data_xcp_optional_list(p):
-        """if_data_xcp_optional_list : if_data_xcp_optional
-                                     | if_data_xcp_optional if_data_xcp_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_if_data_xcp_optional_list_optional(p):
-        """if_data_xcp_optional_list_optional : empty
-                                                     | if_data_xcp_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_pag(p):
-        """pag : begin PAG NUMERIC pag_optional_list_optional end PAG"""
-        p[0] = a2l_node_factory(*p[2:5])
-
-    @staticmethod
-    def p_pgm(p):
-        """pgm : begin PGM IDENT NUMERIC NUMERIC pgm_optional_list_optional end PGM"""
-        p[0] = a2l_node_factory(*p[2:7])
-
-    @staticmethod
-    def p_pgm_optional(p):
-        """pgm_optional : sector
-                        | generic_parameter_list"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_pgm_optional_list(p):
-        """pgm_optional_list : pgm_optional
-                             | pgm_optional pgm_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_pgm_optional_list_optional(p):
-        """pgm_optional_list_optional : empty
-                                      | pgm_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_sector(p):
-        """sector : begin SECTOR STRING NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC end SECTOR"""
-        p[0] = a2l_node_factory(*p[2:10])
-
-    @staticmethod
-    def p_pag_optional(p):
-        """pag_optional : freeze_supported
-                        | generic_parameter_list"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_pag_optional_list(p):
-        """pag_optional_list : pag_optional
-                             | pag_optional pag_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_pag_optional_list_optional(p):
-        """pag_optional_list_optional : empty
-                                      | pag_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_freeze_supported(p):
-        """freeze_supported : FREEZE_SUPPORTED"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_daq(p):
-        """daq : begin DAQ daq_config_type NUMERIC NUMERIC NUMERIC optimisation_type address_extension identification_field_type granularity_odt_entry NUMERIC overload_indication daq_optional_list_optional end DAQ"""
-        p[0] = a2l_node_factory(*p[2:14])
-
-    @staticmethod
-    def p_daq_config_type(p):
-        """daq_config_type : STATIC
-                           | DYNAMIC"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_daq_optional(p):
-        """daq_optional : daq_list
-                        | event
-                        | timestamp_supported
-                        | optimisation_type
-                        | address_extension
-                        | identification_field_type
-                        | granularity_odt_entry
-                        | prescaler_supported
-                        | resume_supported
-                        | IDENT
-                        | NUMERIC"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_prescaler_supported(p):
-        """prescaler_supported : PRESCALER_SUPPORTED"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_resume_supported(p):
-        """resume_supported : RESUME_SUPPORTED"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_optimisation_type(p):
-        """optimisation_type : OPTIMISATION_TYPE_DEFAULT
-                             | OPTIMISATION_TYPE_ODT_TYPE_16
-                             | OPTIMISATION_TYPE_ODT_TYPE_32
-                             | OPTIMISATION_TYPE_ODT_TYPE_64
-                             | OPTIMISATION_TYPE_ODT_TYPE_ALIGNMENT
-                             | OPTIMISATION_TYPE_MAX_ENTRY_SIZE"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_address_extension(p):
-        """address_extension : ADDRESS_EXTENSION_FREE
-                             | ADDRESS_EXTENSION_ODT
-                             | ADDRESS_EXTENSION_DAQ"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_identification_field_type(p):
-        """identification_field_type : IDENTIFICATION_FIELD_TYPE_ABSOLUTE
-                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_BYTE
-                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD
-                                     | IDENTIFICATION_FIELD_TYPE_RELATIVE_WORD_ALIGNED"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_granularity_odt_entry(p):
-        """granularity_odt_entry : GRANULARITY_ODT_ENTRY_SIZE_DAQ_BYTE
-                                 | GRANULARITY_ODT_ENTRY_SIZE_DAQ_WORD
-                                 | GRANULARITY_ODT_ENTRY_SIZE_DAQ_DWORD
-                                 | GRANULARITY_ODT_ENTRY_SIZE_DAQ_DLONG"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_overload_indication(p):
-        """overload_indication : NO_OVERLOAD_INDICATION
-                               | OVERLOAD_INDICATION_PID
-                               | OVERLOAD_INDICATION_EVENT"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_daq_optional_list(p):
-        """daq_optional_list : daq_optional
-                             | daq_optional daq_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_daq_optional_list_optional(p):
-        """daq_optional_list_optional : empty
-                                      | daq_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_event(p):
-        """event : begin EVENT STRING STRING NUMERIC daq_list_type_enum NUMERIC NUMERIC NUMERIC NUMERIC end EVENT"""
-        p[0] = a2l_node_factory(*p[2:11])
-
-    @staticmethod
-    def p_daq_list(p):
-        """daq_list : begin DAQ_LIST NUMERIC daq_list_optional_list_optional end DAQ_LIST"""
-        p[0] = a2l_node_factory(*p[2:5])
-
-    @staticmethod
-    def p_daq_list_optional(p):
-        """daq_list_optional : daq_list_type
-                             | max_odt
-                             | max_odt_entries
-                             | first_pid
-                             | event_fixed
-                             | predefined"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_daq_list_type_enum(p):
-        """daq_list_type_enum : DAQ
-                              | STIM
-                              | DAQ_STIM"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_daq_list_type(p):
-        """daq_list_type : DAQ_LIST_TYPE daq_list_type_enum"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_max_odt(p):
-        """max_odt : MAX_ODT NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_max_odt_entries(p):
-        """max_odt_entries : MAX_ODT_ENTRIES NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_first_pid(p):
-        """first_pid : FIRST_PID NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_event_fixed(p):
-        """event_fixed : EVENT_FIXED NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_predefined(p):
-        """predefined : generic_parameter_list"""
-        p[0] = p[1]  # TODO: implement according to a2ml specification.
-
-    @staticmethod
-    def p_daq_list_optional_list(p):
-        """daq_list_optional_list : daq_list_optional
-                                  | daq_list_optional daq_list_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_daq_list_optional_list_optional(p):
-        """daq_list_optional_list_optional : empty
-                                           | daq_list_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_timestamp_supported(p):
-        """timestamp_supported : begin TIMESTAMP_SUPPORTED NUMERIC IDENT IDENT timestamp_fixed end TIMESTAMP_SUPPORTED"""
-        p[0] = a2l_node_factory(*p[2:7])
-
-    @staticmethod
-    def p_timestamp_fixed(p):
-        """timestamp_fixed : empty
-                           | TIMESTAMP_FIXED"""
-        p[0] = ((p.slice[0].type, p[1]),) if p[1] is not None else tuple()
-
-    @staticmethod
-    def p_protocol_layer(p):
-        """protocol_layer : begin PROTOCOL_LAYER NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC protocol_layer_optional_list_optional end PROTOCOL_LAYER"""
-        p[0] = a2l_node_factory(*p[2:13])
-
-    @staticmethod
-    def p_protocol_layer_optional(p):
-        """protocol_layer_optional : generic_parameter_list"""
-
-    @staticmethod
-    def p_protocol_layer_optional_list(p):
-        """protocol_layer_optional_list : protocol_layer_optional
-                                        | protocol_layer_optional protocol_layer_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_protocol_layer_optional_list_optional(p):
-        """protocol_layer_optional_list_optional : empty
-                                                 | protocol_layer_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_if_data_module(p):
-        """if_data_module : begin IF_DATA IDENT if_data_module_optional_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory('if_data_module', *p[3:5])
-
-    @staticmethod  # TODO: protocol_layer, daq and xcp_on_can are not available in rev.1.51...
-    def p_if_data_module_optional(p):
-        """if_data_module_optional : source
-                                   | raster
-                                   | event_group
-                                   | seed_key
-                                   | checksum
-                                   | tp_blob tp_data
-                                   | if_data_module_unsupported_element"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_if_data_module_optional_list(p):
-        """if_data_module_optional_list : if_data_module_optional
-                                        | if_data_module_optional if_data_module_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_if_data_module_optional_list_optional(p):
-        """if_data_module_optional_list_optional : empty
-                                                 | if_data_module_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_if_data_module_unsupported_element(p):
-        """if_data_module_unsupported_element : generic_parameter_list"""
-
-    @staticmethod
-    def p_source(p):
-        """source : begin SOURCE IDENT NUMERIC NUMERIC source_optional_list_optional end SOURCE"""
-        p[0] = a2l_node_factory(*p[2:7])
-
-    @staticmethod
-    def p_raster(p):
-        """raster : begin RASTER STRING STRING NUMERIC NUMERIC NUMERIC end RASTER"""
-        p[0] = a2l_node_factory(*p[2:8])
-
-    @staticmethod
-    def p_event_group(p):
-        """event_group : begin EVENT_GROUP STRING STRING number_list end EVENT_GROUP"""
-        p[0] = a2l_node_factory(*p[2:6])
-
-    @staticmethod
-    def p_seed_key(p):
-        """seed_key : begin SEED_KEY STRING STRING STRING end SEED_KEY"""
-        p[0] = a2l_node_factory(*p[2:6])
-
-    @staticmethod  # TODO: ident ident numeric pattern is not part of the specification, check...
-    def p_checksum(p):
-        """checksum : begin CHECKSUM STRING end CHECKSUM
-                    | begin CHECKSUM IDENT max_block_size end CHECKSUM"""
-        try:
-            p[0] = a2l_node_factory(*p[2:3])  # TODO: add support for both descriptions.
-        except TypeError:
-            p[0] = a2l_node_factory(*p[2:5])
-
-    @staticmethod
-    def p_max_block_size(p):
-        """max_block_size : MAX_BLOCK_SIZE NUMERIC"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_tp_blob(p):
-        """tp_blob : TP_BLOB"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_tp_data(p):
-        """tp_data : generic_parameter_list"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_source_optional(p):
-        """source_optional : display_identifier
-                           | qp_blob"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_source_optional_list(p):
-        """source_optional_list : source_optional
-                                | source_optional source_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_source_optional_list_optional(p):
-        """source_optional_list_optional : empty
-                                         | source_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_qp_blob(p):
-        """qp_blob : QP_BLOB IDENT"""
 
     @staticmethod
     def p_mod_par(p):
@@ -1303,8 +730,8 @@ class A2lParser(object):
 
     @staticmethod
     def p_memory_layout_optional(p):
-        """memory_layout_optional : if_data_memory_layout"""
-        p[0] = p.slice[1].type, p[1]
+        """memory_layout_optional : if_data"""
+        p[0] = p[1]
 
     @staticmethod
     def p_memory_layout_optional_list(p):
@@ -1322,63 +749,19 @@ class A2lParser(object):
         p[0] = tuple() if p[1] is None else p[0]
 
     @staticmethod
-    def p_if_data_memory_layout(p):
-        """if_data_memory_layout : begin IF_DATA IDENT if_data_memory_layout_optional_list_optional end IF_DATA"""
-
-    @staticmethod
-    def p_if_data_memory_layout_optional(p):
-        """if_data_memory_layout_optional : dp_blob dp_data
-                                          | ba_blob pa_data"""
-
-    @staticmethod
-    def p_if_data_memory_layout_optional_list(p):
-        """if_data_memory_layout_optional_list : if_data_memory_layout_optional
-                                               | if_data_memory_layout_optional if_data_memory_layout_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_if_data_memory_layout_optional_list_optional(p):
-        """if_data_memory_layout_optional_list_optional : empty
-                                                        | if_data_memory_layout_optional_list"""
-
-    @staticmethod
-    def p_dp_blob(p):
-        """dp_blob : DP_BLOB"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_ba_blob(p):
-        """ba_blob : BA_BLOB"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_dp_data(p):
-        """dp_data : generic_parameter_list"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_pa_data(p):
-        """pa_data : generic_parameter_list"""
-        p[0] = p[1]
-
-    @staticmethod
     def p_memory_segment(p):
         """memory_segment : begin MEMORY_SEGMENT IDENT STRING memory_segment_prg_type memory_segment_memory_type memory_segment_attributes NUMERIC NUMERIC number_list memory_segment_optional_list_optional end MEMORY_SEGMENT"""
         p[0] = a2l_node_factory(*p[2:12])
 
     @staticmethod
     def p_memory_segment_optional(p):
-        """memory_segment_optional : if_data_memory_segment
-                                   | if_data_xcp"""
+        """memory_segment_optional : if_data"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
-    def p_memory_segment_optional_parameter_list(p):
-        """memory_segment_optional_parameter_list : memory_segment_optional
-                                                  | memory_segment_optional memory_segment_optional_parameter_list"""
+    def p_memory_segment_optional_list(p):
+        """memory_segment_optional_list : memory_segment_optional
+                                        | memory_segment_optional memory_segment_optional_list"""
         try:
             p[0] = [p[1]] + p[2]
         except IndexError:
@@ -1387,7 +770,7 @@ class A2lParser(object):
     @staticmethod
     def p_memory_segment_optional_list_optional(p):
         """memory_segment_optional_list_optional : empty
-                                                 | memory_segment_optional_parameter_list"""
+                                                 | memory_segment_optional_list"""
         p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
@@ -1422,105 +805,6 @@ class A2lParser(object):
     def p_system_constant(p):
         """system_constant : SYSTEM_CONSTANT STRING STRING"""
         p[0] = a2l_node_factory(*p[1:4])
-
-    @staticmethod
-    def p_if_data_memory_segment(p):
-        """if_data_memory_segment : begin IF_DATA IDENT if_data_memory_segment_optional_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory('if_data_memory_segment', *p[3:5])
-
-    @staticmethod
-    def p_if_data_memory_segment_optional(p):
-        """if_data_memory_segment_optional : address_mapping
-                                           | segment
-                                           | generic_parameter"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_if_data_memory_segment_optional_list(p):
-        """if_data_memory_segment_optional_list : if_data_memory_segment_optional
-                                                | if_data_memory_segment_optional if_data_memory_segment_optional_list"""
-
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_if_data_memory_segment_optional_list_optional(p):
-        """if_data_memory_segment_optional_list_optional : empty
-                                                         | if_data_memory_segment_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod  # TODO: segment is not defined in the specification, check...
-    def p_segment(p):
-        """segment : begin SEGMENT NUMERIC NUMERIC NUMERIC NUMERIC NUMERIC segment_optional_parameter_list_optional end SEGMENT"""
-        p[0] = a2l_node_factory(*p[2:9])
-
-    @staticmethod
-    def p_segment_optional_parameter(p):
-        """segment_optional_parameter : page
-                                      | address_mapping
-                                      | checksum"""
-        p[0] = p.slice[1].type, p[1]
-
-    @staticmethod
-    def p_segment_optional_parameter_list(p):
-        """segment_optional_parameter_list : segment_optional_parameter
-                                           | segment_optional_parameter segment_optional_parameter_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_segment_optional_parameter_list_optional(p):
-        """segment_optional_parameter_list_optional : empty
-                                                    | segment_optional_parameter_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_page(p):
-        """page : begin PAGE NUMERIC page_ecu_access_enum page_xcp_read_access_enum page_xcp_write_access_enum init_segment end PAGE"""
-        p[0] = a2l_node_factory(*p[2:8])
-
-    @staticmethod
-    def p_page_ecu_access_enum(p):
-        """page_ecu_access_enum : ECU_ACCESS_NOT_ALLOWED
-                                | ECU_ACCESS_WITHOUT_XCP_ONLY
-                                | ECU_ACCESS_WITH_XCP_ONLY
-                                | ECU_ACCESS_DONT_CARE"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_page_xcp_read_access_enum(p):
-        """page_xcp_read_access_enum : XCP_READ_ACCESS_NOT_ALLOWED
-                                     | XCP_READ_ACCESS_WITHOUT_ECU_ONLY
-                                     | XCP_READ_ACCESS_WITH_ECU_ONLY
-                                     | XCP_READ_ACCESS_DONT_CARE"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_page_xcp_write_access_enum(p):
-        """page_xcp_write_access_enum : XCP_WRITE_ACCESS_NOT_ALLOWED
-                                      | XCP_WRITE_ACCESS_WITHOUT_ECU_ONLY
-                                      | XCP_WRITE_ACCESS_WITH_ECU_ONLY
-                                      | XCP_WRITE_ACCESS_DONT_CARE"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_init_segment(p):
-        """init_segment : empty
-                        | INIT_SEGMENT NUMERIC"""
-        p[0] = tuple() if p[1] is None else [(p.slice[0].type, p[2])]
-
-    @staticmethod
-    def p_address_mapping(p):
-        """address_mapping : ADDRESS_MAPPING NUMERIC NUMERIC NUMERIC
-                           | begin ADDRESS_MAPPING NUMERIC NUMERIC NUMERIC end ADDRESS_MAPPING"""
-        if len(p) == 5:
-            p[0] = a2l_node_factory(*p[1:5])
-        else:
-            p[0] = a2l_node_factory(*p[2:6])
 
     @staticmethod
     def p_characteristic(p):
@@ -1806,7 +1090,7 @@ class A2lParser(object):
                                    | ref_memory_segment
                                    | annotation
                                    | comparison_quantity
-                                   | if_data_characteristic
+                                   | if_data
                                    | axis_descr
                                    | calibration_access
                                    | matrix_dim
@@ -1829,10 +1113,6 @@ class A2lParser(object):
         p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
-    def p_if_data_characteristic(p):
-        """if_data_characteristic : if_data_memory_layout"""
-
-    @staticmethod
     def p_axis_pts(p):
         """axis_pts : begin AXIS_PTS IDENT STRING NUMERIC IDENT IDENT NUMERIC IDENT NUMERIC NUMERIC NUMERIC axis_pts_optional_list_optional end AXIS_PTS"""
         p[0] = a2l_node_factory(*p[2:14])
@@ -1849,7 +1129,7 @@ class A2lParser(object):
                              | guard_rails
                              | extended_limits
                              | annotation
-                             | if_data_axis_pts
+                             | if_data
                              | calibration_access
                              | ecu_address_extension"""
         p[0] = p.slice[1].type, p[1]
@@ -1868,11 +1148,6 @@ class A2lParser(object):
         """axis_pts_optional_list_optional : empty
                                            | axis_pts_optional_list"""
         p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_if_data_axis_pts(p):
-        """if_data_axis_pts : if_data_memory_layout"""
-        p[0] = p[1]
 
     @staticmethod
     def p_deposit(p):
@@ -1906,8 +1181,7 @@ class A2lParser(object):
                                 | error_mask
                                 | ref_memory_segment
                                 | annotation
-                                | if_data_xcp
-                                | if_data_measurement
+                                | if_data
                                 | matrix_dim
                                 | ecu_address_extension"""
         p[0] = p.slice[1].type, p[1]
@@ -1930,72 +1204,6 @@ class A2lParser(object):
     @staticmethod
     def p_read_write(p):
         """read_write : READ_WRITE"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_if_data_measurement(p):
-        """if_data_measurement : begin IF_DATA IDENT if_data_measurement_optional_parameter_list_optional end IF_DATA"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_if_data_measurement_optional_parameter(p):
-        """if_data_measurement_optional_parameter : kp_blob kp_data
-                                                  | dp_blob dp_data
-                                                  | pa_blob pa_data
-                                                  | if_data_measurement_unsupported_element"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_if_data_measurement_unsupported_element(p):
-        """if_data_measurement_unsupported_element : begin IDENT generic_parameter_list end IDENT"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_if_data_measurement_optional_parameter_list(p):
-        """if_data_measurement_optional_parameter_list : if_data_measurement_optional_parameter
-                                                       | if_data_measurement_optional_parameter if_data_measurement_optional_parameter_list"""
-
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_if_data_measurement_optional_parameter_list_optional(p):
-        """if_data_measurement_optional_parameter_list_optional : empty
-                                                                | if_data_measurement_optional_parameter_list"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_kp_blob(p):
-        """kp_blob : KP_BLOB"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_pa_blob(p):
-        """pa_blob : PA_BLOB"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_kp_data(p):
-        """kp_data : kp_data_parameter_optional_list"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_kp_data_parameter_optional(p):
-        """kp_data_parameter_optional : NUMERIC
-                                      | STRING
-                                      | IDENT"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_kp_data_parameter_optional_list(p):
-        """kp_data_parameter_optional_list : kp_data_parameter_optional
-                                           | kp_data_parameter_optional kp_data_parameter_optional_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
         p[0] = p[1]
 
     @staticmethod
@@ -2054,7 +1262,6 @@ class A2lParser(object):
     def p_compu_method_optional(p):
         """compu_method_optional : formula
                                  | coeffs
-                                 | coeffs_linear
                                  | compu_tab_ref
                                  | ref_unit"""
         p[0] = p.slice[1].type, p[1]
@@ -2081,8 +1288,7 @@ class A2lParser(object):
                              | TAB_VERB
                              | RAT_FUNC
                              | FORM
-                             | IDENTICAL
-                             | LINEAR"""
+                             | IDENT"""
         p[0] = p[1]
 
     @staticmethod
@@ -2121,11 +1327,6 @@ class A2lParser(object):
         p[0] = a2l_node_factory(*p[1:8])
 
     @staticmethod
-    def p_coeffs_linear(p):
-        """coeffs_linear : COEFFS_LINEAR NUMERIC NUMERIC"""
-        p[0] = p[1]
-
-    @staticmethod
     def p_compu_tab_ref(p):
         """compu_tab_ref : COMPU_TAB_REF IDENT"""
         p[0] = p[2]
@@ -2158,8 +1359,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_tab_optional(p):
         """compu_tab_optional : in_val_out_val
-                              | default_value
-                              | default_value_numeric"""
+                              | default_value"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -2191,11 +1391,6 @@ class A2lParser(object):
     @staticmethod
     def p_default_value(p):
         """default_value : DEFAULT_VALUE STRING"""
-        p[0] = p[2]
-
-    @staticmethod
-    def p_default_value_numeric(p):  # TODO: should it be removed?
-        """default_value_numeric : DEFAULT_VALUE_NUMERIC NUMERIC"""
         p[0] = p[2]
 
     @staticmethod
@@ -2969,7 +2164,7 @@ class A2lParser(object):
     @staticmethod
     def p_frame_optional(p):
         """frame_optional : frame_measurement
-                          | if_data_frame"""
+                          | if_data"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -2986,37 +2181,6 @@ class A2lParser(object):
         """frame_optional_list_optional : empty
                                         | frame_optional_list"""
         p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_if_data_frame(p):
-        """if_data_frame : begin IF_DATA IDENT if_data_frame_optional_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory('if_data_frame', *p[3:5])
-
-    @staticmethod
-    def p_if_data_frame_optional(p):
-        """if_data_frame_optional : QP_BLOB qp_data"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_if_data_frame_parameter_optional_list(p):
-        """if_data_frame_optional_list : if_data_frame_optional
-                                       | if_data_frame_optional if_data_frame_optional_list"""
-
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_if_data_frame_optional_list_optional(p):
-        """if_data_frame_optional_list_optional : empty
-                                                | if_data_frame_optional_list"""
-        p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_qp_data(p):
-        """qp_data : generic_parameter"""
-        p[0] = p[1]
 
     @staticmethod
     def p_frame_measurement(p):
