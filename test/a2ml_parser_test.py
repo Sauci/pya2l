@@ -5,6 +5,7 @@
 @date: 28.12.2018
 """
 
+import os
 import pytest
 
 from pya2l.parser.grammar.parser import A2lParser as Parser
@@ -147,9 +148,10 @@ def test_a2ml_tagged_structure_multiplicity(a2ml_string, if_data_string, value):
     assert p.ast.project.module[0].if_data.TAG._ == value
 
 
-with open('asap2_1_61.aml', 'r') as fp:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input', 'asap2_1_61.aml'), 'r') as fp:
     asap2_1_61 = fp.read()
-with open('asap2_1_61_shared_type_definition.aml', 'r') as fp:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input', 'asap2_1_61_shared_type_definition.aml'),
+          'r') as fp:
     asap2_1_61_shared_type_definition = fp.read()
 
 a2ml_strings = (
