@@ -51,38 +51,122 @@ from json import dumps as python_object_to_json_string
 p = Parser("""
     /begin PROJECT project_name "example project"
         /begin MODULE first_module "first module long identifier"
+            /begin A2ML
+                block "IF_DATA" taggedunion {
+                    "XCP" struct {
+                        taggedstruct {
+                            block "PROTOCOL_LAYER" struct {
+                                uint;
+                            };
+                        };
+                    };
+                };
+            /end A2ML
+            /begin IF_DATA XCP
+                /begin PROTOCOL_LAYER
+                    89
+                /end PROTOCOL_LAYER
+            /end IF_DATA
         /end MODULE
     /end PROJECT
     """)
 
-assert python_object_to_json_string(p.ast.project.json, sort_keys=True, indent=4) == """{
-    "header": null, 
-    "long_identifier": "example project", 
-    "module": [
+assert python_object_to_json_string(p.ast.project.json, sort_keys=True, indent=1) == """{
+ "header": null, 
+ "long_identifier": "example project", 
+ "module": [
+  {
+   "a2ml": [
+    {
+     "definition": {
+      "node": "block", 
+      "tag": "IF_DATA", 
+      "type_name": {
+       "member": [
         {
-            "a2ml": null, 
-            "axis_pts": [], 
-            "characteristic": [], 
-            "compu_method": [], 
-            "compu_tab": [], 
-            "compu_vtab": [], 
-            "compu_vtab_range": [], 
-            "frame": null, 
-            "function": [], 
-            "group": [], 
-            "if_data": [], 
-            "long_identifier": "first module long identifier", 
-            "measurement": [], 
-            "mod_common": null, 
-            "mod_par": null, 
-            "name": "first_module", 
-            "node": "MODULE", 
-            "record_layout": [], 
-            "unit": [], 
-            "user_rights": [], 
-            "variant_coding": null
+         "member": {
+          "array_specifier": null, 
+          "node": "a2ml_member", 
+          "type_name": {
+           "member": [
+            {
+             "member": {
+              "array_specifier": null, 
+              "node": "a2ml_member", 
+              "type_name": {
+               "member": [
+                {
+                 "multiple": false, 
+                 "node": "a2ml_taggedstruct_member", 
+                 "type_name": {
+                  "node": "block", 
+                  "tag": "PROTOCOL_LAYER", 
+                  "type_name": {
+                   "member": [
+                    {
+                     "member": {
+                      "array_specifier": null, 
+                      "node": "a2ml_member", 
+                      "type_name": {
+                       "node": "int", 
+                       "type_name": "uint"
+                      }
+                     }, 
+                     "node": "a2ml_struct_member"
+                    }
+                   ], 
+                   "node": "a2ml_struct_type_name"
+                  }
+                 }
+                }
+               ], 
+               "node": "a2ml_taggedstruct_type_name"
+              }
+             }, 
+             "node": "a2ml_struct_member"
+            }
+           ], 
+           "node": "a2ml_struct_type_name"
+          }
+         }, 
+         "node": "a2ml_taggedunion_member", 
+         "tag": "XCP"
         }
-    ], 
-    "name": "project_name", 
-    "node": "PROJECT"
+       ], 
+       "node": "a2ml_taggedunion_type_name"
+      }
+     }, 
+     "node": "a2ml_declaration"
+    }
+   ], 
+   "axis_pts": [], 
+   "characteristic": [], 
+   "compu_method": [], 
+   "compu_tab": [], 
+   "compu_vtab": [], 
+   "compu_vtab_range": [], 
+   "frame": null, 
+   "function": [], 
+   "group": [], 
+   "if_data": {
+    "XCP": {
+     "PROTOCOL_LAYER": {
+      "0": 89
+     }
+    }
+   }, 
+   "long_identifier": "first module long identifier", 
+   "measurement": [], 
+   "mod_common": null, 
+   "mod_par": null, 
+   "name": "first_module", 
+   "node": "MODULE", 
+   "record_layout": [], 
+   "unit": [], 
+   "user_rights": [], 
+   "variant_coding": null
+  }
+ ], 
+ "name": "project_name", 
+ "node": "PROJECT"
 }"""

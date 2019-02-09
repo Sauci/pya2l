@@ -479,7 +479,7 @@ class A2lParser(object):
 
     def p_if_data(self, p):
         """if_data : begin IF_DATA IDENT generic_parameter_list_optional end IF_DATA"""
-        p[0] = p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3])
+        p[0] = a2l_node_factory(p.slice[0].type, p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3]))
 
     @staticmethod
     def p_module(p):

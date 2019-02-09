@@ -39,19 +39,7 @@ def test_node_equality_operator():
     assert A(0) == C(0)
 
 
-def test_invalid_node_property():
-    class InvalidNode(ASTNode):
-        __slots__ = 'invalid_property',
-
-        def __init__(self):
-            self.invalid_property = dict()
-            super(InvalidNode, self).__init__(('invalid_property', None))
-
-    with pytest.raises(AttributeError, message='invalid_property'):
-        InvalidNode()
-
-
-def test_invalid_node_slot_property():
+def test_invalid_slot_property_exception():
     class InvalidNode(ASTNode):
         __slots__ = 'property_value'
 

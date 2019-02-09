@@ -5,7 +5,7 @@
 @date: 05.04.2018
 """
 
-from .common import ASTNode, IfData
+from .common import ASTNode
 
 node_to_class = dict()
 
@@ -32,6 +32,29 @@ class A2lFile(A2lNode):
         self.a2ml_version = None
         self.project = None
         super(A2lFile, self).__init__(*args)
+
+
+@a2l_node_type('if_data')
+class IfData(A2lNode):
+    def __new__(cls, tag=None, value=None):
+        cls.__slots__ = tag,
+        return super(IfData, cls).__new__(cls)
+
+    def __init__(self, tag=None, value=None):
+        setattr(self, self.tag, None)
+        super(IfData, self).__init__((tag, value))
+
+    @property
+    def tag(self):
+        return self.__slots__[0]
+
+    @property
+    def value(self):
+        return getattr(self, self.tag)
+
+    @property
+    def json(self):
+        return {self.tag: self.value.json}
 
 
 @a2l_node_type('VERSION')
@@ -132,7 +155,7 @@ class AxisPts(A2lNode):
         self.guard_rails = None
         self.extended_limits = None
         self.annotation = list()
-        self.if_data = IfData()
+        self.if_data = dict()
         self.calibration_access = None
         self.ecu_address_extension = None
         super(AxisPts, self).__init__(*args)
@@ -248,7 +271,7 @@ class Characteristic(A2lNode):
         self.ref_memory_segment = None
         self.annotation = list()
         self.comparison_quantity = None
-        self.if_data = IfData()
+        self.if_data = dict()
         self.axis_descr = list()
         self.calibration_access = None
         self.matrix_dim = None
@@ -453,7 +476,7 @@ class Frame(A2lNode):
         self.scaling_unit = scaling_unit
         self.rate = rate
         self.frame_measurement = None
-        self.if_data = IfData()
+        self.if_data = dict()
         super(Frame, self).__init__(*args)
 
 
@@ -591,7 +614,7 @@ class Measurement(A2lNode):
         self.error_mask = None
         self.ref_memory_segment = None
         self.annotation = list()
-        self.if_data = IfData()
+        self.if_data = dict()
         self.matrix_dim = None
         self.ecu_address_extension = None
         super(Measurement, self).__init__(*args)
@@ -606,7 +629,7 @@ class MemoryLayout(A2lNode):
         self.address = address
         self.size = size
         self.offset = offset
-        self.if_data = IfData()
+        self.if_data = dict()
         super(MemoryLayout, self).__init__(*args)
 
 
@@ -624,7 +647,7 @@ class MemorySegment(A2lNode):
         self.address = address
         self.size = size
         self.offset = offset
-        self.if_data = IfData()
+        self.if_data = dict()
         super(MemorySegment, self).__init__(*args)
 
 
@@ -640,7 +663,7 @@ class Module(A2lNode):
         self.a2ml = None
         self.mod_par = None
         self.mod_common = None
-        self.if_data = IfData()
+        self.if_data = dict()
         self.characteristic = list()
         self.axis_pts = list()
         self.measurement = list()

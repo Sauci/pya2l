@@ -37,6 +37,21 @@ class A2MLTaggedNode(list):
         for parameter in self:
             yield parameter
 
+    @property
+    def json(self):
+        result = dict()
+        for k, v in enumerate(self.positionals()):
+            try:
+                result[k] = v.json
+            except AttributeError:
+                result[k] = v
+        for k, v in self.keywords():
+            try:
+                result[k] = v.json
+            except AttributeError:
+                result[k] = v
+        return result
+
 
 class A2MLNode(ASTNode):
     def get_class(self, tokens): raise NotImplementedError

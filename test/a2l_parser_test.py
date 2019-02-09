@@ -4803,7 +4803,7 @@ def test_type():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].node() == 'CHARACTERISTIC'
+    assert a2l.ast.project.module[0].characteristic[0].node == 'CHARACTERISTIC'
 
 
 def test_custom_class():
