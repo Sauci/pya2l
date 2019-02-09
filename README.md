@@ -53,44 +53,44 @@ a2l_string = """
     /end PROJECT
 """
 
-a2l = Parser(a2l_string)
+p = Parser(a2l_string)
 
 # get a list of available properties for a specific node.
-assert set(a2l.tree.project.get_properties()) == set(['name', 'module', 'header', 'long_identifier'])
+assert set(p.ast.project.properties) == set(['name', 'module', 'header', 'long_identifier'])
 
 # access nodes explicitly.
-assert a2l.tree.project.module[0].characteristic[0].name == 'example_of_characteristic'
-assert a2l.tree.project.module[0].characteristic[0].lower_limit == -4.5
-assert a2l.tree.project.module[0].characteristic[0].upper_limit == 12.0
+assert p.ast.project.module[0].characteristic[0].name == 'example_of_characteristic'
+assert p.ast.project.module[0].characteristic[0].lower_limit == -4.5
+assert p.ast.project.module[0].characteristic[0].upper_limit == 12.0
 
 # access nodes by type.
-assert a2l.get_node('CHARACTERISTIC')[0].name == 'example_of_characteristic'
+assert p.get_node('CHARACTERISTIC')[0].name == 'example_of_characteristic'
 
 # instantiate custom class for specified node.
-from pya2l.parser.grammar.node import Characteristic
+from pya2l.parser.grammar.a2l_node import Characteristic
 
 
 class CustomCharacteristic(Characteristic):
     def node(self):
-        return 'my custom ' + super(CustomCharacteristic, self).node()
+        return 'my custom ' + super(CustomCharacteristic, self).node
 
 
-a2l = Parser(a2l_string, CHARACTERISTIC=CustomCharacteristic)
+p = Parser(a2l_string, CHARACTERISTIC=CustomCharacteristic)
 
-assert isinstance(a2l.tree.project.module[0].characteristic[0], CustomCharacteristic)
-assert a2l.tree.project.module[0].characteristic[0].node() == 'my custom CHARACTERISTIC'
+assert isinstance(p.ast.project.module[0].characteristic[0], CustomCharacteristic)
+assert p.ast.project.module[0].characteristic[0].node() == 'my custom CHARACTERISTIC'
 
 # convert node to json-formatted string.
 from json import dumps as python_object_to_json_string
 
-a2l = Parser("""
+p = Parser("""
     /begin PROJECT project_name "example project"
         /begin MODULE first_module "first module long identifier"
         /end MODULE
     /end PROJECT
     """)
 
-assert python_object_to_json_string(a2l.tree.project.json, sort_keys=True, indent=4) == """{
+assert python_object_to_json_string(p.ast.project.json, sort_keys=True, indent=4) == """{
     "header": null,
     "long_identifier": "example project",
     "module": [
@@ -105,8 +105,7 @@ assert python_object_to_json_string(a2l.tree.project.json, sort_keys=True, inden
             "frame": null,
             "function": [],
             "group": [],
-            "if_data_module": [],
-            "if_data_xcp": null,
+            "if_data": [],
             "long_identifier": "first module long identifier",
             "measurement": [],
             "mod_common": null,
