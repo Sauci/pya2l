@@ -10,7 +10,7 @@ import warnings
 import ply.yacc as yacc
 
 from .exception import A2lFormatException
-from .lexer import tokens as lex_tokens, lexer
+from .lexer import tokens as lex_tokens, lexer, token_function
 from .a2l_node import *
 from .a2ml_node import a2ml_node_factory, BlockDefinition, A2ML
 
@@ -24,9 +24,9 @@ class A2lParser(object):
         lexer.lineno = 1
         for node, cls in custom_classes.items():
             node_to_class[node] = cls
-        self._yacc = yacc.yacc(debug=True, module=self, optimize=True,
+        self._yacc = yacc.yacc(debug=True, module=self, optimize=False,
                                outputdir=os.path.dirname(os.path.realpath(__file__)))
-        self._yacc.parse(string)
+        self._yacc.parse(string, tokenfunc=token_function)
 
     def get_node(self, node_name):
         if self.ast:

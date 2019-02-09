@@ -51,17 +51,7 @@ from json import dumps as python_object_to_json_string
 p = Parser("""
     /begin PROJECT project_name "example project"
         /begin MODULE first_module "first module long identifier"
-            /begin A2ML
-                block "IF_DATA" taggedunion {
-                    "XCP" struct {
-                        taggedstruct {
-                            block "PROTOCOL_LAYER" struct {
-                                uint;
-                            };
-                        };
-                    };
-                };
-            /end A2ML
+            /include "example.aml"
             /begin IF_DATA XCP
                 /begin PROTOCOL_LAYER
                     89

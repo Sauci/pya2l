@@ -273,6 +273,7 @@ tokens = tuple(set(list(a2l_keywords.values()) + \
                        r'IDENT',
                        r'begin',
                        r'end',
+                       r'include',
                        r'PARENTHESE_OPEN',
                        r'PARENTHESE_CLOSE',
                        r'CURLY_OPEN',
@@ -390,8 +391,33 @@ def t_ifdata_IDENT(token):
     return token
 
 
+lexer_stack = list()
+
+
+@lex.TOKEN(r'\/include\s*?"[^"]+"')
+def t_ANY_ignore_include(token):
+    filename = token.value.replace('/include', '').strip(' "')
+    new_lexer = token.lexer.clone()
+    new_lexer.lineno, new_lexer.lexpos = 1, 0
+    with open(filename, 'r') as fp:
+        new_lexer.input(fp.read())
+    lexer_stack.append(new_lexer)
+    return new_lexer.token()
+
+
 def t_ANY_error(token):
     raise A2lLexerException(token.value[0], token.lineno, token.lexpos)
 
 
-lexer = lex.lex(optimize=True, outputdir=os.path.dirname(os.path.realpath(__file__)), lextab='lextab')
+lexer = lex.lex(optimize=False, outputdir=os.path.dirname(os.path.realpath(__file__)), lextab='lextab')
+
+
+def token_function():
+    if len(lexer_stack):
+        token = lexer_stack[-1].token()
+    else:
+        token = lexer.token()
+    if not token and len(lexer_stack):
+        lexer_stack.pop()
+        token = token_function()
+    return token
