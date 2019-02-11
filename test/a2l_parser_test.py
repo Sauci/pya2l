@@ -3888,14 +3888,14 @@ def test_var_forbidden_comb():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[
-               0] == 'first_var_forbidden_comb_name'
-    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[
-               0] == 'first_var_forbidden_comb_value'
-    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion_name[
-               1] == 'second_var_forbidden_comb_name'
-    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion_value[
-               1] == 'second_var_forbidden_comb_value'
+    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion[
+               0][0] == 'first_var_forbidden_comb_name'
+    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion[
+               0][1] == 'first_var_forbidden_comb_value'
+    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion[
+               1][0] == 'second_var_forbidden_comb_name'
+    assert a2l.ast.project.module[0].variant_coding.var_forbidden_comb[0].criterion[
+               1][1] == 'second_var_forbidden_comb_value'
 
 
 def test_var_criterion_var_measurement_node():
@@ -4269,12 +4269,13 @@ def test_annotation():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_label == None
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_origin == None
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text == None
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_label is None
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_origin is None
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text is None
     assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_label == 'annotation label'
     assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_origin == 'annotation origin'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text is not None
+    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.text[0] == 'first annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.text[1] == 'second annotation text'
 
 
 def test_annotation_text():
@@ -4301,10 +4302,8 @@ def test_annotation_text():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.annotation_text[
-               0] == 'first annotation text'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.annotation_text[
-               1] == 'second annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.text[0] == 'first annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.text[1] == 'second annotation text'
 
 
 def test_axis_descr_read_only_node():

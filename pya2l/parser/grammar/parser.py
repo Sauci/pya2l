@@ -848,11 +848,16 @@ class A2lParser(object):
     @staticmethod
     def p_function_list(p):
         """function_list : begin FUNCTION_LIST function_list_optional_list_optional end FUNCTION_LIST"""
-        p[0] = a2l_node_factory(p[2], [('name', c[1]) for c in p[3]])
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_name(p):
+        """name : I"""
+        p[0] = p[1]
 
     @staticmethod
     def p_function_list_optional(p):
-        """function_list_optional : I"""
+        """function_list_optional : name"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -950,8 +955,33 @@ class A2lParser(object):
 
     @staticmethod
     def p_annotation_text(p):
-        """annotation_text : begin ANNOTATION_TEXT string_list end ANNOTATION_TEXT"""
-        p[0] = a2l_node_factory(p[2], (('annotation_text', s) for s in p[3]))
+        """annotation_text : begin ANNOTATION_TEXT annotation_text_optional_list_optional end ANNOTATION_TEXT"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_text(p):
+        """text : S"""
+        p[0] = p[1]
+
+    @staticmethod
+    def p_annotation_text_optional(p):
+        """annotation_text_optional : text"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_annotation_text_optional_list(p):
+        """annotation_text_optional_list : annotation_text_optional
+                                         | annotation_text_optional annotation_text_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_annotation_text_optional_list_optional(p):
+        """annotation_text_optional_list_optional : empty
+                                                  | annotation_text_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_comparison_quantity(p):
@@ -2109,8 +2139,33 @@ class A2lParser(object):
 
     @staticmethod
     def p_var_forbidden_comb(p):
-        """var_forbidden_comb : begin VAR_FORBIDDEN_COMB var_forbidden_comb_criterion_list end VAR_FORBIDDEN_COMB"""
-        p[0] = a2l_node_factory(p[2], *p[3])
+        """var_forbidden_comb : begin VAR_FORBIDDEN_COMB var_forbidden_comb_optional_list_optional end VAR_FORBIDDEN_COMB"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_criterion(p):
+        """criterion : I I"""
+        p[0] = (p[1], p[2])
+
+    @staticmethod
+    def p_var_forbidden_comb_optional(p):
+        """var_forbidden_comb_optional : criterion"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_var_forbidden_comb_optional_list(p):
+        """var_forbidden_comb_optional_list : var_forbidden_comb_optional
+                                            | var_forbidden_comb_optional var_forbidden_comb_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_var_forbidden_comb_optional_list_optional(p):
+        """var_forbidden_comb_optional_list_optional : empty
+                                                     | var_forbidden_comb_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_var_forbidden_comb_criterion_list(p):
@@ -2199,8 +2254,28 @@ class A2lParser(object):
 
     @staticmethod
     def p_frame_measurement(p):
-        """frame_measurement : FRAME_MEASUREMENT ident_list"""
-        p[0] = a2l_node_factory(p[1], [('identifier', i) for i in p[2]])
+        """frame_measurement : FRAME_MEASUREMENT frame_measurement_optional_list_optional"""
+        p[0] = a2l_node_factory(*p[1:3])
+
+    @staticmethod
+    def p_frame_measurement_optional(p):
+        """frame_measurement_optional : identifier"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_frame_measurement_optional_list(p):
+        """frame_measurement_optional_list : frame_measurement_optional
+                                           | frame_measurement_optional frame_measurement_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_frame_measurement_optional_list_optional(p):
+        """frame_measurement_optional_list_optional : empty
+                                                    | frame_measurement_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_user_rights(p):

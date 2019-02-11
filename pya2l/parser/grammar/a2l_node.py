@@ -85,10 +85,10 @@ class Annotation(A2lNode):
 
 @a2l_node_type('ANNOTATION_TEXT')
 class AnnotationText(A2lNode):
-    __slots__ = 'annotation_text',
+    __slots__ = 'text',
 
     def __init__(self, args):
-        self.annotation_text = list()
+        self.text = list()
         super(AnnotationText, self).__init__(*args)
 
 
@@ -1125,11 +1125,10 @@ class VarCriterion(A2lNode):
 
 @a2l_node_type('VAR_FORBIDDEN_COMB')
 class VarForbiddenComb(A2lNode):
-    __slots__ = 'criterion_name', 'criterion_value'
+    __slots__ = 'criterion',
 
-    def __init__(self, *args):
-        self.criterion_name = list()
-        self.criterion_value = list()
+    def __init__(self, args):
+        self.criterion = list()
         super(VarForbiddenComb, self).__init__(*args)
 
 
