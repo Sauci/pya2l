@@ -29,10 +29,10 @@ assert p.ast.project.module[0].characteristic[0].lower_limit == -4.5
 assert p.ast.project.module[0].characteristic[0].upper_limit == 12.0
 
 # access nodes by type.
-assert p.get_node('CHARACTERISTIC')[0].name == 'example_of_characteristic'
+assert p.nodes('CHARACTERISTIC')[0].name == 'example_of_characteristic'
 
 # instantiate custom class for specified node.
-from pya2l.parser.grammar.a2l_node import Characteristic
+from pya2l.parser.a2l_node import Characteristic
 
 
 class CustomCharacteristic(Characteristic):

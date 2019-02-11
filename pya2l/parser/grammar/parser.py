@@ -9,10 +9,10 @@ import os
 import warnings
 import ply.yacc as yacc
 
-from .exception import A2lFormatException
+from pya2l.parser.exception import A2lFormatException
 from .lexer import tokens as lex_tokens, lexer, token_function
-from .a2l_node import *
-from .a2ml_node import a2ml_node_factory, A2ML
+from pya2l.parser.a2l_node import *
+from pya2l.parser.a2ml_node import a2ml_node_factory, A2ML
 
 
 class A2lParser(object):
@@ -28,9 +28,9 @@ class A2lParser(object):
                                outputdir=os.path.dirname(os.path.realpath(__file__)))
         self._yacc.parse(string, tokenfunc=token_function)
 
-    def get_node(self, node_name):
+    def nodes(self, node_name):
         if self.ast:
-            return self.ast.get_node(node_name)
+            return self.ast.nodes(node_name)
         else:
             return []
 

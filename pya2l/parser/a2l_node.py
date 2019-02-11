@@ -5,7 +5,7 @@
 @date: 05.04.2018
 """
 
-from .common import ASTNode
+from pya2l.parser.node import ASTNode
 
 node_to_class = dict()
 

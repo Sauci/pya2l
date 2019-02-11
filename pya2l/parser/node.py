@@ -12,8 +12,8 @@ class ASTNode(object):
     def __init__(self, *args, **kwargs):
         if not isinstance(self.__slots__, tuple):
             raise ValueError('__slot__ attribute must be a tuple (maybe \',\' is missing at the end?).')
-        self._parent = None
-        self._children = list()
+        self.parent = None
+        self.children = list()
         for attribute, value in args:
             attr = getattr(self, attribute)
             if isinstance(attr, list):
@@ -21,34 +21,50 @@ class ASTNode(object):
             else:
                 setattr(self, attribute, value)
             if isinstance(value, ASTNode):
-                value.set_parent(self)
+                value.parent = self
                 self.add_children(value)
 
     def __eq__(self, other):
-        if len(set(self.__slots__) - set(other.__slots__)):
+        if len(set(self.__slots__) ^ set(other.__slots__)):
             return False
         for s in set(self.__slots__) - {'line'}:
             if getattr(self, s) != getattr(other, s):
                 return False
         return True
 
-    def set_parent(self, a2l_node):
-        self._parent = a2l_node
+    def __ne__(self, other):
+        return not self.__eq__(other)
 
     def add_children(self, a2l_node):
         self._children.append(a2l_node)
 
-    def get_node(self, node_name):
-        nodes = list()
-        for node in self._children:
-            if node.node == node_name:
-                nodes.append(node)
-            nodes += node.get_node(node_name)
-        return nodes
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, node):
+        self._parent = node
+
+    @property
+    def children(self):
+        return self._children
+
+    @children.setter
+    def children(self, value):
+        self._children = value
 
     @property
     def node(self):
         return self._node
+
+    def nodes(self, node_name):
+        nodes = list()
+        for node in self.children:
+            if node.node == node_name:
+                nodes.append(node)
+            nodes += node.nodes(node_name)
+        return nodes
 
     @property
     def json(self):

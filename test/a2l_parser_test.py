@@ -7,8 +7,8 @@
 
 import pytest
 
-from pya2l.parser.grammar.a2l_node import Header, Module
-from pya2l.parser.grammar.exception import A2lFormatException, A2lLexerException
+from pya2l.parser.a2l_node import Header, Module
+from pya2l.parser.exception import A2lFormatException, A2lLexerException
 from pya2l.parser.grammar.parser import A2lParser as Parser
 
 ident = (
@@ -4770,10 +4770,10 @@ def test_get_node():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert len(a2l.get_node('PROJECT')) == 1
-    assert len(a2l.get_node('MODULE')) == 1
-    assert len(a2l.get_node('CHARACTERISTIC')) == 2
-    assert len(a2l.get_node('MEASUREMENT')) == 0
+    assert len(a2l.nodes('PROJECT')) == 1
+    assert len(a2l.nodes('MODULE')) == 1
+    assert len(a2l.nodes('CHARACTERISTIC')) == 2
+    assert len(a2l.nodes('MEASUREMENT')) == 0
 
 
 def test_get_properties():
@@ -4806,7 +4806,7 @@ def test_type():
 
 
 def test_custom_class():
-    from pya2l.parser.grammar.a2l_node import Project, A2lNode, a2l_node_type
+    from pya2l.parser.a2l_node import Project
 
     class CustomProject(Project):
         pass
