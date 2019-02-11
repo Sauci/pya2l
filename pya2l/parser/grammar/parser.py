@@ -389,15 +389,6 @@ class A2lParser(object):
         p[0] = list() if p[1] is None else p[1]
 
     @staticmethod
-    def p_number_list(p):
-        """number_list : N
-                       | N number_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
     def p_ident_list(p):
         """ident_list : I
                       | I ident_list"""
@@ -718,8 +709,8 @@ class A2lParser(object):
 
     @staticmethod
     def p_memory_layout(p):
-        """memory_layout : begin MEMORY_LAYOUT memory_layout_prg_type N N number_list memory_layout_optional_list_optional end MEMORY_LAYOUT"""
-        p[0] = a2l_node_factory(*p[2:8])
+        """memory_layout : begin MEMORY_LAYOUT memory_layout_prg_type N N memory_layout_optional_list_optional end MEMORY_LAYOUT"""
+        p[0] = a2l_node_factory(*p[2:7])
 
     @staticmethod
     def p_memory_layout_prg_type(p):
@@ -729,9 +720,15 @@ class A2lParser(object):
         p[0] = p[1]
 
     @staticmethod
-    def p_memory_layout_optional(p):
-        """memory_layout_optional : if_data"""
+    def p_offset(p):
+        """offset : N"""
         p[0] = p[1]
+
+    @staticmethod
+    def p_memory_layout_optional(p):
+        """memory_layout_optional : if_data
+                                  | offset"""
+        p[0] = p.slice[1].type, p[1]
 
     @staticmethod
     def p_memory_layout_optional_list(p):
@@ -746,16 +743,17 @@ class A2lParser(object):
     def p_memory_layout_optional_list_optional(p):
         """memory_layout_optional_list_optional : empty
                                                 | memory_layout_optional_list"""
-        p[0] = tuple() if p[1] is None else p[0]
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_memory_segment(p):
-        """memory_segment : begin MEMORY_SEGMENT I S memory_segment_prg_type memory_segment_memory_type memory_segment_attributes N N number_list memory_segment_optional_list_optional end MEMORY_SEGMENT"""
-        p[0] = a2l_node_factory(*p[2:12])
+        """memory_segment : begin MEMORY_SEGMENT I S memory_segment_prg_type memory_segment_memory_type memory_segment_attributes N N memory_segment_optional_list_optional end MEMORY_SEGMENT"""
+        p[0] = a2l_node_factory(*p[2:11])
 
     @staticmethod
     def p_memory_segment_optional(p):
-        """memory_segment_optional : if_data"""
+        """memory_segment_optional : if_data
+                                   | offset"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -1032,8 +1030,33 @@ class A2lParser(object):
 
     @staticmethod
     def p_fix_axis_par_list(p):
-        """fix_axis_par_list : begin FIX_AXIS_PAR_LIST number_list end FIX_AXIS_PAR_LIST"""
-        p[0] = p[3]
+        """fix_axis_par_list : begin FIX_AXIS_PAR_LIST fix_axis_par_list_optional_list_optional end FIX_AXIS_PAR_LIST"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_fix_axis_par_list_optional(p):
+        """fix_axis_par_list_optional : axis_pts_value"""
+        p[0] = p.slice[1].type, p[1]
+
+    @staticmethod
+    def p_fix_axis_par_list_optional_list(p):
+        """fix_axis_par_list_optional_list : fix_axis_par_list_optional
+                                           | fix_axis_par_list_optional fix_axis_par_list_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_fix_axis_par_list_optional_list_optional(p):
+        """fix_axis_par_list_optional_list_optional : empty
+                                                    | fix_axis_par_list_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
+
+    @staticmethod
+    def p_axis_pts_value(p):
+        """axis_pts_value : N"""
+        p[0] = p[1]
 
     @staticmethod
     def p_curve_axis_ref(p):
@@ -1379,8 +1402,8 @@ class A2lParser(object):
 
     @staticmethod
     def p_in_val_out_val(p):
-        """in_val_out_val : number_list"""
-        p[0] = p[1]
+        """in_val_out_val : N N"""
+        p[0] = (p[1], p[2])
 
     @staticmethod
     def p_compu_tab_conversion_type(p):
@@ -1421,27 +1444,13 @@ class A2lParser(object):
 
     @staticmethod
     def p_compu_vtab_in_val_out_val(p):
-        """compu_vtab_in_val_out_val : number_string_value_list"""
-        p[0] = p[1]
+        """compu_vtab_in_val_out_val : N S"""
+        p[0] = (p[1], p[2])
 
     @staticmethod
     def p_compu_vtab_conversion_type(p):
         """compu_vtab_conversion_type : TAB_VERB"""
         p[0] = p[1]
-
-    @staticmethod
-    def p_number_string_value_list(p):
-        """number_string_value_list : number_string_value
-                                    | number_string_value number_string_value_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_number_string_value(p):
-        """number_string_value : N S"""
-        p[0] = (p[1], p[2])
 
     @staticmethod
     def p_compu_vtab_range(p):
@@ -1450,8 +1459,8 @@ class A2lParser(object):
 
     @staticmethod
     def p_compu_vtab_range_optional(p):
-        """compu_vtab_range_optional : default_value
-                                     | compu_vtab_range_in_val_out_val"""
+        """compu_vtab_range_optional : compu_vtab_range_in_val_out_val
+                                     | default_value"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -1465,27 +1474,13 @@ class A2lParser(object):
 
     @staticmethod
     def p_compu_vtab_range_optional_list_optional(p):
-        """compu_vtab_range_optional_list_optional : empty
-                                                   | compu_vtab_range_optional_list"""
+        """compu_vtab_range_optional_list_optional : compu_vtab_range_optional_list
+                                                   | empty"""
         p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_compu_vtab_range_in_val_out_val(p):
-        """compu_vtab_range_in_val_out_val : number_number_string_value_list"""
-        p[0] = p[1]
-
-    @staticmethod
-    def p_number_number_string_value_list(p):
-        """number_number_string_value_list : number_number_string_value
-                                           | number_number_string_value number_number_string_value_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
-    def p_number_number_string_value(p):
-        """number_number_string_value : N N S"""
+        """compu_vtab_range_in_val_out_val : N N S"""
         p[0] = (p[1], p[2], p[3])
 
     @staticmethod
@@ -2089,8 +2084,28 @@ class A2lParser(object):
 
     @staticmethod
     def p_var_address(p):
-        """var_address : begin VAR_ADDRESS number_list end VAR_ADDRESS"""
-        p[0] = a2l_node_factory(p[2], [('address', a) for a in p[3]])
+        """var_address : begin VAR_ADDRESS address_list_optional end VAR_ADDRESS"""
+        p[0] = a2l_node_factory(*p[2:4])
+
+    @staticmethod
+    def p_address(p):
+        """address : N"""
+        p[0] = p.slice[0].type, p[1]
+
+    @staticmethod
+    def p_address_list(p):
+        """address_list : address
+                        | address address_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_address_list_optional(p):
+        """address_list_optional : empty
+                                 | address_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_var_forbidden_comb(p):

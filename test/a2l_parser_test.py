@@ -2592,8 +2592,8 @@ def test_compu_tab():
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].compu_tab[0], 'default_value')
     assert a2l.ast.project.module[0].compu_tab[0].default_value == 'default value'
-    assert a2l.ast.project.module[0].compu_tab[0].in_val_out_val[0] == 2
-    assert a2l.ast.project.module[0].compu_tab[0].in_val_out_val[1] == 3
+    assert a2l.ast.project.module[0].compu_tab[0].in_val_out_val[0][0] == 2
+    assert a2l.ast.project.module[0].compu_tab[0].in_val_out_val[0][1] == 3
 
 
 def test_compu_vtab():
@@ -4737,9 +4737,9 @@ def test_fix_axis_par_list():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[0] == 0
-    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[1] == 1
-    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list[2] == 2
+    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list.axis_pts_value[0] == 0
+    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list.axis_pts_value[1] == 1
+    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].fix_axis_par_list.axis_pts_value[2] == 2
 
 
 def test_get_node():

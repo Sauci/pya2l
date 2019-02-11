@@ -322,7 +322,7 @@ class CompuTab(A2lNode):
         self.long_identifier = long_identifier
         self.conversion_type = conversion_type
         self.number_value_pairs = number_value_pairs
-        self.in_val_out_val = None
+        self.in_val_out_val = list()
         self.default_value = None
         self.default_value_numeric = None  # TODO: should be removed, according to 1.51.
         super(CompuTab, self).__init__(*args)
@@ -338,7 +338,7 @@ class CompuVTab(A2lNode):
         self.long_identifier = long_identifier
         self.conversion_type = conversion_type
         self.number_value_pairs = number_value_pairs
-        self.compu_vtab_in_val_out_val = None  # TODO: replace with in_val_out_val...
+        self.compu_vtab_in_val_out_val = list()  # TODO: replace with in_val_out_val...
         self.default_value = None
         super(CompuVTab, self).__init__(*args)
 
@@ -351,7 +351,7 @@ class CompuVTabRange(A2lNode):
         self.name = name
         self.long_identifier = long_identifier
         self.number_value_triples = number_value_triples
-        self.compu_vtab_range_in_val_out_val = None  # TODO: replace with in_val_min_in_val_max_out_val...
+        self.compu_vtab_range_in_val_out_val = list()  # TODO: replace with in_val_min_in_val_max_out_val...
         self.default_value = None
         super(CompuVTabRange, self).__init__(*args)
 
@@ -419,6 +419,15 @@ class FixAxisParDist(FixAxisPar):
         self.distance = distance
         self.numberapo = numberapo
         super(FixAxisPar, self).__init__()
+
+
+@a2l_node_type('FIX_AXIS_PAR_LIST')
+class FixAxisParList(A2lNode):
+    __slots__ = 'axis_pts_value',
+
+    def __init__(self, args):
+        self.axis_pts_value = list()
+        super(FixAxisParList, self).__init__(*args)
 
 
 class FixNoAxisPts(A2lNode):
@@ -624,11 +633,11 @@ class Measurement(A2lNode):
 class MemoryLayout(A2lNode):
     __slots__ = 'prg_type', 'address', 'size', 'offset', 'if_data'
 
-    def __init__(self, prg_type, address, size, offset, args):
+    def __init__(self, prg_type, address, size, args):
         self.prg_type = prg_type
         self.address = address
         self.size = size
-        self.offset = offset
+        self.offset = list()
         self.if_data = dict()
         super(MemoryLayout, self).__init__(*args)
 
@@ -638,7 +647,7 @@ class MemorySegment(A2lNode):
     __slots__ = 'name', 'long_identifier', 'prg_type', 'memory_type', 'attribute', 'address', 'size', 'offset', \
                 'if_data'
 
-    def __init__(self, name, long_identifier, prg_type, memory_type, attribute, address, size, offset, args):
+    def __init__(self, name, long_identifier, prg_type, memory_type, attribute, address, size, args):
         self.name = name
         self.long_identifier = long_identifier
         self.prg_type = prg_type
@@ -646,7 +655,7 @@ class MemorySegment(A2lNode):
         self.attribute = attribute
         self.address = address
         self.size = size
-        self.offset = offset
+        self.offset = list()
         self.if_data = dict()
         super(MemorySegment, self).__init__(*args)
 
