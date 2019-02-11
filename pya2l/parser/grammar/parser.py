@@ -12,7 +12,7 @@ import ply.yacc as yacc
 from .exception import A2lFormatException
 from .lexer import tokens as lex_tokens, lexer, token_function
 from .a2l_node import *
-from .a2ml_node import a2ml_node_factory, BlockDefinition, A2ML
+from .a2ml_node import a2ml_node_factory, A2ML
 
 
 class A2lParser(object):
