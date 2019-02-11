@@ -61,102 +61,46 @@ p = Parser("""
     /end PROJECT
     """)
 
-assert python_object_to_json_string(p.ast.project.json, sort_keys=True, indent=1) == """{
- "header": null, 
- "long_identifier": "example project", 
- "module": [
-  {
-   "a2ml": [
-    {
-     "definition": {
-      "node": "block", 
-      "tag": "IF_DATA", 
-      "type_name": {
-       "member": [
-        {
-         "member": {
-          "array_specifier": null, 
-          "node": "a2ml_member", 
-          "type_name": {
-           "member": [
-            {
-             "member": {
-              "array_specifier": null, 
-              "node": "a2ml_member", 
-              "type_name": {
-               "member": [
-                {
-                 "multiple": false, 
-                 "node": "a2ml_taggedstruct_member", 
-                 "type_name": {
-                  "node": "block", 
-                  "tag": "PROTOCOL_LAYER", 
-                  "type_name": {
-                   "member": [
-                    {
-                     "member": {
-                      "array_specifier": null, 
-                      "node": "a2ml_member", 
-                      "type_name": {
-                       "node": "int", 
-                       "type_name": "uint"
-                      }
-                     }, 
-                     "node": "a2ml_struct_member"
-                    }
-                   ], 
-                   "node": "a2ml_struct_type_name"
-                  }
-                 }
-                }
-               ], 
-               "node": "a2ml_taggedstruct_type_name"
-              }
-             }, 
-             "node": "a2ml_struct_member"
-            }
-           ], 
-           "node": "a2ml_struct_type_name"
-          }
-         }, 
-         "node": "a2ml_taggedunion_member", 
-         "tag": "XCP"
-        }
-       ], 
-       "node": "a2ml_taggedunion_type_name"
+json_ast = p.ast.json
+json_ast['project']['module'][0].pop('a2ml')  # remove a2ml node for readability.
+assert python_object_to_json_string(json_ast, sort_keys=True, indent=1) == """{
+ "a2ml_version": null, 
+ "asap2_version": null, 
+ "node": "a2l", 
+ "project": {
+  "header": null, 
+  "long_identifier": "example project", 
+  "module": [
+   {
+    "axis_pts": [], 
+    "characteristic": [], 
+    "compu_method": [], 
+    "compu_tab": [], 
+    "compu_vtab": [], 
+    "compu_vtab_range": [], 
+    "frame": null, 
+    "function": [], 
+    "group": [], 
+    "if_data": {
+     "XCP": {
+      "PROTOCOL_LAYER": {
+       "0": 89
       }
-     }, 
-     "node": "a2ml_declaration"
-    }
-   ], 
-   "axis_pts": [], 
-   "characteristic": [], 
-   "compu_method": [], 
-   "compu_tab": [], 
-   "compu_vtab": [], 
-   "compu_vtab_range": [], 
-   "frame": null, 
-   "function": [], 
-   "group": [], 
-   "if_data": {
-    "XCP": {
-     "PROTOCOL_LAYER": {
-      "0": 89
      }
-    }
-   }, 
-   "long_identifier": "first module long identifier", 
-   "measurement": [], 
-   "mod_common": null, 
-   "mod_par": null, 
-   "name": "first_module", 
-   "node": "MODULE", 
-   "record_layout": [], 
-   "unit": [], 
-   "user_rights": [], 
-   "variant_coding": null
-  }
- ], 
- "name": "project_name", 
- "node": "PROJECT"
+    }, 
+    "long_identifier": "first module long identifier", 
+    "measurement": [], 
+    "mod_common": null, 
+    "mod_par": null, 
+    "name": "first_module", 
+    "node": "MODULE", 
+    "record_layout": [], 
+    "unit": [], 
+    "user_rights": [], 
+    "variant_coding": null
+   }
+  ], 
+  "name": "project_name", 
+  "node": "PROJECT"
+ }
 }"""

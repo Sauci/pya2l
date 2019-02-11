@@ -155,7 +155,8 @@ a2l_keywords = dict((k, k) for k in {
     'NO_RESCALE_Y',
     'NO_RESCALE_Z',
     'NUMBER',
-    'NUMERIC',
+    #    'NUMERIC' is used in VAR_NAMING node, as an enum element. as this enumeration will probably be updated in
+    #    future releases of the standard, any value will be accepted.
     'OFFLINE_CALIBRATION',
     'OFFLINE_DATA',
     'OFFSET_X',
@@ -268,21 +269,21 @@ tokens = tuple(set(list(a2l_keywords.values()) + \
                    list(a2ml_keywords.values()) + \
                    list(if_data_keywords.values()) + \
                    [
-                       r'NUMERIC',
-                       r'STRING',
-                       r'IDENT',
+                       r'N',
+                       r'S',
+                       r'I',
                        r'begin',
                        r'end',
                        r'include',
-                       r'PARENTHESE_OPEN',
-                       r'PARENTHESE_CLOSE',
-                       r'CURLY_OPEN',
-                       r'CURLY_CLOSE',
-                       r'BRACE_OPEN',
-                       r'BRACE_CLOSE',
-                       r'SEMICOLON',
+                       r'PO',
+                       r'PC',
+                       r'CO',
+                       r'CC',
+                       r'BO',
+                       r'BC',
+                       r'SC',
                        r'ASTERISK',
-                       r'EQUAL',
+                       r'EQ',
                        r'COMMA'
                    ]))
 
@@ -309,15 +310,15 @@ def t_ANY_ignore_NEW_LINE(token):
     token.lexer.lineno += 1
 
 
-t_ANY_PARENTHESE_OPEN = r'\('
-t_ANY_PARENTHESE_CLOSE = r'\)'
-t_ANY_CURLY_OPEN = r'\{'
-t_ANY_CURLY_CLOSE = r'\}'
-t_ANY_BRACE_OPEN = r'\['
-t_ANY_BRACE_CLOSE = r'\]'
-t_ANY_SEMICOLON = r';'
+t_ANY_PO = r'\('
+t_ANY_PC = r'\)'
+t_ANY_CO = r'\{'
+t_ANY_CC = r'\}'
+t_ANY_BO = r'\['
+t_ANY_BC = r'\]'
+t_ANY_SC = r';'
 t_ANY_ASTERISK = r'\*'
-t_ANY_EQUAL = r'='
+t_ANY_EQ = r'='
 t_ANY_COMMA = r','
 
 
@@ -332,13 +333,13 @@ def t_ANY_end(token):
 
 
 @lex.TOKEN(r'"(?:[^"\\]|\\.)*"')
-def t_ANY_STRING(token):
+def t_ANY_S(token):
     token.value = token.value[1:-1]
     return token
 
 
 @lex.TOKEN(r'[+-]?(([0]{1}[Xx]{1}[A-Fa-f0-9]+)|(\d+(\.(\d*([eE][+-]?\d+)?)?|([eE][+-]?\d+)?)?))')
-def t_ANY_NUMERIC(token):
+def t_ANY_N(token):
     try:
         token.value = int(token.value, 10)
     except ValueError:
@@ -350,7 +351,7 @@ def t_ANY_NUMERIC(token):
 
 
 @lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_\.\[\]]*')
-def t_INITIAL_IDENT(token):
+def t_INITIAL_I(token):
     if token.value == 'IF_DATA':
         token.type = token.value
         token.lexer.push_state('ifdata')
@@ -366,7 +367,7 @@ def t_INITIAL_IDENT(token):
 
 
 @lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_]{0,}')
-def t_a2ml_IDENT(token):
+def t_a2ml_I(token):
     if token.value == 'A2ML':
         token.type = token.value
         token.lexer.pop_state()
@@ -379,7 +380,7 @@ def t_a2ml_IDENT(token):
 
 
 @lex.TOKEN(r'[A-Za-z_][A-Za-z0-9_\.\[\]]*')
-def t_ifdata_IDENT(token):
+def t_ifdata_I(token):
     if token.value == 'IF_DATA':
         token.type = token.value
         token.lexer.pop_state()
