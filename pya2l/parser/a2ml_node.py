@@ -5,6 +5,7 @@
 @date: 28.12.2018
 """
 
+from pya2l.parser.if_data_node import A2MLTaggedNode, Struct as S, TaggedStruct as TS, TaggedUnion as TU, Member as M
 from pya2l.parser.node import ASTNode
 
 node_to_class = dict()
@@ -19,51 +20,23 @@ def a2ml_node_type(node_type):
     return wrapper
 
 
-class A2MLTaggedNode(list):
-    def __new__(cls, args=tuple(), kwargs=dict()):
-        cls.__slots__ = tuple(kwargs.keys())
-        return super(A2MLTaggedNode, cls).__new__(cls)
-
-    def __init__(self, args=tuple(), kwargs=dict()):
-        super(A2MLTaggedNode, self).__init__(args)
-        for item in kwargs.items():
-            setattr(self, *item)
-
-    def keywords(self):
-        for parameter in self.__slots__:
-            yield parameter, getattr(self, parameter)
-
-    def positionals(self):
-        for parameter in self:
-            yield parameter
-
-    @property
-    def json(self):
-        result = dict()
-        for k, v in enumerate(self.positionals()):
-            try:
-                result[k] = v.json
-            except AttributeError:
-                result[k] = v
-        for k, v in self.keywords():
-            try:
-                result[k] = v.json
-            except AttributeError:
-                result[k] = v
-        return result
-
-
 class A2MLNode(ASTNode):
     def get_class(self, tokens): raise NotImplementedError
+
+    def dump(self, n=0): raise NotImplementedError(self.__class__.__name__)
 
 
 class TypeName(A2MLNode):
     tagged_type_name = dict()
-    __slots__ = 'identifier'
+    __slots__ = 'identifier', 'is_def', 'node_type'
 
-    def __init__(self, identifier=None, *args, **kwargs):
+    def __init__(self, node_type, identifier=None, member=None):
+        self.node_type = node_type
         self.identifier = None
-        super(TypeName, self).__init__(identifier, *args, **kwargs)
+        self.is_def = member is None
+        if self.is_def:
+            member = tuple()
+        super(TypeName, self).__init__(identifier, *member)
 
     @property
     def tagged(self):
@@ -71,6 +44,20 @@ class TypeName(A2MLNode):
 
     def get_class(self, tokens):
         return TypeName.tagged_type_name[self.identifier].get_class(tokens, recurse=True)
+
+    def dump(self, n=0):
+        if self.is_def:
+            yield n, '{node_type} {identifier}'.format(node_type=self.node_type, identifier=self.identifier)
+        else:
+            tmp = '{node_type}'
+            if self.identifier:
+                tmp += ' {identifier}'
+            tmp += ' {{'
+            yield n, tmp.format(node_type=self.node_type, identifier=self.identifier)
+            for member in self:
+                for e in member.dump(n=n + 1):
+                    yield e
+            yield n, '}'
 
 
 class A2ML(list):
@@ -102,6 +89,11 @@ class Declaration(A2MLNode):
 
     def get_class(self, tokens): return super(Declaration, self).get_class(tokens)
 
+    def dump(self, n=0):
+        d = list(self.definition.dump(n=n))
+        d[-1] = (d[-1][0], d[-1][1] + ';')
+        return (e for e in d)
+
 
 @a2ml_node_type('block')
 class BlockDefinition(A2MLNode):
@@ -123,6 +115,11 @@ class BlockDefinition(A2MLNode):
             obj = None
         return obj
 
+    def dump(self, n=0):
+        yield n, 'block "{tag}"'.format(tag=self.tag)
+        for e in self.type_name.dump(n=n):
+            yield e
+
 
 @a2ml_node_type('a2ml_type_definition')
 class TypeDefinition(A2MLNode):
@@ -133,6 +130,10 @@ class TypeDefinition(A2MLNode):
         super(TypeDefinition, self).__init__(type_name)
 
     def get_class(self, tokens): return super(TypeDefinition, self).get_class(tokens)
+
+    def dump(self, n=0):
+        for e in self.type_name.dump(n=n):
+            yield e
 
 
 @a2ml_node_type('int')
@@ -162,6 +163,9 @@ class PredefinedTypeName(A2MLNode):
                            'double': float,
                            'float': float}[self.type_name],), {})(tokens.pop(0))
 
+    def dump(self, n=0):
+        yield n, self.type_name
+
 
 @a2ml_node_type('char')
 class Char(PredefinedTypeName):
@@ -182,9 +186,9 @@ class UChar(Char):
 class Struct(TypeName):
     __slots__ = 'member',
 
-    def __init__(self, identifier=None, member=tuple()):
+    def __init__(self, identifier=None, member=None):
         self.member = list()
-        super(Struct, self).__init__(identifier, *member)
+        super(Struct, self).__init__('struct', identifier, member)
 
     def __iter__(self):
         for node in self.member:
@@ -215,11 +219,14 @@ class Struct(TypeName):
                 #    raise NotImplementedError
                 else:
                     args.append(obj)
-            return type('S', (A2MLTaggedNode,), {})(args=args, kwargs=kwargs)
+            return type(self.__class__.__name__, (S,), {})(args=args, kwargs=kwargs)
+
+    def dump(self, n=0):
+        return super(Struct, self).dump(n=n)
 
 
 @a2ml_node_type('a2ml_struct_member')
-class StructMember(A2MLNode):
+class StructMember(A2MLNode):  # TODO: remove this class, as it only perform calls to 'member' property.
     __slots__ = 'member',
 
     def __init__(self, member):
@@ -233,14 +240,19 @@ class StructMember(A2MLNode):
     def get_class(self, tokens):
         return self.member.get_class(tokens)
 
+    def dump(self, n=0):
+        m = list(self.member.dump(n=n))
+        m[-1] = (m[-1][0], m[-1][1] + ';')
+        return (e for e in m)
+
 
 @a2ml_node_type('a2ml_taggedstruct_type_name')
 class TaggedStruct(TypeName):
     __slots__ = 'member',
 
-    def __init__(self, identifier=None, member=tuple()):
+    def __init__(self, identifier=None, member=None):
         self.member = list()
-        super(TaggedStruct, self).__init__(identifier, *member)
+        super(TaggedStruct, self).__init__('taggedstruct', identifier, member)
 
     def __iter__(self):
         for node in self.member:
@@ -267,7 +279,10 @@ class TaggedStruct(TypeName):
                         kwargs.setdefault(node.tag, node.get_class(tokens))
                     else:
                         kwargs.setdefault(node.tag, None)
-            return type('TS', (A2MLTaggedNode,), {})(kwargs=kwargs)
+            return type(self.__class__.__name__, (TS,), {})(args=tuple(), kwargs=kwargs)
+
+    def dump(self, n=0):
+        return super(TaggedStruct, self).dump(n=n)
 
 
 @a2ml_node_type('a2ml_taggedstruct_member')
@@ -286,14 +301,25 @@ class TaggedStructMember(A2MLNode):
     def get_class(self, tokens):
         return self.type_name.get_class(tokens)
 
+    def dump(self, n=0):
+        t = list(self.type_name.dump(n=n))
+        if not isinstance(self.type_name, BlockDefinition):
+            t.insert(0, (n, '"{tag}"'.format(tag=self.tag)))
+        if self.multiple:
+            t[0] = (t[0][0], '(' + t[0][1])
+            t[-1] = (t[-1][0], t[-1][1] + ')*;')
+        else:
+            t[-1] = (t[-1][0], t[-1][1] + ';')
+        return (e for e in t)
+
 
 @a2ml_node_type('a2ml_taggedunion_type_name')
 class TaggedUnion(TypeName):
     __slots__ = 'member',
 
-    def __init__(self, identifier=None, member=tuple()):
+    def __init__(self, identifier=None, member=None):
         self.member = list()
-        super(TaggedUnion, self).__init__(identifier, *member)
+        super(TaggedUnion, self).__init__('taggedunion', identifier, member)
 
     def __iter__(self):
         for node in self.member:
@@ -313,7 +339,10 @@ class TaggedUnion(TypeName):
                     kwargs.setdefault(tokens.pop(0), node.get_class(tokens))
                 else:
                     kwargs.setdefault(node.tag, None)
-            return type('TU', (A2MLTaggedNode,), {})(kwargs=kwargs)
+            return type(self.__class__.__name__, (TU,), {})(args=tuple(), kwargs=kwargs)
+
+    def dump(self, n=0):
+        return super(TaggedUnion, self).dump(n=n)
 
 
 @a2ml_node_type('a2ml_taggedunion_member')
@@ -328,14 +357,25 @@ class TaggedUnionMember(A2MLNode):
     def get_class(self, tokens):
         return self.member.get_class(tokens)
 
+    def dump(self, n=0):
+        t = list(self.member.dump(n=n))
+        if not isinstance(self.member, BlockDefinition):
+            t.insert(0, (n, '"{tag}"'.format(tag=self.tag)))
+        t[-1] = (t[-1][0], t[-1][1] + ';')
+        return (e for e in t)
+
 
 @a2ml_node_type('a2ml_enum_type_name')
 class Enum(TypeName):
     __slots__ = 'enumerator',
 
-    def __init__(self, identifier=None, enumerator=tuple()):
+    def __init__(self, identifier=None, enumerator=None):
         self.enumerator = list()
-        super(Enum, self).__init__(identifier, *enumerator)
+        super(Enum, self).__init__('enum', identifier, enumerator)
+
+    def __iter__(self):
+        for node in self.enumerator:
+            yield node
 
     @property
     def required(self):
@@ -346,6 +386,23 @@ class Enum(TypeName):
             return super(Enum, self).get_class(tokens)
         else:
             return type('E', (str,), {})(tokens.pop(0))
+
+    def dump(self, n=0):
+        if self.is_def:
+            yield n, '{node_type} {identifier}'.format(node_type=self.node_type, identifier=self.identifier)
+        else:
+            tmp = '{node_type}'
+            if self.identifier:
+                tmp += ' {identifier}'
+            tmp += ' {{'
+            yield n, tmp.format(node_type=self.node_type, identifier=self.identifier)
+            for index, member in enumerate(self, start=1):
+                for _n, e in member.dump(n=n + 1):
+                    if index < len(self.enumerator):
+                        yield (_n, e + ',')
+                    else:
+                        yield (_n, e)
+            yield n, '}'
 
 
 @a2ml_node_type('a2ml_taggedstruct_definition')
@@ -378,6 +435,13 @@ class TaggedStructDefinition(A2MLNode):
                 tokens.pop(0)
             return True
 
+    def dump(self, n=0):
+        if self.multiple:
+            result = '()*;'
+        else:
+            result = '{}'
+        return result
+
 
 @a2ml_node_type('a2ml_member')
 class Member(A2MLNode):
@@ -409,9 +473,15 @@ class Member(A2MLNode):
                     return self.type_name.get_class(tokens)
                 else:
                     args.append(self.type_name.get_class(tokens))
-            return type('M', (list,), {})(args)
+            return type(self.__class__.__name__, (M,), {})(args=args, kwargs=dict())
         else:
             return self.type_name.get_class(tokens)
+
+    def dump(self, n=0):
+        for e in self.type_name.dump(n=n):
+            yield e
+        if self.array_specifier:
+            yield n, str(self.array_specifier)
 
 
 @a2ml_node_type('a2ml_enumerator')
@@ -424,6 +494,11 @@ class Enumerator(A2MLNode):
         super(Enumerator, self).__init__(keyword)
 
     def get_class(self, tokens): return super(Enumerator, self).get_class(tokens)
+
+    def dump(self, n=0):
+        yield n, '"{k}"{e}{c}'.format(k=self.keyword,
+                                      e=' = ' if self.constant is not None else '',
+                                      c=self.constant)
 
 
 def a2ml_node_factory(node_type, *args, **kwargs):

@@ -34,6 +34,15 @@ class A2lParser(object):
         else:
             return []
 
+    def dump(self, indent=4, line_ending='\n', indent_char=' '):
+        if self.ast and hasattr(self.ast, 'project'):
+            result = list()
+            for indentation_level, string in self.ast.project.dump():
+                result.append(((indent_char * indent) * indentation_level) + string)
+            return line_ending.join(result)
+        else:
+            return ''
+
     @staticmethod
     def p_error(p):
         if p:
@@ -398,15 +407,6 @@ class A2lParser(object):
             p[0] = [p[1]]
 
     @staticmethod
-    def p_string_list(p):
-        """string_list : S
-                       | S string_list"""
-        try:
-            p[0] = [p[1]] + p[2]
-        except IndexError:
-            p[0] = [p[1]]
-
-    @staticmethod
     def p_project(p):
         """project : begin PROJECT I S project_optional_list_optional end PROJECT"""
         p[0] = a2l_node_factory(*p[2:6])
@@ -470,7 +470,7 @@ class A2lParser(object):
 
     def p_if_data(self, p):
         """if_data : begin IF_DATA I generic_parameter_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory(p.slice[0].type, p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3]))
+        p[0] = a2l_node_factory(p[2], p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3]))
 
     @staticmethod
     def p_module(p):
@@ -517,7 +517,7 @@ class A2lParser(object):
     def p_a2ml(self, p):
         """a2ml : begin A2ML a2ml_declaration_list end A2ML"""
         self.a2ml += p[3]
-        p[0] = p[3]
+        p[0] = a2l_node_factory(*p[2:4])
 
     @staticmethod
     def p_mod_par(p):
@@ -2166,25 +2166,6 @@ class A2lParser(object):
         """var_forbidden_comb_optional_list_optional : empty
                                                      | var_forbidden_comb_optional_list"""
         p[0] = tuple() if p[1] is None else p[1]
-
-    @staticmethod
-    def p_var_forbidden_comb_criterion_list(p):
-        """var_forbidden_comb_criterion_list : var_forbidden_comb_criterion_optional
-                                             | var_forbidden_comb_criterion_optional var_forbidden_comb_criterion_optional_list"""
-        try:
-            p[0] = p[1] + p[2]
-        except IndexError:
-            p[0] = p[1]
-
-    @staticmethod
-    def p_var_forbidden_comb_criterion_optional(p):
-        """var_forbidden_comb_criterion_optional : I I"""
-        p[0] = [('criterion_name', p[1]), ('criterion_value', p[2])]
-
-    @staticmethod
-    def p_var_forbidden_comb_criterion_optional_list(p):
-        """var_forbidden_comb_criterion_optional_list : var_forbidden_comb_criterion_optional
-                                                      | var_forbidden_comb_criterion_optional var_forbidden_comb_criterion_optional_list"""
         try:
             p[0] = p[1] + p[2]
         except IndexError:

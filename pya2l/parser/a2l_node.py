@@ -34,27 +34,47 @@ class A2lFile(A2lNode):
         super(A2lFile, self).__init__(*args)
 
 
-@a2l_node_type('if_data')
+@a2l_node_type('IF_DATA')
 class IfData(A2lNode):
     def __new__(cls, tag=None, value=None):
-        cls.__slots__ = tag,
+        cls.__slots__ = cls.__slots__ + tuple([tag])
+        setattr(cls, tag, value)
         return super(IfData, cls).__new__(cls)
 
     def __init__(self, tag=None, value=None):
-        setattr(self, self.tag, None)
         super(IfData, self).__init__((tag, value))
 
-    @property
-    def tag(self):
-        return self.__slots__[0]
+    def dict(self):
+        return dict((tag, getattr(self, tag).dict()) for tag in self.properties)
 
-    @property
-    def value(self):
-        return getattr(self, self.tag)
+    def dump(self, n=0):
+        for tag, value in ((t, getattr(self, t)) for t in self.properties):
+            yield n, '/begin {node} {tag}'.format(node=self.node, tag=tag)
+            for e in value.dump(n=n + 1):
+                yield e
+            yield n, '/end {node}'.format(node=self.node)
 
-    @property
-    def json(self):
-        return {self.tag: self.value.json}
+
+@a2l_node_type('A2ML')
+class A2ml(A2lNode):
+    def __new__(cls, a2ml):
+        cls.__slots__ = tuple(['type_definition'] + list(b.tag for b in filter(lambda d: hasattr(d, 'tag'), a2ml)))
+        setattr(cls, 'type_definition', list())
+        for e in a2ml:
+            if hasattr(e, 'tag'):
+                setattr(cls, e.tag, e)
+            #elif e not in getattr(cls, 'type_definition'):
+            #    getattr(cls, 'type_definition').append(e)
+        return super(A2ml, cls).__new__(cls)
+
+    def __init__(self, a2ml):
+        args = [('type_definition', d) for d in filter(lambda d: not hasattr(d, 'tag'), a2ml)]
+        for block in filter(lambda d: hasattr(d, 'tag'), a2ml):
+            args.append((block.tag, block))
+        super(A2ml, self).__init__(*args)
+
+    def dump(self, n=0):
+        return (e for e in super(A2ml, self).dump(n=n))
 
 
 @a2l_node_type('VERSION')

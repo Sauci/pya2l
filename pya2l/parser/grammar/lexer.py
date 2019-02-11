@@ -9,6 +9,7 @@ import os
 import ply.lex as lex
 
 from pya2l.parser.exception import A2lLexerException
+from pya2l.parser.type import String
 
 a2l_keywords = dict((k, k) for k in {
     'A2ML',
@@ -334,7 +335,7 @@ def t_ANY_end(token):
 
 @lex.TOKEN(r'"(?:[^"\\]|\\.)*"')
 def t_ANY_S(token):
-    token.value = token.value[1:-1]
+    token.value = String(token.value[1:-1])
     return token
 
 
