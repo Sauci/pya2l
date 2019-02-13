@@ -5,7 +5,6 @@
 @date: 31.12.2018
 """
 
-from json import dumps as json_dump
 from pya2l.parser.type import String
 
 
@@ -30,9 +29,9 @@ class ASTNode(object):
     def __eq__(self, other):
         if not isinstance(other, ASTNode):
             return False
-        if len(set(self.__slots__) ^ set(other.__slots__)):
+        if len(set(self.properties) ^ set(other.properties)):
             return False
-        for s in set(self.__slots__) - {'line'}:
+        for s in set(self.properties):
             if getattr(self, s) != getattr(other, s):
                 return False
         return True
@@ -94,15 +93,12 @@ class ASTNode(object):
             if v in (None, list()) and not self.node == 'IF_DATA':
                 continue
             if isinstance(v, ASTNode):
-                try:
-                    for e in v.dump(n=n + 1):
-                        yield e
-                except TypeError as e:
-                    raise e
+                for e in v.dump(n=n + 1):
+                    yield e
             elif isinstance(v, list):
-                for e in v:
-                    if isinstance(e, ASTNode):
-                        for e in e.dump(n=n + 1):
+                for node in v:
+                    if isinstance(node, ASTNode):
+                        for e in node.dump(n=n + 1):
                             yield e
                     else:
                         yield n + 1, '{q}{string}{q}'.format(string=v, q='"' if isinstance(v, String) else '')

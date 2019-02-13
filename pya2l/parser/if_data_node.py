@@ -8,56 +8,63 @@
 from itertools import chain
 
 
-class A2MLTaggedNode(object):
-    def __new__(cls, args=tuple(), kwargs=dict()):
-        for item in kwargs.items():
-            setattr(cls, *item)
-        cls.__slots__ = tuple(kwargs.keys())
-        cls.__index__ = tuple(args)
-        return super(A2MLTaggedNode, cls).__new__(cls)
+class AmlDynNode(object):
+    __slots__ = 'args', 'kwargs'
 
-    def keywords(self):
-        for parameter in self.__slots__:
-            yield parameter, getattr(self, parameter)
+    def __init__(self, args, kwargs):
+        self.args = args
+        self.kwargs = kwargs
+
+    def __repr__(self):
+        return ' '.join(s.__repr__() for s in self.args) + \
+               (' ' if len(self.kwargs) else '') + \
+               ' '.join(str(k) + '=' + v.__repr__() for k, v in self.kwargs.items())
+
+    def __eq__(self, other):
+        if isinstance(other, (tuple, list)) and len(self.kwargs) == 0 and self.args == other:
+            return True
+        elif isinstance(other, dict) and len(self.args) == 0 and self.kwargs == other.kwargs:
+            return True
+        elif isinstance(other, AmlDynNode) and self.args == other.args and self.kwargs == other.kwargs:
+            return True
+        return False
+
+    def __getitem__(self, item):
+        return self.args[item]
+
+    def __getattr__(self, item):
+        return self.kwargs[item]
+
+    @property
+    def properties(self):
+        return self.kwargs.keys()
 
     def positionals(self):
-        for parameter in self.__index__:
+        for parameter in self.args:
             yield parameter
+
+    def keywords(self):
+        for parameter in self.kwargs:
+            yield parameter, getattr(self, parameter)
 
     def dict(self):
         result = dict()
         for k, v in chain(enumerate(self.positionals()), self.keywords()):
-            if isinstance(v, A2MLTaggedNode):
+            if isinstance(v, AmlDynNode):
                 result[k] = v.dict()
             else:
                 result[k] = v
         return result
 
     def dump(self, n=0):
-        result = ''
-        for k, v in enumerate(self.positionals()):
-            if isinstance(v, A2MLTaggedNode):
-                result += v.dump(indent, lt, n=n + 1)
-            else:
-                result += str(v)
-        for k, v in self.keywords():
-            try:
-                result += v.dump(indent, lt, n=n + 1)
-            except AttributeError:
-                result += str(v)
-        return result
-
-
-class Struct(A2MLTaggedNode):
-    def dump(self, n=0):
         for v in self.positionals():
-            if isinstance(v, A2MLTaggedNode):
+            if isinstance(v, AmlDynNode):
                 for e in v.dump(n=n + 1):
                     yield e
             else:
                 yield n, str(v)
         for k, v in self.keywords():
-            if isinstance(v, A2MLTaggedNode):
+            if isinstance(v, AmlDynNode):
                 yield n, '/begin {tag}'.format(tag=k)
                 for e in v.dump(n=n + 1):
                     yield e
@@ -66,23 +73,5 @@ class Struct(A2MLTaggedNode):
                 yield n, '{tag} {v}'.format(tag=k, v=str(v))
 
 
-class TaggedStruct(A2MLTaggedNode):
-    def dump(self, n=0):
-        raise Exception(self.__class__.__name__)
-        return ''
-
-
-class TaggedUnion(A2MLTaggedNode):
-    def dump(self, n=0):
-        raise Exception(self.__class__.__name__)
-        return ''
-
-    def dict(self):
-        raise Exception(self.__class__.__name__)
-        return ''
-
-
-class Member(A2MLTaggedNode):
-    def dump(self, n=0):
-        raise Exception(self.__class__.__name__)
-        return ''
+class AmlDynStruct(AmlDynNode):
+    pass

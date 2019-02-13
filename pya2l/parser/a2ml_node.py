@@ -5,7 +5,7 @@
 @date: 28.12.2018
 """
 
-from pya2l.parser.if_data_node import A2MLTaggedNode, Struct as S, TaggedStruct as TS, TaggedUnion as TU, Member as M
+from pya2l.parser.if_data_node import AmlDynNode, AmlDynStruct
 from pya2l.parser.node import ASTNode
 
 node_to_class = dict()
@@ -37,6 +37,9 @@ class TypeName(A2MLNode):
         if self.is_def:
             member = tuple()
         super(TypeName, self).__init__(identifier, *member)
+
+    def __iter__(self):
+        raise NotImplementedError(self.__class__.__name__)
 
     @property
     def tagged(self):
@@ -132,8 +135,7 @@ class TypeDefinition(A2MLNode):
     def get_class(self, tokens): return super(TypeDefinition, self).get_class(tokens)
 
     def dump(self, n=0):
-        for e in self.type_name.dump(n=n):
-            yield e
+        return (e for e in self.type_name.dump(n=n))
 
 
 @a2ml_node_type('int')
@@ -191,8 +193,7 @@ class Struct(TypeName):
         super(Struct, self).__init__('struct', identifier, member)
 
     def __iter__(self):
-        for node in self.member:
-            yield node
+        return (e for e in self.member)
 
     @property
     def required(self):
@@ -205,21 +206,21 @@ class Struct(TypeName):
             args, kwargs = list(), dict()
             for node in filter(lambda n: n.required, self):
                 obj = node.get_class(tokens)
-                if obj.__class__.__name__ == 'S':
+                if isinstance(obj, AmlDynStruct):
                     for arg in obj.positionals():
                         args.append(arg)
                 else:
                     args.append(obj)
             for node in filter(lambda n: not n.required, self):
                 obj = node.get_class(tokens)
-                if isinstance(obj, A2MLTaggedNode):
+                if isinstance(obj, AmlDynNode):
                     for k, v in obj.keywords():
                         kwargs[k] = v
                 # elif isinstance(obj, list):
                 #    raise NotImplementedError
                 else:
                     args.append(obj)
-            return type(self.__class__.__name__, (S,), {})(args=args, kwargs=kwargs)
+            return AmlDynStruct(args, kwargs)
 
     def dump(self, n=0):
         return super(Struct, self).dump(n=n)
@@ -255,8 +256,7 @@ class TaggedStruct(TypeName):
         super(TaggedStruct, self).__init__('taggedstruct', identifier, member)
 
     def __iter__(self):
-        for node in self.member:
-            yield node
+        return (e for e in self.member)
 
     @property
     def required(self):
@@ -279,7 +279,7 @@ class TaggedStruct(TypeName):
                         kwargs.setdefault(node.tag, node.get_class(tokens))
                     else:
                         kwargs.setdefault(node.tag, None)
-            return type(self.__class__.__name__, (TS,), {})(args=tuple(), kwargs=kwargs)
+            return AmlDynNode(list(), kwargs)
 
     def dump(self, n=0):
         return super(TaggedStruct, self).dump(n=n)
@@ -322,8 +322,7 @@ class TaggedUnion(TypeName):
         super(TaggedUnion, self).__init__('taggedunion', identifier, member)
 
     def __iter__(self):
-        for node in self.member:
-            yield node
+        return (e for e in self.member)
 
     @property
     def required(self):
@@ -339,7 +338,7 @@ class TaggedUnion(TypeName):
                     kwargs.setdefault(tokens.pop(0), node.get_class(tokens))
                 else:
                     kwargs.setdefault(node.tag, None)
-            return type(self.__class__.__name__, (TU,), {})(args=tuple(), kwargs=kwargs)
+            return AmlDynNode(list(), kwargs)
 
     def dump(self, n=0):
         return super(TaggedUnion, self).dump(n=n)
@@ -374,8 +373,7 @@ class Enum(TypeName):
         super(Enum, self).__init__('enum', identifier, enumerator)
 
     def __iter__(self):
-        for node in self.enumerator:
-            yield node
+        return (e for e in self.enumerator)
 
     @property
     def required(self):
@@ -436,11 +434,7 @@ class TaggedStructDefinition(A2MLNode):
             return True
 
     def dump(self, n=0):
-        if self.multiple:
-            result = '()*;'
-        else:
-            result = '{}'
-        return result
+        raise NotImplementedError
 
 
 @a2ml_node_type('a2ml_member')
@@ -473,7 +467,7 @@ class Member(A2MLNode):
                     return self.type_name.get_class(tokens)
                 else:
                     args.append(self.type_name.get_class(tokens))
-            return type(self.__class__.__name__, (M,), {})(args=args, kwargs=dict())
+            return AmlDynNode(args, dict())
         else:
             return self.type_name.get_class(tokens)
 

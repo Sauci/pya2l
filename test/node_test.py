@@ -134,7 +134,7 @@ def test_nodes():
     assert parent.nodes('Child') == [child_0, child_1]
 
 
-def test_get_json():
+def test_get_dict():
     class A(ASTNode):
         _node = 'A'
         __slots__ = 'prop', 'sub_node'
@@ -158,7 +158,7 @@ def test_get_json():
         def __init__(self):
             super(C, self).__init__()
 
-    assert A(1, A(2, B([3, C()]))).json == {
+    assert A(1, A(2, B([3, C()]))).dict() == {
         'node': 'A',
         'prop': 1,
         'sub_node': {
