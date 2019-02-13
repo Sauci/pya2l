@@ -5,25 +5,22 @@
 @date: 05.04.2018
 """
 
-from pya2l.parser.node import ASTNode
+from pya2l.parser.node import ASTNode, node_type
+from pya2l.parser.type import *
 
-node_to_class = dict()
-
-
-def a2l_node_type(node_type):
-    def wrapper(cls):
-        node_to_class[node_type] = cls
-        cls._node = node_type
-        return cls
-
-    return wrapper
+enum_index_mode = Ident
+enum_attribute = Ident
+enum_type = Ident
+enum_conversion_type = Ident
+enum_prg_type = Ident
+enum_memory_type = Ident
 
 
 class A2lNode(ASTNode):
     pass
 
 
-@a2l_node_type('a2l')
+@node_type('a2l')
 class A2lFile(A2lNode):
     __slots__ = 'asap2_version', 'a2ml_version', 'project'
 
@@ -34,7 +31,7 @@ class A2lFile(A2lNode):
         super(A2lFile, self).__init__(*args)
 
 
-@a2l_node_type('IF_DATA')
+@node_type('IF_DATA')
 class IfData(A2lNode):
     def __new__(cls, tag=None, value=None):
         cls.__slots__ = cls.__slots__ + tuple([tag])
@@ -55,7 +52,7 @@ class IfData(A2lNode):
             yield n, '/end {node}'.format(node=self.node)
 
 
-@a2l_node_type('A2ML')
+@node_type('A2ML')
 class A2ml(A2lNode):
     def __new__(cls, a2ml):
         cls.__slots__ = tuple(['type_definition'] + list(b.tag for b in filter(lambda d: hasattr(d, 'tag'), a2ml)))
@@ -63,8 +60,8 @@ class A2ml(A2lNode):
         for e in a2ml:
             if hasattr(e, 'tag'):
                 setattr(cls, e.tag, e)
-            #elif e not in getattr(cls, 'type_definition'):
-            #    getattr(cls, 'type_definition').append(e)
+            # elif e not in getattr(cls, 'type_definition'):
+            #     getattr(cls, 'type_definition').append(e)
         return super(A2ml, cls).__new__(cls)
 
     def __init__(self, a2ml):
@@ -77,59 +74,57 @@ class A2ml(A2lNode):
         return (e for e in super(A2ml, self).dump(n=n))
 
 
-@a2l_node_type('VERSION')
-class Version(A2lNode):
-    __slots__ = 'version_no', 'upgrade_no'
+@node_type('A2ML_VERSION')
+class A2ML_VERSION(A2lNode):
+    __slots__ = 'version_no', 'upgrade_no', 
 
-    def __init__(self, version_no, upgrade_no):
-        self.version_no = version_no
-        self.upgrade_no = upgrade_no
-        super(Version, self).__init__()
-
-
-@a2l_node_type('A2ML_VERSION')
-class A2MLVersion(Version):
-    pass
+    def __init__(self, version_no, upgrade_no, ):
+        self.version_no = Int(version_no)
+        self.upgrade_no = Int(upgrade_no)
+        super(A2ML_VERSION, self).__init__()
 
 
-@a2l_node_type('ANNOTATION')
-class Annotation(A2lNode):
-    __slots__ = 'annotation_label', 'annotation_origin', 'annotation_text'
+@node_type('ANNOTATION')
+class ANNOTATION(A2lNode):
+    __slots__ = 'annotation_label', 'annotation_origin', 'annotation_text', 
 
     def __init__(self, args):
         self.annotation_label = None
         self.annotation_origin = None
         self.annotation_text = None
-        super(Annotation, self).__init__(*args)
+        super(ANNOTATION, self).__init__(*args)
 
 
-@a2l_node_type('ANNOTATION_TEXT')
-class AnnotationText(A2lNode):
-    __slots__ = 'text',
+@node_type('ANNOTATION_TEXT')
+class ANNOTATION_TEXT(A2lNode):
+    __slots__ = 'string', 
 
     def __init__(self, args):
-        self.text = list()
-        super(AnnotationText, self).__init__(*args)
+        self.string = list()
+        super(ANNOTATION_TEXT, self).__init__(*args)
 
 
-@a2l_node_type('ASAP2_VERSION')
-class ASAP2Version(Version):
-    pass
+@node_type('ASAP2_VERSION')
+class ASAP2_VERSION(A2lNode):
+    __slots__ = 'version_no', 'upgrade_no', 
+
+    def __init__(self, version_no, upgrade_no, ):
+        self.version_no = Int(version_no)
+        self.upgrade_no = Int(upgrade_no)
+        super(ASAP2_VERSION, self).__init__()
 
 
-@a2l_node_type('AXIS_DESCR')
-class AxisDescr(A2lNode):
-    __slots__ = 'attribute', 'input_quantity', 'conversion', 'max_axis_points', 'lower_limit', 'upper_limit', \
-                'read_only', 'format', 'annotation', 'axis_pts_ref', 'max_grad', 'monotony', 'byte_order', \
-                'extended_limits', 'fix_axis_par', 'fix_axis_par_dist', 'fix_axis_par_list', 'deposit', 'curve_axis_ref'
+@node_type('AXIS_DESCR')
+class AXIS_DESCR(A2lNode):
+    __slots__ = 'attribute', 'input_quantity', 'conversion', 'max_axis_points', 'lower_limit', 'upper_limit', 'read_only', 'format', 'annotation', 'axis_pts_ref', 'max_grad', 'monotony', 'byte_order', 'extended_limits', 'fix_axis_par', 'fix_axis_par_dist', 'fix_axis_par_list', 'deposit', 'curve_axis_ref', 
 
     def __init__(self, attribute, input_quantity, conversion, max_axis_points, lower_limit, upper_limit, args):
-        self.attribute = attribute
-        self.input_quantity = input_quantity
-        self.conversion = conversion
-        self.max_axis_points = max_axis_points
-        self.lower_limit = lower_limit
-        self.upper_limit = upper_limit
+        self.attribute = enum_attribute(attribute)
+        self.input_quantity = Ident(input_quantity)
+        self.conversion = Ident(conversion)
+        self.max_axis_points = Int(max_axis_points)
+        self.lower_limit = Float(lower_limit)
+        self.upper_limit = Float(upper_limit)
         self.read_only = None
         self.format = None
         self.annotation = list()
@@ -143,28 +138,24 @@ class AxisDescr(A2lNode):
         self.fix_axis_par_list = None
         self.deposit = None
         self.curve_axis_ref = None
-        super(AxisDescr, self).__init__(*args)
+        super(AXIS_DESCR, self).__init__(*args)
 
 
-@a2l_node_type('AXIS_PTS')
-class AxisPts(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'address', 'input_quantity', 'deposit', 'max_diff', 'conversion', \
-                'max_axis_points', 'lower_limit', 'upper_limit', 'display_identifier', 'read_only', 'format', \
-                'deposit', 'byte_order', 'function_list', 'ref_memory_segment', 'guard_rails', 'extended_limits', \
-                'annotation', 'if_data', 'calibration_access', 'ecu_address_extension'
+@node_type('AXIS_PTS')
+class AXIS_PTS(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'address', 'input_quantity', 'deposit', 'max_diff', 'conversion', 'max_axis_points', 'lower_limit', 'upper_limit', 'display_identifier', 'read_only', 'format', 'deposit', 'byte_order', 'function_list', 'ref_memory_segment', 'guard_rails', 'extended_limits', 'annotation', 'if_data', 'calibration_access', 'ecu_address_extension', 
 
-    def __init__(self, name, long_identifier, address, input_quantity, deposit, max_diff, conversion,
-                 max_axis_points, lower_limit, upper_limit, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.address = address
-        self.input_quantity = input_quantity
-        self.deposit = deposit
-        self.max_diff = max_diff
-        self.conversion = conversion
-        self.max_axis_points = max_axis_points
-        self.lower_limit = lower_limit
-        self.upper_limit = upper_limit
+    def __init__(self, name, long_identifier, address, input_quantity, deposit, max_diff, conversion, max_axis_points, lower_limit, upper_limit, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.address = Long(address)
+        self.input_quantity = Ident(input_quantity)
+        self.deposit = Ident(deposit)
+        self.max_diff = Float(max_diff)
+        self.conversion = Ident(conversion)
+        self.max_axis_points = Int(max_axis_points)
+        self.lower_limit = Float(lower_limit)
+        self.upper_limit = Float(upper_limit)
         self.display_identifier = None
         self.read_only = None
         self.format = None
@@ -178,103 +169,120 @@ class AxisPts(A2lNode):
         self.if_data = dict()
         self.calibration_access = None
         self.ecu_address_extension = None
-        super(AxisPts, self).__init__(*args)
+        super(AXIS_PTS, self).__init__(*args)
 
 
-class AxisPtsXYZ(A2lNode):
-    __slots__ = 'position', 'data_type', 'index_incr', 'addressing'
+@node_type('AXIS_PTS_X')
+class AXIS_PTS_X(A2lNode):
+    __slots__ = 'position', 'data_type', 'index_incr', 'addressing', 
 
-    def __init__(self, position, data_type, index_incr, addressing):
-        self.position = position
-        self.data_type = data_type
-        self.index_incr = index_incr
-        self.addressing = addressing
-        super(AxisPtsXYZ, self).__init__()
-
-
-@a2l_node_type('AXIS_PTS_X')
-class AxisPtsX(AxisPtsXYZ):
-    pass
+    def __init__(self, position, data_type, index_incr, addressing, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.index_incr = IndexOrder(index_incr)
+        self.addressing = AddrType(addressing)
+        super(AXIS_PTS_X, self).__init__()
 
 
-@a2l_node_type('AXIS_PTS_Y')
-class AxisPtsY(AxisPtsXYZ):
-    pass
+@node_type('AXIS_PTS_Y')
+class AXIS_PTS_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 'index_incr', 'addressing', 
+
+    def __init__(self, position, data_type, index_incr, addressing, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.index_incr = IndexOrder(index_incr)
+        self.addressing = AddrType(addressing)
+        super(AXIS_PTS_Y, self).__init__()
 
 
-@a2l_node_type('AXIS_PTS_Z')
-class AxisPtsZ(AxisPtsXYZ):
-    pass
+@node_type('AXIS_PTS_Z')
+class AXIS_PTS_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 'index_incr', 'addressing', 
+
+    def __init__(self, position, data_type, index_incr, addressing, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.index_incr = IndexOrder(index_incr)
+        self.addressing = AddrType(addressing)
+        super(AXIS_PTS_Z, self).__init__()
 
 
-class AxisRescale(A2lNode):
-    __slots__ = 'position', 'data_type', 'max_number_of_rescale_pairs', 'index_incr', 'addressing'
+@node_type('AXIS_RESCALE_X')
+class AXIS_RESCALE_X(A2lNode):
+    __slots__ = 'position', 'data_type', 'max_number_of_rescale_pairs', 'index_incr', 'addressing', 
 
-    def __init__(self, position, data_type, max_number_of_rescale_pairs, index_incr, addressing):
-        self.position = position
-        self.data_type = data_type
-        self.max_number_of_rescale_pairs = max_number_of_rescale_pairs
-        self.index_incr = index_incr
-        self.addressing = addressing
-        super(AxisRescale, self).__init__()
-
-
-@a2l_node_type('AXIS_RESCALE_X')
-class AxisRescaleX(AxisRescale):
-    pass
+    def __init__(self, position, data_type, max_number_of_rescale_pairs, index_incr, addressing, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.max_number_of_rescale_pairs = Int(max_number_of_rescale_pairs)
+        self.index_incr = IndexOrder(index_incr)
+        self.addressing = AddrType(addressing)
+        super(AXIS_RESCALE_X, self).__init__()
 
 
-@a2l_node_type('AXIS_RESCALE_Y')
-class AxisRescaleY(AxisRescale):
-    pass
+@node_type('AXIS_RESCALE_Y')
+class AXIS_RESCALE_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 'max_number_of_rescale_pairs', 'index_incr', 'addressing', 
+
+    def __init__(self, position, data_type, max_number_of_rescale_pairs, index_incr, addressing, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.max_number_of_rescale_pairs = Int(max_number_of_rescale_pairs)
+        self.index_incr = IndexOrder(index_incr)
+        self.addressing = AddrType(addressing)
+        super(AXIS_RESCALE_Y, self).__init__()
 
 
-@a2l_node_type('AXIS_RESCALE_Z')
-class AxisRescaleZ(AxisRescale):
-    pass
+@node_type('AXIS_RESCALE_Z')
+class AXIS_RESCALE_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 'max_number_of_rescale_pairs', 'index_incr', 'addressing', 
+
+    def __init__(self, position, data_type, max_number_of_rescale_pairs, index_incr, addressing, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.max_number_of_rescale_pairs = Int(max_number_of_rescale_pairs)
+        self.index_incr = IndexOrder(index_incr)
+        self.addressing = AddrType(addressing)
+        super(AXIS_RESCALE_Z, self).__init__()
 
 
-@a2l_node_type('BIT_OPERATION')
-class BitOperation(A2lNode):
-    __slots__ = 'left_shift', 'right_shift', 'sign_extend'
+@node_type('BIT_OPERATION')
+class BIT_OPERATION(A2lNode):
+    __slots__ = 'left_shift', 'right_shift', 'sign_extend', 
 
     def __init__(self, args):
         self.left_shift = None
         self.right_shift = None
         self.sign_extend = None
-        super(BitOperation, self).__init__(*args)
+        super(BIT_OPERATION, self).__init__(*args)
 
 
-@a2l_node_type('CALIBRATION_METHOD')
-class CalibrationMethod(A2lNode):
-    __slots__ = 'method', 'version', 'calibration_handle'
+@node_type('CALIBRATION_METHOD')
+class CALIBRATION_METHOD(A2lNode):
+    __slots__ = 'method', 'version', 'calibration_handle', 
 
     def __init__(self, method, version, args):
-        self.method = method
-        self.version = version
+        self.method = String(method)
+        self.version = Long(version)
         self.calibration_handle = list()
-        super(CalibrationMethod, self).__init__(*args)
+        super(CALIBRATION_METHOD, self).__init__(*args)
 
 
-@a2l_node_type('CHARACTERISTIC')
-class Characteristic(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'type', 'address', 'deposit', 'max_diff', 'conversion', 'lower_limit', \
-                'upper_limit', 'display_identifier', 'format', 'byte_order', 'bit_mask', 'function_list', 'number', \
-                'extended_limits', 'read_only', 'guard_rails', 'map_list', 'max_refresh', 'dependent_characteristic', \
-                'virtual_characteristic', 'ref_memory_segment', 'annotation', 'comparison_quantity', \
-                'if_data', 'axis_descr', 'calibration_access', 'matrix_dim', 'ecu_address_extension'
+@node_type('CHARACTERISTIC')
+class CHARACTERISTIC(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'type', 'address', 'deposit', 'max_diff', 'conversion', 'lower_limit', 'upper_limit', 'display_identifier', 'format', 'byte_order', 'bit_mask', 'function_list', 'number', 'extended_limits', 'read_only', 'guard_rails', 'map_list', 'max_refresh', 'dependent_characteristic', 'virtual_characteristic', 'ref_memory_segment', 'annotation', 'comparison_quantity', 'if_data', 'axis_descr', 'calibration_access', 'matrix_dim', 'ecu_address_extension', 
 
-    def __init__(self, name, long_identifier, type, address, deposit, max_diff, conversion, lower_limit,
-                 upper_limit, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.type = type
-        self.address = address
-        self.deposit = deposit
-        self.max_diff = max_diff
-        self.conversion = conversion
-        self.lower_limit = lower_limit
-        self.upper_limit = upper_limit
+    def __init__(self, name, long_identifier, type, address, deposit, max_diff, conversion, lower_limit, upper_limit, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.type = enum_type(type)
+        self.address = Long(address)
+        self.deposit = Ident(deposit)
+        self.max_diff = Float(max_diff)
+        self.conversion = Ident(conversion)
+        self.lower_limit = Float(lower_limit)
+        self.upper_limit = Float(upper_limit)
         self.display_identifier = None
         self.format = None
         self.byte_order = None
@@ -296,236 +304,240 @@ class Characteristic(A2lNode):
         self.calibration_access = None
         self.matrix_dim = None
         self.ecu_address_extension = None
-        super(Characteristic, self).__init__(*args)
+        super(CHARACTERISTIC, self).__init__(*args)
 
 
-@a2l_node_type('COEFFS')
-class Coeffs(A2lNode):
-    __slots__ = 'a', 'b', 'c', 'd', 'e', 'f'
+@node_type('COEFFS')
+class COEFFS(A2lNode):
+    __slots__ = 'a', 'b', 'c', 'd', 'e', 'f', 
 
-    def __init__(self, a, b, c, d, e, f):
-        self.a = a
-        self.b = b
-        self.c = c
-        self.d = d
-        self.e = e
-        self.f = f
-        super(Coeffs, self).__init__()
+    def __init__(self, a, b, c, d, e, f, ):
+        self.a = Float(a)
+        self.b = Float(b)
+        self.c = Float(c)
+        self.d = Float(d)
+        self.e = Float(e)
+        self.f = Float(f)
+        super(COEFFS, self).__init__()
 
 
-@a2l_node_type('COMPU_METHOD')
-class CompuMethod(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'conversion_type', 'format', 'unit', 'formula', 'coeffs', 'coeffs_linear', \
-                'compu_tab_ref', 'ref_unit'
+@node_type('COMPU_METHOD')
+class COMPU_METHOD(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'format', 'unit', 'formula', 'coeffs', 'compu_tab_ref', 'ref_unit', 
 
     def __init__(self, name, long_identifier, conversion_type, format, unit, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.conversion_type = conversion_type
-        self.format = format
-        self.unit = unit
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.conversion_type = enum_conversion_type(conversion_type)
+        self.format = String(format)
+        self.unit = String(unit)
         self.formula = None
         self.coeffs = None
-        self.coeffs_linear = None  # TODO: should be removed, according to 1.51.
         self.compu_tab_ref = None
         self.ref_unit = None
-        super(CompuMethod, self).__init__(*args)
+        super(COMPU_METHOD, self).__init__(*args)
 
 
-@a2l_node_type('COMPU_TAB')
-class CompuTab(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pairs', 'in_val_out_val', 'default_value', \
-                'default_value_numeric'
+@node_type('COMPU_TAB')
+class COMPU_TAB(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pair', 'in_val_out_val', 'default_value', 
 
-    def __init__(self, name, long_identifier, conversion_type, number_value_pairs, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.conversion_type = conversion_type
-        self.number_value_pairs = number_value_pairs
-        self.in_val_out_val = list()
+    def __init__(self, name, long_identifier, conversion_type, number_value_pair, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.conversion_type = enum_conversion_type(conversion_type)
+        self.number_value_pair = Int(number_value_pair)
+        self.in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
         self.default_value = None
-        self.default_value_numeric = None  # TODO: should be removed, according to 1.51.
-        super(CompuTab, self).__init__(*args)
+        super(COMPU_TAB, self).__init__(*args)
 
 
-@a2l_node_type('COMPU_VTAB')
-class CompuVTab(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pairs', 'compu_vtab_in_val_out_val', \
-                'default_value'
+@node_type('COMPU_VTAB')
+class COMPU_VTAB(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pair', 'compu_vtab_in_val_out_val', 'default_value', 
 
-    def __init__(self, name, long_identifier, conversion_type, number_value_pairs, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.conversion_type = conversion_type
-        self.number_value_pairs = number_value_pairs
-        self.compu_vtab_in_val_out_val = list()  # TODO: replace with in_val_out_val...
+    def __init__(self, name, long_identifier, conversion_type, number_value_pair, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.conversion_type = enum_conversion_type(conversion_type)
+        self.number_value_pair = Int(number_value_pair)
+        self.compu_vtab_in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
         self.default_value = None
-        super(CompuVTab, self).__init__(*args)
+        super(COMPU_VTAB, self).__init__(*args)
 
 
-@a2l_node_type('COMPU_VTAB_RANGE')
-class CompuVTabRange(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'number_value_triples', 'compu_vtab_range_in_val_out_val', 'default_value'
+@node_type('COMPU_VTAB_RANGE')
+class COMPU_VTAB_RANGE(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'number_value_triple', 'compu_vtab_range_in_val_out_val', 'default_value', 
 
-    def __init__(self, name, long_identifier, number_value_triples, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.number_value_triples = number_value_triples
-        self.compu_vtab_range_in_val_out_val = list()  # TODO: replace with in_val_min_in_val_max_out_val...
+    def __init__(self, name, long_identifier, number_value_triple, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.number_value_triple = Int(number_value_triple)
+        self.compu_vtab_range_in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
         self.default_value = None
-        super(CompuVTabRange, self).__init__(*args)
+        super(COMPU_VTAB_RANGE, self).__init__(*args)
 
 
-@a2l_node_type('DEF_CHARACTERISTIC')
-class DefCharacteristic(A2lNode):
-    __slots__ = 'identifier',
+@node_type('DEF_CHARACTERISTIC')
+class DEF_CHARACTERISTIC(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(DefCharacteristic, self).__init__(*args)
+        super(DEF_CHARACTERISTIC, self).__init__(*args)
 
 
-@a2l_node_type('DEPENDENT_CHARACTERISTIC')
-class DependentCharacteristic(A2lNode):
-    __slots__ = 'formula', 'characteristic'
+@node_type('DEPENDENT_CHARACTERISTIC')
+class DEPENDENT_CHARACTERISTIC(A2lNode):
+    __slots__ = 'formula', 'characteristic', 
 
     def __init__(self, formula, args):
-        self.formula = formula
-        self.characteristic = list()
-        super(DependentCharacteristic, self).__init__(*args)
+        self.formula = String(formula)
+        self.characteristic = list()  # TODO: defined as (Characteristic)* in specification, one or more?
+        super(DEPENDENT_CHARACTERISTIC, self).__init__(*args)
 
 
-class DistOp(A2lNode):
-    __slots__ = 'position', 'data_type'
+@node_type('DIST_OP_X')
+class DIST_OP_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
 
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(DistOp, self).__init__()
-
-
-@a2l_node_type('DIST_OP_X')
-class DistOpX(DistOp):
-    pass
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(DIST_OP_X, self).__init__()
 
 
-@a2l_node_type('DIST_OP_Y')
-class DistOpY(DistOp):
-    pass
+@node_type('DIST_OP_Y')
+class DIST_OP_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(DIST_OP_Y, self).__init__()
 
 
-@a2l_node_type('DIST_OP_Z')
-class DistOpZ(DistOp):
-    pass
+@node_type('DIST_OP_Z')
+class DIST_OP_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(DIST_OP_Z, self).__init__()
 
 
-@a2l_node_type('FIX_AXIS_PAR')
-class FixAxisPar(A2lNode):
-    __slots__ = 'offset', 'shift', 'numberapo'
+@node_type('FIX_AXIS_PAR')
+class FIX_AXIS_PAR(A2lNode):
+    __slots__ = 'offset', 'shift', 'numberapo', 
 
-    def __init__(self, offset, shift, numberapo):
-        self.offset = offset
-        self.shift = shift
-        self.numberapo = numberapo
-        super(FixAxisPar, self).__init__()
-
-
-@a2l_node_type('FIX_AXIS_PAR_DIST')
-class FixAxisParDist(FixAxisPar):
-    __slots__ = 'offset', 'distance', 'numberapo'
-
-    def __init__(self, offset, distance, numberapo):
-        self.offset = offset
-        self.distance = distance
-        self.numberapo = numberapo
-        super(FixAxisPar, self).__init__()
+    def __init__(self, offset, shift, numberapo, ):
+        self.offset = Int(offset)
+        self.shift = Int(shift)
+        self.numberapo = Int(numberapo)
+        super(FIX_AXIS_PAR, self).__init__()
 
 
-@a2l_node_type('FIX_AXIS_PAR_LIST')
-class FixAxisParList(A2lNode):
-    __slots__ = 'axis_pts_value',
+@node_type('FIX_AXIS_PAR_DIST')
+class FIX_AXIS_PAR_DIST(A2lNode):
+    __slots__ = 'offset', 'distance', 'numberapo', 
+
+    def __init__(self, offset, distance, numberapo, ):
+        self.offset = Int(offset)
+        self.distance = Int(distance)
+        self.numberapo = Int(numberapo)
+        super(FIX_AXIS_PAR_DIST, self).__init__()
+
+
+@node_type('FIX_AXIS_PAR_LIST')
+class FIX_AXIS_PAR_LIST(A2lNode):
+    __slots__ = 'axis_pts_value', 
 
     def __init__(self, args):
         self.axis_pts_value = list()
-        super(FixAxisParList, self).__init__(*args)
+        super(FIX_AXIS_PAR_LIST, self).__init__(*args)
 
 
-class FixNoAxisPts(A2lNode):
-    __slots__ = 'number_of_axis_points',
+@node_type('FIX_NO_AXIS_PTS_X')
+class FIX_NO_AXIS_PTS_X(A2lNode):
+    __slots__ = 'number_of_axis_points', 
 
-    def __init__(self, number_of_axis_points):
-        self.number_of_axis_points = number_of_axis_points
-        super(FixNoAxisPts, self).__init__()
-
-
-@a2l_node_type('FIX_NO_AXIS_PTS_X')
-class FixNoAxisPtsX(FixNoAxisPts):
-    pass
+    def __init__(self, number_of_axis_points, ):
+        self.number_of_axis_points = Int(number_of_axis_points)
+        super(FIX_NO_AXIS_PTS_X, self).__init__()
 
 
-@a2l_node_type('FIX_NO_AXIS_PTS_Y')
-class FixNoAxisPtsY(FixNoAxisPts):
-    pass
+@node_type('FIX_NO_AXIS_PTS_Y')
+class FIX_NO_AXIS_PTS_Y(A2lNode):
+    __slots__ = 'number_of_axis_points', 
+
+    def __init__(self, number_of_axis_points, ):
+        self.number_of_axis_points = Int(number_of_axis_points)
+        super(FIX_NO_AXIS_PTS_Y, self).__init__()
 
 
-@a2l_node_type('FIX_NO_AXIS_PTS_Z')
-class FixNoAxisPtsZ(FixNoAxisPts):
-    pass
+@node_type('FIX_NO_AXIS_PTS_Z')
+class FIX_NO_AXIS_PTS_Z(A2lNode):
+    __slots__ = 'number_of_axis_points', 
+
+    def __init__(self, number_of_axis_points, ):
+        self.number_of_axis_points = Int(number_of_axis_points)
+        super(FIX_NO_AXIS_PTS_Z, self).__init__()
 
 
-@a2l_node_type('FNC_VALUES')
-class FncValues(A2lNode):
-    __slots__ = 'position', 'data_type', 'index_mode', 'addresstype'
+@node_type('FNC_VALUES')
+class FNC_VALUES(A2lNode):
+    __slots__ = 'position', 'data_type', 'index_mode', 'addr_type', 
 
-    def __init__(self, position, data_type, index_mode, addresstype):
-        self.position = position
-        self.data_type = data_type
-        self.index_mode = index_mode
-        self.addresstype = addresstype
-        super(FncValues, self).__init__()
+    def __init__(self, position, data_type, index_mode, addr_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        self.index_mode = enum_index_mode(index_mode)
+        self.addr_type = AddrType(addr_type)
+        super(FNC_VALUES, self).__init__()
 
 
-@a2l_node_type('FORMULA')
-class Formula(A2lNode):
-    __slots__ = 'f', 'formula_inv'
+@node_type('FORMULA')
+class FORMULA(A2lNode):
+    __slots__ = 'f', 'formula_inv', 
 
     def __init__(self, f, args):
-        self.f = f
+        self.f = String(f)
         self.formula_inv = None
-        super(Formula, self).__init__(*args)
+        super(FORMULA, self).__init__(*args)
 
 
-@a2l_node_type('FRAME')
-class Frame(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'scaling_unit', 'rate', 'frame_measurement', 'if_data'
+@node_type('FRAME')
+class FRAME(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'scaling_unit', 'rate', 'frame_measurement', 'if_data', 
 
     def __init__(self, name, long_identifier, scaling_unit, rate, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.scaling_unit = scaling_unit
-        self.rate = rate
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.scaling_unit = Int(scaling_unit)
+        self.rate = Long(rate)
         self.frame_measurement = None
         self.if_data = dict()
-        super(Frame, self).__init__(*args)
+        super(FRAME, self).__init__(*args)
 
 
-@a2l_node_type('FRAME_MEASUREMENT')
-class FrameMeasurement(A2lNode):
-    __slots__ = 'identifier',
+@node_type('FRAME_MEASUREMENT')
+class FRAME_MEASUREMENT(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(FrameMeasurement, self).__init__(*args)
+        super(FRAME_MEASUREMENT, self).__init__(*args)
 
 
-@a2l_node_type('FUNCTION')
-class Function(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'annotation', 'def_characteristic', 'ref_characteristic', 'in_measurement', \
-                'out_measurement', 'loc_measurement', 'sub_function', 'function_version'
+@node_type('FUNCTION')
+class FUNCTION(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'annotation', 'def_characteristic', 'ref_characteristic', 'in_measurement', 'out_measurement', 'loc_measurement', 'sub_function', 'function_version', 
 
     def __init__(self, name, long_identifier, args):
-        self.name = name
-        self.long_identifier = long_identifier
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
         self.annotation = list()
         self.def_characteristic = None
         self.ref_characteristic = None
@@ -534,101 +546,96 @@ class Function(A2lNode):
         self.loc_measurement = None
         self.sub_function = None
         self.function_version = None
-        super(Function, self).__init__(*args)
+        super(FUNCTION, self).__init__(*args)
 
 
-@a2l_node_type('FUNCTION_LIST')
-class FunctionList(A2lNode):
-    __slots__ = 'name',
+@node_type('FUNCTION_LIST')
+class FUNCTION_LIST(A2lNode):
+    __slots__ = 'name', 
 
     def __init__(self, args):
         self.name = list()
-        super(FunctionList, self).__init__(*args)
+        super(FUNCTION_LIST, self).__init__(*args)
 
 
-@a2l_node_type('GROUP')
-class Group(A2lNode):
-    __slots__ = 'group_name', 'group_long_identifier', 'annotation', 'root', 'ref_characteristic', 'ref_measurement', \
-                'function_list', 'sub_group'
+@node_type('GROUP')
+class GROUP(A2lNode):
+    __slots__ = 'group_name', 'group_long_identifier', 'annotation', 'root', 'ref_characteristic', 'ref_measurement', 'function_list', 'sub_group', 
 
     def __init__(self, group_name, group_long_identifier, args):
-        self.group_name = group_name
-        self.group_long_identifier = group_long_identifier
+        self.group_name = Ident(group_name)
+        self.group_long_identifier = String(group_long_identifier)
         self.annotation = list()
         self.root = None
         self.ref_characteristic = None
         self.ref_measurement = None
         self.function_list = None
         self.sub_group = None
-        super(Group, self).__init__(*args)
+        super(GROUP, self).__init__(*args)
 
 
-@a2l_node_type('HEADER')
-class Header(A2lNode):
-    __slots__ = 'comment', 'version', 'project_no'
+@node_type('HEADER')
+class HEADER(A2lNode):
+    __slots__ = 'comment', 'version', 'project_no', 
 
     def __init__(self, comment, args):
-        self.comment = comment
+        self.comment = String(comment)
         self.version = None
         self.project_no = None
-        super(Header, self).__init__(*args)
+        super(HEADER, self).__init__(*args)
 
 
-@a2l_node_type('IDENTIFICATION')
-class Identification(A2lNode):
-    __slots__ = 'position', 'data_type'
+@node_type('IDENTIFICATION')
+class IDENTIFICATION(A2lNode):
+    __slots__ = 'position', 'data_type', 
 
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(Identification, self).__init__()
-
-
-@a2l_node_type('IN_MEASUREMENT')
-class InMeasurement(A2lNode):
-    __slots__ = 'identifier',
-
-    def __init__(self, args):
-        self.identifier = list()
-        super(InMeasurement, self).__init__(*args)
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(IDENTIFICATION, self).__init__()
 
 
-@a2l_node_type('LOC_MEASUREMENT')
-class LocMeasurement(A2lNode):
-    __slots__ = 'identifier',
+@node_type('IN_MEASUREMENT')
+class IN_MEASUREMENT(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(LocMeasurement, self).__init__(*args)
+        super(IN_MEASUREMENT, self).__init__(*args)
 
 
-@a2l_node_type('MAX_REFRESH')
-class MaxRefresh(A2lNode):
-    __slots__ = 'scaling_unit', 'rate'
+@node_type('LOC_MEASUREMENT')
+class LOC_MEASUREMENT(A2lNode):
+    __slots__ = 'identifier', 
 
-    def __init__(self, scaling_unit, rate):
-        self.scaling_unit = scaling_unit
-        self.rate = rate
-        super(MaxRefresh, self).__init__()
+    def __init__(self, args):
+        self.identifier = list()
+        super(LOC_MEASUREMENT, self).__init__(*args)
 
 
-@a2l_node_type('MEASUREMENT')
-class Measurement(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'data_type', 'conversion', 'resolution', 'accuracy', 'lower_limit', \
-                'upper_limit', 'display_identifier', 'read_write', 'format', 'array_size', 'bit_mask', \
-                'bit_operation', 'byte_order', 'max_refresh', 'virtual', 'function_list', 'ecu_address', 'error_mask', \
-                'ref_memory_segment', 'annotation', 'if_data', 'matrix_dim', 'ecu_address_extension'
+@node_type('MAX_REFRESH')
+class MAX_REFRESH(A2lNode):
+    __slots__ = 'scaling_unit', 'rate', 
 
-    def __init__(self, name, long_identifier, data_type, conversion, resolution, accuracy, lower_limit,
-                 upper_limit, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.data_type = data_type
-        self.conversion = conversion
-        self.resolution = resolution
-        self.accuracy = accuracy
-        self.lower_limit = lower_limit
-        self.upper_limit = upper_limit
+    def __init__(self, scaling_unit, rate, ):
+        self.scaling_unit = Int(scaling_unit)
+        self.rate = Long(rate)
+        super(MAX_REFRESH, self).__init__()
+
+
+@node_type('MEASUREMENT')
+class MEASUREMENT(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'data_type', 'conversion', 'resolution', 'accuracy', 'lower_limit', 'upper_limit', 'display_identifier', 'read_write', 'format', 'array_size', 'bit_mask', 'bit_operation', 'byte_order', 'max_refresh', 'virtual', 'function_list', 'ecu_address', 'error_mask', 'ref_memory_segment', 'annotation', 'if_data', 'matrix_dim', 'ecu_address_extension', 
+
+    def __init__(self, name, long_identifier, data_type, conversion, resolution, accuracy, lower_limit, upper_limit, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.data_type = DataType(data_type)
+        self.conversion = Ident(conversion)
+        self.resolution = Int(resolution)
+        self.accuracy = Float(accuracy)
+        self.lower_limit = Float(lower_limit)
+        self.upper_limit = Float(upper_limit)
         self.display_identifier = None
         self.read_write = None
         self.format = None
@@ -646,49 +653,46 @@ class Measurement(A2lNode):
         self.if_data = dict()
         self.matrix_dim = None
         self.ecu_address_extension = None
-        super(Measurement, self).__init__(*args)
+        super(MEASUREMENT, self).__init__(*args)
 
 
-@a2l_node_type('MEMORY_LAYOUT')
-class MemoryLayout(A2lNode):
-    __slots__ = 'prg_type', 'address', 'size', 'offset', 'if_data'
+@node_type('MEMORY_LAYOUT')
+class MEMORY_LAYOUT(A2lNode):
+    __slots__ = 'prg_type', 'address', 'size', 'offset', 'if_data', 
 
-    def __init__(self, prg_type, address, size, args):
-        self.prg_type = prg_type
-        self.address = address
-        self.size = size
-        self.offset = list()
+    def __init__(self, prg_type, address, size, offset, args):
+        self.prg_type = enum_prg_type(prg_type)
+        self.address = Long(address)
+        self.size = Long(size)
+        self.offset = list(offset)
         self.if_data = dict()
-        super(MemoryLayout, self).__init__(*args)
+        super(MEMORY_LAYOUT, self).__init__(*args)
 
 
-@a2l_node_type('MEMORY_SEGMENT')
-class MemorySegment(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'prg_type', 'memory_type', 'attribute', 'address', 'size', 'offset', \
-                'if_data'
+@node_type('MEMORY_SEGMENT')
+class MEMORY_SEGMENT(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'prg_type', 'memory_type', 'attribute', 'address', 'size', 'offset', 'if_data', 
 
-    def __init__(self, name, long_identifier, prg_type, memory_type, attribute, address, size, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.prg_type = prg_type
-        self.memory_type = memory_type
-        self.attribute = attribute
-        self.address = address
-        self.size = size
-        self.offset = list()
+    def __init__(self, name, long_identifier, prg_type, memory_type, attribute, address, size, offset, args):
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.prg_type = enum_prg_type(prg_type)
+        self.memory_type = enum_memory_type(memory_type)
+        self.attribute = enum_attribute(attribute)
+        self.address = Long(address)
+        self.size = Long(size)
+        self.offset = list(offset)
         self.if_data = dict()
-        super(MemorySegment, self).__init__(*args)
+        super(MEMORY_SEGMENT, self).__init__(*args)
 
 
-@a2l_node_type('MODULE')
-class Module(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'a2ml', 'mod_par', 'mod_common', 'if_data', 'characteristic', 'axis_pts', \
-                'measurement', 'compu_method', 'compu_tab', 'compu_vtab', 'compu_vtab_range', 'function', 'group', \
-                'record_layout', 'variant_coding', 'frame', 'user_rights', 'unit'
+@node_type('MODULE')
+class MODULE(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'a2ml', 'mod_par', 'mod_common', 'if_data', 'characteristic', 'axis_pts', 'measurement', 'compu_method', 'compu_tab', 'compu_vtab', 'compu_vtab_range', 'function', 'group', 'record_layout', 'variant_coding', 'frame', 'user_rights', 'unit', 
 
     def __init__(self, name, long_identifier, args):
-        self.name = name
-        self.long_identifier = long_identifier
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
         self.a2ml = None
         self.mod_par = None
         self.mod_common = None
@@ -707,16 +711,15 @@ class Module(A2lNode):
         self.frame = None
         self.user_rights = list()
         self.unit = list()
-        super(Module, self).__init__(*args)
+        super(MODULE, self).__init__(*args)
 
 
-@a2l_node_type('MOD_COMMON')
-class ModCommon(A2lNode):
-    __slots__ = 'comment', 's_rec_layout', 'deposit', 'byte_order', 'data_size', 'alignment_byte', 'alignment_word', \
-                'alignment_long', 'alignment_float32_ieee', 'alignment_float64_ieee'
+@node_type('MOD_COMMON')
+class MOD_COMMON(A2lNode):
+    __slots__ = 'comment', 's_rec_layout', 'deposit', 'byte_order', 'data_size', 'alignment_byte', 'alignment_word', 'alignment_long', 'alignment_float32_ieee', 'alignment_float64_ieee', 
 
     def __init__(self, comment, args):
-        self.comment = comment
+        self.comment = String(comment)
         self.s_rec_layout = None
         self.deposit = None
         self.byte_order = None
@@ -726,17 +729,15 @@ class ModCommon(A2lNode):
         self.alignment_long = None
         self.alignment_float32_ieee = None
         self.alignment_float64_ieee = None
-        super(ModCommon, self).__init__(*args)
+        super(MOD_COMMON, self).__init__(*args)
 
 
-@a2l_node_type('MOD_PAR')
-class ModPar(A2lNode):
-    __slots__ = 'comment', 'version', 'addr_epk', 'epk', 'supplier', 'customer', 'customer_no', 'user', 'phone_no', \
-                'ecu', 'cpu_type', 'no_of_interfaces', 'ecu_calibration_offset', 'calibration_method', \
-                'memory_layout', 'memory_segment', 'system_constant'
+@node_type('MOD_PAR')
+class MOD_PAR(A2lNode):
+    __slots__ = 'comment', 'version', 'addr_epk', 'epk', 'supplier', 'customer', 'customer_no', 'user', 'phone_no', 'ecu', 'cpu_type', 'no_of_interfaces', 'ecu_calibration_offset', 'calibration_method', 'memory_layout', 'memory_segment', 'system_constant', 
 
     def __init__(self, comment, args):
-        self.comment = comment
+        self.comment = String(comment)
         self.version = None
         self.addr_epk = list()
         self.epk = None
@@ -753,114 +754,126 @@ class ModPar(A2lNode):
         self.memory_layout = list()
         self.memory_segment = list()
         self.system_constant = list()
-        super(ModPar, self).__init__(*args)
+        super(MOD_PAR, self).__init__(*args)
 
 
-class NoAxisPts(A2lNode):
-    __slots__ = 'position', 'data_type'
+@node_type('NO_AXIS_PTS_X')
+class NO_AXIS_PTS_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
 
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(NoAxisPts, self).__init__()
-
-
-@a2l_node_type('NO_AXIS_PTS_X')
-class NoAxisPtsX(NoAxisPts):
-    pass
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(NO_AXIS_PTS_X, self).__init__()
 
 
-@a2l_node_type('NO_AXIS_PTS_Y')
-class NoAxisPtsY(NoAxisPts):
-    pass
+@node_type('NO_AXIS_PTS_Y')
+class NO_AXIS_PTS_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(NO_AXIS_PTS_Y, self).__init__()
 
 
-@a2l_node_type('NO_AXIS_PTS_Z')
-class NoAxisPtsZ(NoAxisPts):
-    pass
+@node_type('NO_AXIS_PTS_Z')
+class NO_AXIS_PTS_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(NO_AXIS_PTS_Z, self).__init__()
 
 
-class NoRescale(A2lNode):
-    __slots__ = 'position', 'data_type'
+@node_type('NO_RESCALE_X')
+class NO_RESCALE_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
 
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(NoRescale, self).__init__()
-
-
-@a2l_node_type('NO_RESCALE_X')
-class NoRescaleX(NoRescale):
-    pass
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(NO_RESCALE_X, self).__init__()
 
 
-@a2l_node_type('NO_RESCALE_Y')
-class NoRescaleY(NoRescale):
-    pass
+@node_type('NO_RESCALE_Y')
+class NO_RESCALE_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(NO_RESCALE_Y, self).__init__()
 
 
-@a2l_node_type('NO_RESCALE_Z')
-class NoRescaleZ(NoRescale):
-    pass
+@node_type('NO_RESCALE_Z')
+class NO_RESCALE_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(NO_RESCALE_Z, self).__init__()
 
 
-class Offset(A2lNode):
-    __slots__ = 'position', 'data_type'
+@node_type('OFFSET_X')
+class OFFSET_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
 
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(Offset, self).__init__()
-
-
-@a2l_node_type('OFFSET_X')
-class OffsetX(Offset):
-    pass
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(OFFSET_X, self).__init__()
 
 
-@a2l_node_type('OFFSET_Y')
-class OffsetY(Offset):
-    pass
+@node_type('OFFSET_Y')
+class OFFSET_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(OFFSET_Y, self).__init__()
 
 
-@a2l_node_type('OFFSET_Z')
-class OffsetZ(Offset):
-    pass
+@node_type('OFFSET_Z')
+class OFFSET_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(OFFSET_Z, self).__init__()
 
 
-@a2l_node_type('OUT_MEASUREMENT')
-class OutMeasurement(A2lNode):
-    __slots__ = 'identifier',
+@node_type('OUT_MEASUREMENT')
+class OUT_MEASUREMENT(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(OutMeasurement, self).__init__(*args)
+        super(OUT_MEASUREMENT, self).__init__(*args)
 
 
-@a2l_node_type('PROJECT')
-class Project(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'header', 'module'
+@node_type('PROJECT')
+class PROJECT(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'header', 'module', 
 
     def __init__(self, name, long_identifier, args):
-        self.name = name
-        self.long_identifier = long_identifier
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
         self.header = None
         self.module = list()
-        super(Project, self).__init__(*args)
+        super(PROJECT, self).__init__(*args)
 
 
-@a2l_node_type('RECORD_LAYOUT')
-class RecordLayout(A2lNode):
-    __slots__ = 'name', 'fnc_values', 'identification', 'axis_pts_x', 'axis_pts_y', 'axis_pts_z', 'axis_rescale_x', \
-                'axis_rescale_y', 'axis_rescale_z', 'no_axis_pts_x', 'no_axis_pts_y', 'no_axis_pts_z', 'no_rescale_x', \
-                'no_rescale_y', 'no_rescale_z', 'fix_no_axis_pts_x', 'fix_no_axis_pts_y', 'fix_no_axis_pts_z', \
-                'src_addr_x', 'src_addr_y', 'src_addr_z', 'rip_addr_x', 'rip_addr_y', 'rip_addr_z', 'rip_addr_w', \
-                'shift_op_x', 'shift_op_y', 'shift_op_z', 'offset_x', 'offset_y', 'offset_z', 'dist_op_x', \
-                'dist_op_y', 'dist_op_z', 'alignment_byte', 'alignment_word', 'alignment_long', \
-                'alignment_float32_ieee', 'alignment_float64_ieee', 'reserved'
+@node_type('RECORD_LAYOUT')
+class RECORD_LAYOUT(A2lNode):
+    __slots__ = 'name', 'fnc_values', 'identification', 'axis_pts_x', 'axis_pts_y', 'axis_pts_z', 'axis_rescale_x', 'axis_rescale_y', 'axis_rescale_z', 'no_axis_pts_x', 'no_axis_pts_y', 'no_axis_pts_z', 'no_rescale_x', 'no_rescale_y', 'no_rescale_z', 'fix_no_axis_pts_x', 'fix_no_axis_pts_y', 'fix_no_axis_pts_z', 'src_addr_x', 'src_addr_y', 'src_addr_z', 'rip_addr_x', 'rip_addr_y', 'rip_addr_z', 'rip_addr_w', 'shift_op_x', 'shift_op_y', 'shift_op_z', 'offset_x', 'offset_y', 'offset_z', 'dist_op_x', 'dist_op_y', 'dist_op_z', 'alignment_byte', 'alignment_word', 'alignment_long', 'alignment_float32_ieee', 'alignment_float64_ieee', 'reserved', 
 
     def __init__(self, name, args):
-        self.name = name
+        self.name = Ident(name)
         self.fnc_values = None
         self.identification = None
         self.axis_pts_x = None
@@ -900,206 +913,228 @@ class RecordLayout(A2lNode):
         self.alignment_float32_ieee = None
         self.alignment_float64_ieee = None
         self.reserved = list()
-        super(RecordLayout, self).__init__(*args)
+        super(RECORD_LAYOUT, self).__init__(*args)
 
 
-@a2l_node_type('REF_CHARACTERISTIC')
-class RefCharacteristic(A2lNode):
-    __slots__ = 'identifier',
-
-    def __init__(self, args):
-        self.identifier = list()
-        super(RefCharacteristic, self).__init__(*args)
-
-
-@a2l_node_type('REF_GROUP')
-class RefGroup(A2lNode):
-    __slots__ = 'identifier',
+@node_type('REF_CHARACTERISTIC')
+class REF_CHARACTERISTIC(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(RefGroup, self).__init__(*args)
+        super(REF_CHARACTERISTIC, self).__init__(*args)
 
 
-@a2l_node_type('REF_MEASUREMENT')
-class RefMeasurement(A2lNode):
-    __slots__ = 'identifier',
-
-    def __init__(self, args):
-        self.identifier = list()
-        super(RefMeasurement, self).__init__(*args)
-
-
-@a2l_node_type('RESERVED')
-class Reserved(A2lNode):
-    __slots__ = 'position', 'data_size'
-
-    def __init__(self, position, data_size):
-        self.position = position
-        self.data_size = data_size
-        super(Reserved, self).__init__()
-
-
-class RipAddr(A2lNode):
-    __slots__ = 'position', 'data_type'
-
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(RipAddr, self).__init__()
-
-
-@a2l_node_type('RIP_ADDR_X')
-class RipAddrX(RipAddr):
-    pass
-
-
-@a2l_node_type('RIP_ADDR_Y')
-class RipAddrY(RipAddr):
-    pass
-
-
-@a2l_node_type('RIP_ADDR_Z')
-class RipAddrZ(RipAddr):
-    pass
-
-
-@a2l_node_type('RIP_ADDR_W')
-class RipAddrW(RipAddr):
-    pass
-
-
-class ShiftOp(A2lNode):
-    __slots__ = 'position', 'data_type'
-
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(ShiftOp, self).__init__()
-
-
-@a2l_node_type('SHIFT_OP_X')
-class ShiftOpX(ShiftOp):
-    pass
-
-
-@a2l_node_type('SHIFT_OP_Y')
-class ShiftOpY(ShiftOp):
-    pass
-
-
-@a2l_node_type('SHIFT_OP_Z')
-class ShiftOpZ(ShiftOp):
-    pass
-
-
-@a2l_node_type('SI_EXPONENTS')
-class SiExponents(A2lNode):
-    __slots__ = 'length', 'mass', 'time', 'electric_current', 'temperature', 'amount_of_substance', 'luminous_intensity'
-
-    def __init__(self, length, mass, time, electric_current, temperature, amount_of_substance,
-                 luminous_intensity):
-        self.length = length
-        self.mass = mass
-        self.time = time
-        self.electric_current = electric_current
-        self.temperature = temperature
-        self.amount_of_substance = amount_of_substance
-        self.luminous_intensity = luminous_intensity
-        super(SiExponents, self).__init__()
-
-
-class SrcAddr(A2lNode):
-    __slots__ = 'position', 'data_type'
-
-    def __init__(self, position, data_type):
-        self.position = position
-        self.data_type = data_type
-        super(SrcAddr, self).__init__()
-
-
-@a2l_node_type('SRC_ADDR_X')
-class SrcAddrX(SrcAddr):
-    pass
-
-
-@a2l_node_type('SRC_ADDR_Y')
-class SrcAddrY(SrcAddr):
-    pass
-
-
-@a2l_node_type('SRC_ADDR_Z')
-class SrcAddrZ(SrcAddr):
-    pass
-
-
-@a2l_node_type('SUB_FUNCTION')
-class SubFunction(A2lNode):
-    __slots__ = 'identifier',
+@node_type('REF_GROUP')
+class REF_GROUP(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(SubFunction, self).__init__(*args)
+        super(REF_GROUP, self).__init__(*args)
 
 
-@a2l_node_type('SUB_GROUP')
-class SubGroup(A2lNode):
-    __slots__ = 'identifier',
+@node_type('REF_MEASUREMENT')
+class REF_MEASUREMENT(A2lNode):
+    __slots__ = 'identifier', 
 
     def __init__(self, args):
         self.identifier = list()
-        super(SubGroup, self).__init__(*args)
+        super(REF_MEASUREMENT, self).__init__(*args)
 
 
-@a2l_node_type('SYSTEM_CONSTANT')
-class SystemConstant(A2lNode):
-    __slots__ = 'name', 'value'
+@node_type('RESERVED')
+class RESERVED(A2lNode):
+    __slots__ = 'position', 'data_size', 
 
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
-        super(SystemConstant, self).__init__()
+    def __init__(self, position, data_size, ):
+        self.position = Int(position)
+        self.data_size = DataSize(data_size)
+        super(RESERVED, self).__init__()
 
 
-@a2l_node_type('UNIT')
-class Unit(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'display', 'type', 'si_exponents', 'ref_unit', 'unit_conversion'
+@node_type('RIP_ADDR_W')
+class RIP_ADDR_W(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(RIP_ADDR_W, self).__init__()
+
+
+@node_type('RIP_ADDR_X')
+class RIP_ADDR_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(RIP_ADDR_X, self).__init__()
+
+
+@node_type('RIP_ADDR_Y')
+class RIP_ADDR_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(RIP_ADDR_Y, self).__init__()
+
+
+@node_type('RIP_ADDR_Z')
+class RIP_ADDR_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(RIP_ADDR_Z, self).__init__()
+
+
+@node_type('SHIFT_OP_X')
+class SHIFT_OP_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(SHIFT_OP_X, self).__init__()
+
+
+@node_type('SHIFT_OP_Y')
+class SHIFT_OP_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(SHIFT_OP_Y, self).__init__()
+
+
+@node_type('SHIFT_OP_Z')
+class SHIFT_OP_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(SHIFT_OP_Z, self).__init__()
+
+
+@node_type('SI_EXPONENTS')
+class SI_EXPONENTS(A2lNode):
+    __slots__ = 'length', 'mass', 'time', 'electric_current', 'temperature', 'amount_of_substance', 'luminous_intensity', 
+
+    def __init__(self, length, mass, time, electric_current, temperature, amount_of_substance, luminous_intensity, ):
+        self.length = Int(length)
+        self.mass = Int(mass)
+        self.time = Int(time)
+        self.electric_current = Int(electric_current)
+        self.temperature = Int(temperature)
+        self.amount_of_substance = Int(amount_of_substance)
+        self.luminous_intensity = Int(luminous_intensity)
+        super(SI_EXPONENTS, self).__init__()
+
+
+@node_type('SRC_ADDR_X')
+class SRC_ADDR_X(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(SRC_ADDR_X, self).__init__()
+
+
+@node_type('SRC_ADDR_Y')
+class SRC_ADDR_Y(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(SRC_ADDR_Y, self).__init__()
+
+
+@node_type('SRC_ADDR_Z')
+class SRC_ADDR_Z(A2lNode):
+    __slots__ = 'position', 'data_type', 
+
+    def __init__(self, position, data_type, ):
+        self.position = Int(position)
+        self.data_type = DataType(data_type)
+        super(SRC_ADDR_Z, self).__init__()
+
+
+@node_type('SUB_FUNCTION')
+class SUB_FUNCTION(A2lNode):
+    __slots__ = 'identifier', 
+
+    def __init__(self, args):
+        self.identifier = list()
+        super(SUB_FUNCTION, self).__init__(*args)
+
+
+@node_type('SUB_GROUP')
+class SUB_GROUP(A2lNode):
+    __slots__ = 'identifier', 
+
+    def __init__(self, args):
+        self.identifier = list()
+        super(SUB_GROUP, self).__init__(*args)
+
+
+@node_type('SYSTEM_CONSTANT')
+class SYSTEM_CONSTANT(A2lNode):
+    __slots__ = 'name', 'value', 
+
+    def __init__(self, name, value, ):
+        self.name = String(name)
+        self.value = String(value)
+        super(SYSTEM_CONSTANT, self).__init__()
+
+
+@node_type('UNIT')
+class UNIT(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'display', 'type', 'si_exponents', 'ref_unit', 'unit_conversion', 
 
     def __init__(self, name, long_identifier, display, type, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.display = display
-        self.type = type
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.display = String(display)
+        self.type = enum_type(type)
         self.si_exponents = None
         self.ref_unit = None
         self.unit_conversion = None
-        super(Unit, self).__init__(*args)
+        super(UNIT, self).__init__(*args)
 
 
-@a2l_node_type('UNIT_CONVERSION')
-class UnitConversion(A2lNode):
-    __slots__ = 'gradient', 'offset'
+@node_type('UNIT_CONVERSION')
+class UNIT_CONVERSION(A2lNode):
+    __slots__ = 'gradient', 'offset', 
 
-    def __init__(self, gradient, offset):
-        self.gradient = gradient
-        self.offset = offset
-        super(UnitConversion, self).__init__()
+    def __init__(self, gradient, offset, ):
+        self.gradient = Float(gradient)
+        self.offset = Float(offset)
+        super(UNIT_CONVERSION, self).__init__()
 
 
-@a2l_node_type('USER_RIGHTS')
-class UserRights(A2lNode):
-    __slots__ = 'user_level_id', 'read_only', 'ref_group'
+@node_type('USER_RIGHTS')
+class USER_RIGHTS(A2lNode):
+    __slots__ = 'user_level_id', 'ref_group', 'read_only', 
 
     def __init__(self, user_level_id, args):
-        self.user_level_id = user_level_id
-        self.read_only = None
+        self.user_level_id = Ident(user_level_id)
         self.ref_group = list()
-        super(UserRights, self).__init__(*args)
+        self.read_only = None
+        super(USER_RIGHTS, self).__init__(*args)
 
 
-@a2l_node_type('VARIANT_CODING')
-class VariantCoding(A2lNode):
-    __slots__ = 'var_separator', 'var_naming', 'var_criterion', 'var_forbidden_comb', 'var_characteristic'
+@node_type('VARIANT_CODING')
+class VARIANT_CODING(A2lNode):
+    __slots__ = 'var_separator', 'var_naming', 'var_criterion', 'var_forbidden_comb', 'var_characteristic', 
 
     def __init__(self, args):
         self.var_separator = None
@@ -1107,60 +1142,66 @@ class VariantCoding(A2lNode):
         self.var_criterion = list()
         self.var_forbidden_comb = list()
         self.var_characteristic = list()
-        super(VariantCoding, self).__init__(*args)
+        super(VARIANT_CODING, self).__init__(*args)
 
 
-@a2l_node_type('VAR_ADDRESS')
-class VarAddress(A2lNode):
-    __slots__ = 'address',
+@node_type('VAR_ADDRESS')
+class VAR_ADDRESS(A2lNode):
+    __slots__ = 'address', 
 
     def __init__(self, args):
         self.address = list()
-        super(VarAddress, self).__init__(*args)
+        super(VAR_ADDRESS, self).__init__(*args)
 
 
-@a2l_node_type('VAR_CHARACTERISTIC')
-class VarCharacteristic(A2lNode):
-    __slots__ = 'name', 'criterion_name', 'var_address'
+@node_type('VAR_CHARACTERISTIC')
+class VAR_CHARACTERISTIC(A2lNode):
+    __slots__ = 'name', 'criterion_name', 'var_address', 
 
-    def __init__(self, name, criterion_name, args):
-        self.name = name
-        self.criterion_name = criterion_name
+    def __init__(self, name, args):
+        self.name = Ident(name)
+        self.criterion_name = list()
         self.var_address = None
-        super(VarCharacteristic, self).__init__(args)
+        super(VAR_CHARACTERISTIC, self).__init__(*args)
 
 
-@a2l_node_type('VAR_CRITERION')
-class VarCriterion(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'value', 'var_measurement', 'var_selection_characteristic'
+@node_type('VAR_CRITERION')
+class VAR_CRITERION(A2lNode):
+    __slots__ = 'name', 'long_identifier', 'value', 'var_measurement', 'var_selection_characteristic', 
 
     def __init__(self, name, long_identifier, value, args):
-        self.name = name
-        self.long_identifier = long_identifier
-        self.value = value
+        self.name = Ident(name)
+        self.long_identifier = String(long_identifier)
+        self.value = list(value)
         self.var_measurement = None
         self.var_selection_characteristic = None
-        super(VarCriterion, self).__init__(*args)
+        super(VAR_CRITERION, self).__init__(*args)
 
 
-@a2l_node_type('VAR_FORBIDDEN_COMB')
-class VarForbiddenComb(A2lNode):
-    __slots__ = 'criterion',
+@node_type('VAR_FORBIDDEN_COMB')
+class VAR_FORBIDDEN_COMB(A2lNode):
+    __slots__ = 'criterion', 
 
     def __init__(self, args):
         self.criterion = list()
-        super(VarForbiddenComb, self).__init__(*args)
+        super(VAR_FORBIDDEN_COMB, self).__init__(*args)
 
 
-@a2l_node_type('VIRTUAL_CHARACTERISTIC')
-class VirtualCharacteristic(A2lNode):
-    __slots__ = 'formula', 'characteristic'
+@node_type('VERSION')
+class VERSION(A2lNode):
+    __slots__ = 'version_identifier', 
+
+    def __init__(self, version_identifier, ):
+        self.version_identifier = String(version_identifier)
+        super(VERSION, self).__init__()
+
+
+@node_type('VIRTUAL_CHARACTERISTIC')
+class VIRTUAL_CHARACTERISTIC(A2lNode):
+    __slots__ = 'formula', 'characteristic', 
 
     def __init__(self, formula, args):
-        self.formula = formula
+        self.formula = String(formula)
         self.characteristic = list()
-        super(VirtualCharacteristic, self).__init__(*args)
+        super(VIRTUAL_CHARACTERISTIC, self).__init__(*args)
 
-
-def a2l_node_factory(node_type, *args, **kwargs):
-    return node_to_class[node_type](*args, **kwargs)

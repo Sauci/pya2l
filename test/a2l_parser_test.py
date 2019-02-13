@@ -7,7 +7,7 @@
 
 import pytest
 
-from pya2l.parser.a2l_node import Header, Module
+from pya2l.parser.a2l_node import HEADER as Header, MODULE as Module
 from pya2l.parser.exception import A2lFormatException, A2lLexerException
 from pya2l.parser.grammar.parser import A2lParser as Parser
 
@@ -2911,7 +2911,7 @@ def test_record_layout_fnc_values_node():
     assert a2l.ast.project.module[0].record_layout[0].fnc_values.position == 0
     assert a2l.ast.project.module[0].record_layout[0].fnc_values.data_type == 'SWORD'
     assert a2l.ast.project.module[0].record_layout[0].fnc_values.index_mode == 'COLUMN_DIR'
-    assert a2l.ast.project.module[0].record_layout[0].fnc_values.addresstype == 'DIRECT'
+    assert a2l.ast.project.module[0].record_layout[0].fnc_values.addr_type == 'DIRECT'
 
 
 def test_record_layout_identification_node():
@@ -4274,8 +4274,8 @@ def test_annotation():
     assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text is None
     assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_label == 'annotation label'
     assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_origin == 'annotation origin'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.text[0] == 'first annotation text'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.text[1] == 'second annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.string[0] == 'first annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.string[1] == 'second annotation text'
 
 
 def test_annotation_text():
@@ -4302,8 +4302,8 @@ def test_annotation_text():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.text[0] == 'first annotation text'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.text[1] == 'second annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.string[0] == 'first annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.string[1] == 'second annotation text'
 
 
 def test_axis_descr_read_only_node():
@@ -4803,16 +4803,3 @@ def test_type():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert a2l.ast.project.module[0].characteristic[0].node == 'CHARACTERISTIC'
-
-
-def test_custom_class():
-    from pya2l.parser.a2l_node import Project
-
-    class CustomProject(Project):
-        pass
-
-    a2l_string = """
-        /begin PROJECT project_name "project long identifier"
-        /end PROJECT"""
-    a2l = Parser(a2l_string, PROJECT=CustomProject)
-    assert isinstance(a2l.ast.project, CustomProject)

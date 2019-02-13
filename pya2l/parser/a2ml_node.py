@@ -6,18 +6,7 @@
 """
 
 from pya2l.parser.if_data_node import AmlDynNode, AmlDynStruct
-from pya2l.parser.node import ASTNode
-
-node_to_class = dict()
-
-
-def a2ml_node_type(node_type):
-    def wrapper(cls):
-        node_to_class[node_type] = cls
-        cls._node = node_type
-        return cls
-
-    return wrapper
+from pya2l.parser.node import ASTNode, node_type
 
 
 class A2MLNode(ASTNode):
@@ -78,7 +67,7 @@ class A2ML(list):
                 return node.definition.get_class(tokens)
 
 
-@a2ml_node_type('a2ml_declaration')
+@node_type('a2ml_declaration')
 class Declaration(A2MLNode):
     __slots__ = 'definition',
 
@@ -98,7 +87,7 @@ class Declaration(A2MLNode):
         return (e for e in d)
 
 
-@a2ml_node_type('block')
+@node_type('block')
 class BlockDefinition(A2MLNode):
     __slots__ = 'tag', 'type_name'
 
@@ -124,7 +113,7 @@ class BlockDefinition(A2MLNode):
             yield e
 
 
-@a2ml_node_type('a2ml_type_definition')
+@node_type('a2ml_type_definition')
 class TypeDefinition(A2MLNode):
     __slots__ = 'type_name',
 
@@ -138,12 +127,12 @@ class TypeDefinition(A2MLNode):
         return (e for e in self.type_name.dump(n=n))
 
 
-@a2ml_node_type('int')
-@a2ml_node_type('long')
-@a2ml_node_type('uint')
-@a2ml_node_type('ulong')
-@a2ml_node_type('double')
-@a2ml_node_type('float')
+@node_type('int')
+@node_type('long')
+@node_type('uint')
+@node_type('ulong')
+@node_type('double')
+@node_type('float')
 class PredefinedTypeName(A2MLNode):
     __slots__ = 'type_name',
 
@@ -169,7 +158,7 @@ class PredefinedTypeName(A2MLNode):
         yield n, self.type_name
 
 
-@a2ml_node_type('char')
+@node_type('char')
 class Char(PredefinedTypeName):
 
     def get_class(self, tokens):
@@ -179,12 +168,12 @@ class Char(PredefinedTypeName):
         return type('P', (int,), {})(token)
 
 
-@a2ml_node_type('uchar')
+@node_type('uchar')
 class UChar(Char):
     pass
 
 
-@a2ml_node_type('a2ml_struct_type_name')
+@node_type('a2ml_struct_type_name')
 class Struct(TypeName):
     __slots__ = 'member',
 
@@ -226,7 +215,7 @@ class Struct(TypeName):
         return super(Struct, self).dump(n=n)
 
 
-@a2ml_node_type('a2ml_struct_member')
+@node_type('a2ml_struct_member')
 class StructMember(A2MLNode):  # TODO: remove this class, as it only perform calls to 'member' property.
     __slots__ = 'member',
 
@@ -247,7 +236,7 @@ class StructMember(A2MLNode):  # TODO: remove this class, as it only perform cal
         return (e for e in m)
 
 
-@a2ml_node_type('a2ml_taggedstruct_type_name')
+@node_type('a2ml_taggedstruct_type_name')
 class TaggedStruct(TypeName):
     __slots__ = 'member',
 
@@ -285,7 +274,7 @@ class TaggedStruct(TypeName):
         return super(TaggedStruct, self).dump(n=n)
 
 
-@a2ml_node_type('a2ml_taggedstruct_member')
+@node_type('a2ml_taggedstruct_member')
 class TaggedStructMember(A2MLNode):
     __slots__ = 'type_name', 'multiple'
 
@@ -313,7 +302,7 @@ class TaggedStructMember(A2MLNode):
         return (e for e in t)
 
 
-@a2ml_node_type('a2ml_taggedunion_type_name')
+@node_type('a2ml_taggedunion_type_name')
 class TaggedUnion(TypeName):
     __slots__ = 'member',
 
@@ -344,7 +333,7 @@ class TaggedUnion(TypeName):
         return super(TaggedUnion, self).dump(n=n)
 
 
-@a2ml_node_type('a2ml_taggedunion_member')
+@node_type('a2ml_taggedunion_member')
 class TaggedUnionMember(A2MLNode):
     __slots__ = 'tag', 'member'
 
@@ -364,7 +353,7 @@ class TaggedUnionMember(A2MLNode):
         return (e for e in t)
 
 
-@a2ml_node_type('a2ml_enum_type_name')
+@node_type('a2ml_enum_type_name')
 class Enum(TypeName):
     __slots__ = 'enumerator',
 
@@ -403,7 +392,7 @@ class Enum(TypeName):
             yield n, '}'
 
 
-@a2ml_node_type('a2ml_taggedstruct_definition')
+@node_type('a2ml_taggedstruct_definition')
 class TaggedStructDefinition(A2MLNode):
     __slots__ = 'tag', 'member', 'multiple'
 
@@ -437,7 +426,7 @@ class TaggedStructDefinition(A2MLNode):
         raise NotImplementedError
 
 
-@a2ml_node_type('a2ml_member')
+@node_type('a2ml_member')
 class Member(A2MLNode):
     __slots__ = 'type_name', 'array_specifier'
 
@@ -478,7 +467,7 @@ class Member(A2MLNode):
             yield n, str(self.array_specifier)
 
 
-@a2ml_node_type('a2ml_enumerator')
+@node_type('a2ml_enumerator')
 class Enumerator(A2MLNode):
     __slots__ = 'keyword', 'constant'
 
@@ -493,7 +482,3 @@ class Enumerator(A2MLNode):
         yield n, '"{k}"{e}{c}'.format(k=self.keyword,
                                       e=' = ' if self.constant is not None else '',
                                       c=self.constant)
-
-
-def a2ml_node_factory(node_type, *args, **kwargs):
-    return node_to_class[node_type](*args, **kwargs)

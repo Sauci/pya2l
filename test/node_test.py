@@ -5,47 +5,32 @@
 @date: 28.12.2018
 """
 
-import pytest
-
 from pya2l.parser.node import ASTNode
 
 
 def test_init():
     class A(ASTNode):
-        __slots__ = 'd', 'l', 'n'
+        __slots__ = '_d', '_l', '_n'
 
         def __init__(self, args):
-            self.d = dict()
-            self.l = list()
-            self.n = None
+            self._d = dict()
+            self._l = list()
+            self._n = None
             super(A, self).__init__(*args)
 
     obj = A((
-        ('d', 0),
-        ('l', 1),
-        ('l', 2),
-        ('n', 3)
+        ('_d', 0),
+        ('_l', 1),
+        ('_l', 2),
+        ('_n', 3)
     ))
 
-    assert obj.d == 0
-    assert obj.l == [1, 2]
-    assert obj.n == 3
+    assert obj._d == 0
+    assert obj._l == [1, 2]
+    assert obj._n == 3
 
 
-def test_init_with_exception():
-    class A(ASTNode):
-        __slots__ = 'property_value'
-
-        def __init__(self, property_value):
-            self.property_value = property_value
-            super(A, self).__init__(0)
-
-    with pytest.raises(ValueError) as excinfo:
-        A(1)
-    assert str(excinfo.value) == '__slot__ attribute must be a tuple (maybe \',\' is missing at the end?).'
-
-
-def test_parent_chidren_properties():
+def test_parent_children_properties():
     class Parent(ASTNode):
         __slots__ = 'child',
 

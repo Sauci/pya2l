@@ -12,8 +12,6 @@ class ASTNode(object):
     __slots__ = '_node', '_parent', '_children'
 
     def __init__(self, *args, **kwargs):
-        if not isinstance(self.__slots__, tuple):
-            raise ValueError('__slot__ attribute must be a tuple (maybe \',\' is missing at the end?).')
         self.parent = None
         self.children = list()
         for attribute, value in args:
@@ -116,3 +114,19 @@ class ASTNode(object):
     @property
     def properties(self):
         return (p for p in self.__slots__ if not p.startswith('_'))
+
+
+node_to_class = dict()
+
+
+def node_type(node_type):
+    def wrapper(cls):
+        node_to_class[node_type] = cls
+        cls._node = node_type
+        return cls
+
+    return wrapper
+
+
+def node_factory(node_type, *args, **kwargs):
+    return node_to_class[node_type](*args, **kwargs)

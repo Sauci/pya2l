@@ -11,20 +11,21 @@ import ply.yacc as yacc
 
 from pya2l.parser.exception import A2lFormatException
 from .lexer import tokens as lex_tokens, lexer, token_function
-from pya2l.parser.a2l_node import *
-from pya2l.parser.a2ml_node import a2ml_node_factory, A2ML
+from pya2l.parser.node import node_factory
+from pya2l.parser.type import *
+from pya2l.parser.a2ml_node import A2ML
 
 
 class A2lParser(object):
     tokens = lex_tokens
 
-    def __init__(self, string, **custom_classes):
+    def __init__(self, string):
         self.ast = None
         self.a2ml = A2ML()
         lexer.lineno = 1
-        for node, cls in custom_classes.items():
-            node_to_class[node] = cls
-        self._yacc = yacc.yacc(debug=True, module=self, optimize=False,
+        self._yacc = yacc.yacc(debug=True,
+                               module=self,
+                               optimize=False,
                                outputdir=os.path.dirname(os.path.realpath(__file__)))
         self._yacc.parse(string, tokenfunc=token_function)
 
@@ -54,7 +55,7 @@ class A2lParser(object):
 
     def p_a2l(self, p):
         """a2l : a2l_optional_list_optional"""
-        p[0] = a2l_node_factory(p.slice[0].type, p[1])
+        p[0] = node_factory(p.slice[0].type, p[1])
         self.ast = p[0]
 
     @staticmethod
@@ -83,7 +84,7 @@ class A2lParser(object):
     def p_a2ml_declaration(p):
         """a2ml_declaration : a2ml_type_definition SC
                             | a2ml_block_definition SC"""
-        p[0] = a2ml_node_factory(p.slice[0].type, p[1])
+        p[0] = node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_declaration_list(p):
@@ -97,7 +98,7 @@ class A2lParser(object):
     @staticmethod
     def p_a2ml_type_definition(p):
         """a2ml_type_definition : a2ml_type_name"""
-        p[0] = 'definition', a2ml_node_factory(p.slice[0].type, p[1])
+        p[0] = 'definition', node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_type_name(p):
@@ -118,16 +119,16 @@ class A2lParser(object):
                                      | ulong
                                      | double
                                      | float"""
-        p[0] = 'type_name', a2ml_node_factory(p[1], ('type_name', p[1]))
+        p[0] = 'type_name', node_factory(p[1], ('type_name', p[1]))
 
     @staticmethod
     def p_a2ml_enum_type_name(p):
         """a2ml_enum_type_name : enum a2ml_identifier_optional CO a2ml_enumerator_list CC
                                | enum a2ml_identifier"""
         try:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2], p[4])
         except IndexError:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_enumerator_list(p):
@@ -143,18 +144,18 @@ class A2lParser(object):
         """a2ml_enumerator : a2ml_keyword EQ a2ml_constant
                            | a2ml_keyword"""
         try:
-            p[0] = 'enumerator', a2ml_node_factory(p.slice[0].type, p[1], p[3])
+            p[0] = 'enumerator', node_factory(p.slice[0].type, p[1], p[3])
         except IndexError:
-            p[0] = 'enumerator', a2ml_node_factory(p.slice[0].type, p[1])
+            p[0] = 'enumerator', node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_struct_type_name(p):
         """a2ml_struct_type_name : struct a2ml_identifier_optional CO a2ml_struct_member_list_optional CC
                                  | struct a2ml_identifier"""
         try:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2], p[4])
         except IndexError:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_struct_member_list_optional(p):
@@ -174,12 +175,12 @@ class A2lParser(object):
     @staticmethod
     def p_a2ml_struct_member(p):
         """a2ml_struct_member : a2ml_member SC"""
-        p[0] = 'member', a2ml_node_factory(p.slice[0].type, p[1])
+        p[0] = 'member', node_factory(p.slice[0].type, p[1])
 
     @staticmethod
     def p_a2ml_member(p):
         """a2ml_member : a2ml_type_name a2ml_array_specifier_optional"""
-        p[0] = 'member', a2ml_node_factory(p.slice[0].type, *p[1:3])
+        p[0] = 'member', node_factory(p.slice[0].type, *p[1:3])
 
     @staticmethod
     def p_a2ml_member_optional(p):
@@ -210,9 +211,9 @@ class A2lParser(object):
         """a2ml_taggedstruct_type_name : taggedstruct a2ml_identifier_optional CO a2ml_taggedstruct_member_list_optional CC
                                        | taggedstruct a2ml_identifier"""
         try:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2], p[4])
         except IndexError:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_taggedstruct_member_list_optional(p):
@@ -247,23 +248,23 @@ class A2lParser(object):
                                     | a2ml_block_definition SC
                                     | PO a2ml_block_definition a2ml_semicolon_optional PC ASTERISK SC"""
         if len(p) == 7:
-            p[0] = 'member', a2ml_node_factory(p.slice[0].type, ('type_name', p[2]), True)
+            p[0] = 'member', node_factory(p.slice[0].type, ('type_name', p[2]), True)
         else:
-            p[0] = 'member', a2ml_node_factory(p.slice[0].type, ('type_name', p[1]), False)
+            p[0] = 'member', node_factory(p.slice[0].type, ('type_name', p[1]), False)
 
     @staticmethod
     def p_a2ml_block_definition(p):
         """a2ml_block_definition : block a2ml_tag a2ml_type_name"""
-        p[0] = 'definition', a2ml_node_factory(p[1], *p[2:4])
+        p[0] = 'definition', node_factory(p[1], *p[2:4])
 
     @staticmethod
     def p_a2ml_taggedstruct_definition(p):
         """a2ml_taggedstruct_definition : a2ml_tag a2ml_member_optional
                                         | a2ml_tag PO a2ml_member PC ASTERISK"""
         try:
-            node = a2ml_node_factory(p.slice[0].type, p[1], p[3], True)
+            node = node_factory(p.slice[0].type, p[1], p[3], True)
         except IndexError:
-            node = a2ml_node_factory(p.slice[0].type, p[1], p[2], False)
+            node = node_factory(p.slice[0].type, p[1], p[2], False)
         p[0] = 'definition', node
 
     @staticmethod
@@ -271,9 +272,9 @@ class A2lParser(object):
         """a2ml_taggedunion_type_name : taggedunion a2ml_identifier_optional CO a2ml_taggedunion_member_list_optional CC
                                       | taggedunion a2ml_identifier"""
         try:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2], p[4])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2], p[4])
         except IndexError:
-            p[0] = 'type_name', a2ml_node_factory(p.slice[0].type, p[2])
+            p[0] = 'type_name', node_factory(p.slice[0].type, p[2])
 
     @staticmethod
     def p_a2ml_taggedunion_member_list(p):
@@ -295,7 +296,7 @@ class A2lParser(object):
         """a2ml_taggedunion_member : a2ml_tag a2ml_member_optional SC
                                    | a2ml_block_definition SC"""
         if len(p) == 4:
-            p[0] = 'member', a2ml_node_factory(p.slice[0].type, p[1], p[2])
+            p[0] = 'member', node_factory(p.slice[0].type, p[1], p[2])
         else:
             p[0] = 'member', p[1][1]
 
@@ -338,14 +339,14 @@ class A2lParser(object):
                     | SLONG
                     | FLOAT32_IEEE
                     | FLOAT64_IEEE"""
-        p[0] = p[1]
+        p[0] = DataType(p[1])
 
     @staticmethod
     def p_datasize(p):
         """datasize : BYTE
                     | WORD
                     | LONG"""
-        p[0] = p[1]
+        p[0] = DataSize(p[1])
 
     @staticmethod
     def p_addrtype(p):
@@ -353,23 +354,29 @@ class A2lParser(object):
                     | PWORD
                     | PLONG
                     | DIRECT"""
-        p[0] = p[1]
+        p[0] = AddrType(p[1])
+
+    @staticmethod
+    def p_byte_order_type(p):
+        """byte_order_type : MSB_FIRST
+                           | MSB_LAST"""
+        p[0] = ByteOrder(p[1])
 
     @staticmethod
     def p_indexorder(p):
         """indexorder : INDEX_INCR
                       | INDEX_DECR"""
-        p[0] = p[1]
+        p[0] = IndexOrder(p[1])
 
     @staticmethod
     def p_asap2_version(p):
         """asap2_version : ASAP2_VERSION N N"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_a2ml_version(p):
         """a2ml_version : A2ML_VERSION N N"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_generic_parameter(p):
@@ -409,7 +416,7 @@ class A2lParser(object):
     @staticmethod
     def p_project(p):
         """project : begin PROJECT I S project_optional_list_optional end PROJECT"""
-        p[0] = a2l_node_factory(*p[2:6])
+        p[0] = node_factory(*p[2:6])
 
     @staticmethod
     def p_project_optional(p):
@@ -435,7 +442,7 @@ class A2lParser(object):
     @staticmethod
     def p_header(p):
         """header : begin HEADER S header_optional_list_optional end HEADER"""
-        p[0] = a2l_node_factory(*p[2:5])
+        p[0] = node_factory(*p[2:5])
 
     @staticmethod
     def p_header_optional(p):
@@ -470,12 +477,12 @@ class A2lParser(object):
 
     def p_if_data(self, p):
         """if_data : begin IF_DATA I generic_parameter_list_optional end IF_DATA"""
-        p[0] = a2l_node_factory(p[2], p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3]))
+        p[0] = node_factory(p[2], p[3], getattr(self.a2ml.get_class([p[2]] + [p[3]] + p[4]), p[3]))
 
     @staticmethod
     def p_module(p):
         """module : begin MODULE I S module_optional_list_optional end MODULE"""
-        p[0] = a2l_node_factory(*p[2:6])
+        p[0] = node_factory(*p[2:6])
 
     @staticmethod
     def p_module_optional(p):
@@ -517,12 +524,12 @@ class A2lParser(object):
     def p_a2ml(self, p):
         """a2ml : begin A2ML a2ml_declaration_list end A2ML"""
         self.a2ml += p[3]
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_mod_par(p):
         """mod_par : begin MOD_PAR S mod_par_optional_list_optional end MOD_PAR"""
-        p[0] = a2l_node_factory(*p[2:5])
+        p[0] = node_factory(*p[2:5])
 
     @staticmethod
     def p_mod_par_optional(p):
@@ -597,7 +604,7 @@ class A2lParser(object):
     @staticmethod
     def p_mod_common(p):
         """mod_common : begin MOD_COMMON S mod_common_optional_list_optional end MOD_COMMON"""
-        p[0] = a2l_node_factory(*p[2:5])
+        p[0] = node_factory(*p[2:5])
 
     @staticmethod
     def p_mod_common_optional(p):
@@ -660,7 +667,7 @@ class A2lParser(object):
     @staticmethod
     def p_calibration_method(p):
         """calibration_method : begin CALIBRATION_METHOD S N calibration_method_optional_list_optional end CALIBRATION_METHOD"""
-        p[0] = a2l_node_factory(*p[2:6])
+        p[0] = node_factory(*p[2:6])
 
     @staticmethod
     def p_calibration_method_optional(p):
@@ -709,8 +716,8 @@ class A2lParser(object):
 
     @staticmethod
     def p_memory_layout(p):
-        """memory_layout : begin MEMORY_LAYOUT memory_layout_prg_type N N memory_layout_optional_list_optional end MEMORY_LAYOUT"""
-        p[0] = a2l_node_factory(*p[2:7])
+        """memory_layout : begin MEMORY_LAYOUT memory_layout_prg_type N N offset memory_layout_optional_list_optional end MEMORY_LAYOUT"""
+        p[0] = node_factory(*p[2:8])
 
     @staticmethod
     def p_memory_layout_prg_type(p):
@@ -721,13 +728,12 @@ class A2lParser(object):
 
     @staticmethod
     def p_offset(p):
-        """offset : N"""
-        p[0] = p[1]
+        """offset : N N N N N"""
+        p[0] = (p[1], p[2], p[3], p[4], p[5])
 
     @staticmethod
     def p_memory_layout_optional(p):
-        """memory_layout_optional : if_data
-                                  | offset"""
+        """memory_layout_optional : if_data"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -747,13 +753,12 @@ class A2lParser(object):
 
     @staticmethod
     def p_memory_segment(p):
-        """memory_segment : begin MEMORY_SEGMENT I S memory_segment_prg_type memory_segment_memory_type memory_segment_attributes N N memory_segment_optional_list_optional end MEMORY_SEGMENT"""
-        p[0] = a2l_node_factory(*p[2:11])
+        """memory_segment : begin MEMORY_SEGMENT I S memory_segment_prg_type memory_segment_memory_type memory_segment_attributes N N offset memory_segment_optional_list_optional end MEMORY_SEGMENT"""
+        p[0] = node_factory(*p[2:12])
 
     @staticmethod
     def p_memory_segment_optional(p):
-        """memory_segment_optional : if_data
-                                   | offset"""
+        """memory_segment_optional : if_data"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -802,12 +807,12 @@ class A2lParser(object):
     @staticmethod
     def p_system_constant(p):
         """system_constant : SYSTEM_CONSTANT S S"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_characteristic(p):
         """characteristic : begin CHARACTERISTIC I S characteristic_type N I N I N N characteristic_optional_list_optional end CHARACTERISTIC"""
-        p[0] = a2l_node_factory(*p[2:13])
+        p[0] = node_factory(*p[2:13])
 
     @staticmethod
     def p_characteristic_type(p):
@@ -835,12 +840,6 @@ class A2lParser(object):
         p[0] = p[2]
 
     @staticmethod
-    def p_byte_order_type(p):
-        """byte_order_type : MSB_FIRST
-                           | MSB_LAST"""
-        p[0] = p[1]
-
-    @staticmethod
     def p_bit_mask(p):
         """bit_mask : BIT_MASK N"""
         p[0] = p[2]
@@ -848,7 +847,7 @@ class A2lParser(object):
     @staticmethod
     def p_function_list(p):
         """function_list : begin FUNCTION_LIST function_list_optional_list_optional end FUNCTION_LIST"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_name(p):
@@ -893,17 +892,17 @@ class A2lParser(object):
     @staticmethod
     def p_max_refresh(p):
         """max_refresh : MAX_REFRESH N N"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_dependent_characteristic(p):
         """dependent_characteristic : begin DEPENDENT_CHARACTERISTIC S ident_list end DEPENDENT_CHARACTERISTIC"""
-        p[0] = a2l_node_factory(p[2], p[3], (('characteristic', c) for c in p[4]))
+        p[0] = node_factory(p[2], p[3], (('characteristic', c) for c in p[4]))
 
     @staticmethod
     def p_virtual_characteristic(p):
         """virtual_characteristic : begin VIRTUAL_CHARACTERISTIC S virtual_characteristic_optional end VIRTUAL_CHARACTERISTIC"""
-        p[0] = a2l_node_factory(p[2], p[3], (('characteristic', c) for c in p[4]))
+        p[0] = node_factory(p[2], p[3], (('characteristic', c) for c in p[4]))
 
     @staticmethod
     def p_virtual_characteristic_optional(p):
@@ -919,7 +918,7 @@ class A2lParser(object):
     @staticmethod
     def p_annotation(p):
         """annotation : begin ANNOTATION annotation_optional_list_optional end ANNOTATION"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_annotation_optional(p):
@@ -956,16 +955,16 @@ class A2lParser(object):
     @staticmethod
     def p_annotation_text(p):
         """annotation_text : begin ANNOTATION_TEXT annotation_text_optional_list_optional end ANNOTATION_TEXT"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_text(p):
-        """text : S"""
+        """string : S"""
         p[0] = p[1]
 
     @staticmethod
     def p_annotation_text_optional(p):
-        """annotation_text_optional : text"""
+        """annotation_text_optional : string"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
@@ -991,7 +990,7 @@ class A2lParser(object):
     @staticmethod
     def p_axis_descr(p):
         """axis_descr : begin AXIS_DESCR axis_descr_attribute I I N N N axis_descr_optional_list_optional end AXIS_DESCR"""
-        p[0] = a2l_node_factory(*p[2:10])
+        p[0] = node_factory(*p[2:10])
 
     @staticmethod
     def p_axis_descr_optional(p):
@@ -1051,17 +1050,17 @@ class A2lParser(object):
     @staticmethod
     def p_fix_axis_par(p):
         """fix_axis_par : FIX_AXIS_PAR N N N"""
-        p[0] = a2l_node_factory(*p[1:5])
+        p[0] = node_factory(*p[1:5])
 
     @staticmethod
     def p_fix_axis_par_dist(p):
         """fix_axis_par_dist : FIX_AXIS_PAR_DIST N N N"""
-        p[0] = a2l_node_factory(*p[1:5])
+        p[0] = node_factory(*p[1:5])
 
     @staticmethod
     def p_fix_axis_par_list(p):
         """fix_axis_par_list : begin FIX_AXIS_PAR_LIST fix_axis_par_list_optional_list_optional end FIX_AXIS_PAR_LIST"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_fix_axis_par_list_optional(p):
@@ -1168,7 +1167,7 @@ class A2lParser(object):
     @staticmethod
     def p_axis_pts(p):
         """axis_pts : begin AXIS_PTS I S N I I N I N N N axis_pts_optional_list_optional end AXIS_PTS"""
-        p[0] = a2l_node_factory(*p[2:14])
+        p[0] = node_factory(*p[2:14])
 
     @staticmethod
     def p_axis_pts_optional(p):
@@ -1216,7 +1215,7 @@ class A2lParser(object):
     @staticmethod
     def p_measurement(p):
         """measurement : begin MEASUREMENT I S datatype I N N N N measurement_optional_list_optional end MEASUREMENT"""
-        p[0] = a2l_node_factory(*p[2:12])
+        p[0] = node_factory(*p[2:12])
 
     @staticmethod
     def p_measurement_optional(p):
@@ -1267,7 +1266,7 @@ class A2lParser(object):
     @staticmethod
     def p_bit_operation(p):
         """bit_operation : begin BIT_OPERATION bit_operation_optional_list_optional end BIT_OPERATION"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_bit_operation_optional(p):
@@ -1309,7 +1308,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_method(p):
         """compu_method : begin COMPU_METHOD I S compu_method_conversion_type S S compu_method_optional_list_optional end COMPU_METHOD"""
-        p[0] = a2l_node_factory(*p[2:9])
+        p[0] = node_factory(*p[2:9])
 
     @staticmethod
     def p_compu_method_optional(p):
@@ -1347,7 +1346,7 @@ class A2lParser(object):
     @staticmethod
     def p_formula(p):
         """formula : begin FORMULA S formula_optional_list_optional end FORMULA"""
-        p[0] = a2l_node_factory(*p[2:5])
+        p[0] = node_factory(*p[2:5])
 
     @staticmethod
     def p_formula_optional(p):
@@ -1377,7 +1376,7 @@ class A2lParser(object):
     @staticmethod
     def p_coeffs(p):
         """coeffs : COEFFS N N N N N N"""
-        p[0] = a2l_node_factory(*p[1:8])
+        p[0] = node_factory(*p[1:8])
 
     @staticmethod
     def p_compu_tab_ref(p):
@@ -1407,7 +1406,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_tab(p):
         """compu_tab : begin COMPU_TAB I S compu_tab_conversion_type N compu_tab_optional_list_optional end COMPU_TAB"""
-        p[0] = a2l_node_factory(*p[2:8])
+        p[0] = node_factory(*p[2:8])
 
     @staticmethod
     def p_compu_tab_optional(p):
@@ -1449,7 +1448,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_vtab(p):
         """compu_vtab : begin COMPU_VTAB I S compu_vtab_conversion_type N compu_vtab_optional_list_optional end COMPU_VTAB"""
-        p[0] = a2l_node_factory(*p[2:8])
+        p[0] = node_factory(*p[2:8])
 
     @staticmethod
     def p_compu_vtab_optional(p):
@@ -1485,7 +1484,7 @@ class A2lParser(object):
     @staticmethod
     def p_compu_vtab_range(p):
         """compu_vtab_range : begin COMPU_VTAB_RANGE I S N compu_vtab_range_optional_list_optional end COMPU_VTAB_RANGE"""
-        p[0] = a2l_node_factory(*p[2:7])
+        p[0] = node_factory(*p[2:7])
 
     @staticmethod
     def p_compu_vtab_range_optional(p):
@@ -1516,7 +1515,7 @@ class A2lParser(object):
     @staticmethod
     def p_function(p):
         """function : begin FUNCTION I S function_optional_list_optional end FUNCTION"""
-        p[0] = a2l_node_factory(*p[2:6])
+        p[0] = node_factory(*p[2:6])
 
     @staticmethod
     def p_function_optional(p):
@@ -1548,7 +1547,7 @@ class A2lParser(object):
     @staticmethod
     def p_def_characteristic(p):
         """def_characteristic : begin DEF_CHARACTERISTIC def_characteristic_optional_list_optional end DEF_CHARACTERISTIC"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_def_characteristic_optional(p):
@@ -1578,7 +1577,7 @@ class A2lParser(object):
     @staticmethod
     def p_ref_characteristic(p):
         """ref_characteristic : begin REF_CHARACTERISTIC ref_characteristic_optional_list_optional end REF_CHARACTERISTIC"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_ref_characteristic_optional(p):
@@ -1603,7 +1602,7 @@ class A2lParser(object):
     @staticmethod
     def p_in_measurement(p):
         """in_measurement : begin IN_MEASUREMENT in_measurement_optional_list_optional end IN_MEASUREMENT"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_in_measurement_optional(p):
@@ -1628,7 +1627,7 @@ class A2lParser(object):
     @staticmethod
     def p_out_measurement(p):
         """out_measurement : begin OUT_MEASUREMENT out_measurement_optional_list_optional end OUT_MEASUREMENT"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_out_measurement_optional(p):
@@ -1653,7 +1652,7 @@ class A2lParser(object):
     @staticmethod
     def p_loc_measurement(p):
         """loc_measurement : begin LOC_MEASUREMENT loc_measurement_optional_list_optional end LOC_MEASUREMENT"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_loc_measurement_optional(p):
@@ -1678,7 +1677,7 @@ class A2lParser(object):
     @staticmethod
     def p_sub_function(p):
         """sub_function : begin SUB_FUNCTION sub_function_optional_list_optional end SUB_FUNCTION"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_sub_function_optional(p):
@@ -1708,7 +1707,7 @@ class A2lParser(object):
     @staticmethod
     def p_group(p):
         """group : begin GROUP I S group_optional_list_optional end GROUP"""
-        p[0] = a2l_node_factory(*p[2:6])
+        p[0] = node_factory(*p[2:6])
 
     @staticmethod
     def p_group_optional(p):
@@ -1743,7 +1742,7 @@ class A2lParser(object):
     @staticmethod
     def p_ref_measurement(p):
         """ref_measurement : begin REF_MEASUREMENT ref_measurement_optional_list_optional end REF_MEASUREMENT"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_ref_measurement_optional(p):
@@ -1768,7 +1767,7 @@ class A2lParser(object):
     @staticmethod
     def p_sub_group(p):
         """sub_group : begin SUB_GROUP sub_group_optional_list_optional end SUB_GROUP"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_sub_group_optional(p):
@@ -1793,7 +1792,7 @@ class A2lParser(object):
     @staticmethod
     def p_record_layout(p):
         """record_layout : begin RECORD_LAYOUT I record_layout_optional_list_optional end RECORD_LAYOUT"""
-        p[0] = a2l_node_factory(*p[2:5])
+        p[0] = node_factory(*p[2:5])
 
     @staticmethod
     def p_record_layout_optional(p):
@@ -1856,7 +1855,7 @@ class A2lParser(object):
     @staticmethod
     def p_fnc_values(p):
         """fnc_values : FNC_VALUES N datatype fnc_values_index_mode addrtype"""
-        p[0] = a2l_node_factory(*p[1:6])
+        p[0] = node_factory(*p[1:6])
 
     @staticmethod
     def p_fnc_values_index_mode(p):
@@ -1870,162 +1869,162 @@ class A2lParser(object):
     @staticmethod
     def p_identification(p):
         """identification : IDENTIFICATION N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_axis_pts_x(p):
         """axis_pts_x : AXIS_PTS_X N datatype indexorder addrtype"""
-        p[0] = a2l_node_factory(*p[1:6])
+        p[0] = node_factory(*p[1:6])
 
     @staticmethod
     def p_axis_pts_y(p):
         """axis_pts_y : AXIS_PTS_Y N datatype indexorder addrtype"""
-        p[0] = a2l_node_factory(*p[1:6])
+        p[0] = node_factory(*p[1:6])
 
     @staticmethod
     def p_axis_pts_z(p):
         """axis_pts_z : AXIS_PTS_Z N datatype indexorder addrtype"""
-        p[0] = a2l_node_factory(*p[1:6])
+        p[0] = node_factory(*p[1:6])
 
     @staticmethod
     def p_axis_rescale_x(p):
         """axis_rescale_x : AXIS_RESCALE_X N datatype N indexorder addrtype"""
-        p[0] = a2l_node_factory(*p[1:7])
+        p[0] = node_factory(*p[1:7])
 
     @staticmethod
     def p_axis_rescale_y(p):
         """axis_rescale_y : AXIS_RESCALE_Y N datatype N indexorder addrtype"""
-        p[0] = a2l_node_factory(*p[1:7])
+        p[0] = node_factory(*p[1:7])
 
     @staticmethod
     def p_axis_rescale_z(p):
         """axis_rescale_z : AXIS_RESCALE_Z N datatype N indexorder addrtype"""
-        p[0] = a2l_node_factory(*p[1:7])
+        p[0] = node_factory(*p[1:7])
 
     @staticmethod
     def p_no_axis_pts_x(p):
         """no_axis_pts_x : NO_AXIS_PTS_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_no_axis_pts_y(p):
         """no_axis_pts_y : NO_AXIS_PTS_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_no_axis_pts_z(p):
         """no_axis_pts_z : NO_AXIS_PTS_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_no_rescale_x(p):
         """no_rescale_x : NO_RESCALE_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_no_rescale_y(p):
         """no_rescale_y : NO_RESCALE_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_no_rescale_z(p):
         """no_rescale_z : NO_RESCALE_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_fix_no_axis_pts_x(p):
         """fix_no_axis_pts_x : FIX_NO_AXIS_PTS_X N"""
-        p[0] = a2l_node_factory(*p[1:3])
+        p[0] = node_factory(*p[1:3])
 
     @staticmethod
     def p_fix_no_axis_pts_y(p):
         """fix_no_axis_pts_y : FIX_NO_AXIS_PTS_Y N"""
-        p[0] = a2l_node_factory(*p[1:3])
+        p[0] = node_factory(*p[1:3])
 
     @staticmethod
     def p_fix_no_axis_pts_z(p):
         """fix_no_axis_pts_z : FIX_NO_AXIS_PTS_Z N"""
-        p[0] = a2l_node_factory(*p[1:3])
+        p[0] = node_factory(*p[1:3])
 
     @staticmethod
     def p_src_addr_x(p):
         """src_addr_x : SRC_ADDR_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_src_addr_y(p):
         """src_addr_y : SRC_ADDR_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_src_addr_z(p):
         """src_addr_z : SRC_ADDR_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_rip_addr_x(p):
         """rip_addr_x : RIP_ADDR_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_rip_addr_y(p):
         """rip_addr_y : RIP_ADDR_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_rip_addr_z(p):
         """rip_addr_z : RIP_ADDR_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_rip_addr_w(p):
         """rip_addr_w : RIP_ADDR_W N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_shift_op_x(p):
         """shift_op_x : SHIFT_OP_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_shift_op_y(p):
         """shift_op_y : SHIFT_OP_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_shift_op_z(p):
         """shift_op_z : SHIFT_OP_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_offset_x(p):
         """offset_x : OFFSET_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_offset_y(p):
         """offset_y : OFFSET_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_offset_z(p):
         """offset_z : OFFSET_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_dist_op_x(p):
         """dist_op_x : DIST_OP_X N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_dist_op_y(p):
         """dist_op_y : DIST_OP_Y N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_dist_op_z(p):
         """dist_op_z : DIST_OP_Z N datatype"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_alignment_byte(p):
@@ -2055,7 +2054,7 @@ class A2lParser(object):
     @staticmethod
     def p_variant_coding(p):
         """variant_coding : begin VARIANT_CODING variant_coding_optional_list_optional end VARIANT_CODING"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_variant_coding_optional(p):
@@ -2094,28 +2093,43 @@ class A2lParser(object):
     @staticmethod
     def p_var_criterion(p):
         """var_criterion : begin VAR_CRITERION I S ident_list var_criterion_optional_list_optional end VAR_CRITERION"""
-        p[0] = a2l_node_factory(*p[2:7])
+        p[0] = node_factory(*p[2:7])
 
     @staticmethod
     def p_var_characteristic(p):
-        """var_characteristic : begin VAR_CHARACTERISTIC I ident_list var_characteristic_optional_optional end VAR_CHARACTERISTIC"""
-        p[0] = a2l_node_factory(*p[2:6])
+        """var_characteristic : begin VAR_CHARACTERISTIC I var_characteristic_optional_optional end VAR_CHARACTERISTIC"""
+        p[0] = node_factory(*p[2:5])
+
+    @staticmethod
+    def p_criterion_name(p):
+        """criterion_name : I"""
+        p[0] = p[1]
 
     @staticmethod
     def p_var_characteristic_optional(p):
-        """var_characteristic_optional : var_address"""
+        """var_characteristic_optional : var_address
+                                       | criterion_name"""
         p[0] = p.slice[1].type, p[1]
 
     @staticmethod
-    def p_var_characteristic_optional_optional(p):
+    def p_var_characteristic_optional_list(p):
+        """var_characteristic_optional_list : var_characteristic_optional
+                                            | var_characteristic_optional var_characteristic_optional_list"""
+        try:
+            p[0] = [p[1]] + p[2]
+        except IndexError:
+            p[0] = [p[1]]
+
+    @staticmethod
+    def p_var_characteristic_optional_list_optional(p):
         """var_characteristic_optional_optional : empty
-                                                | var_characteristic_optional"""
-        p[0] = ('var_address', None) if p[1] is None else p[1]
+                                                | var_characteristic_optional_list"""
+        p[0] = tuple() if p[1] is None else p[1]
 
     @staticmethod
     def p_var_address(p):
         """var_address : begin VAR_ADDRESS address_list_optional end VAR_ADDRESS"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_address(p):
@@ -2140,7 +2154,7 @@ class A2lParser(object):
     @staticmethod
     def p_var_forbidden_comb(p):
         """var_forbidden_comb : begin VAR_FORBIDDEN_COMB var_forbidden_comb_optional_list_optional end VAR_FORBIDDEN_COMB"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_criterion(p):
@@ -2205,12 +2219,12 @@ class A2lParser(object):
     @staticmethod
     def p_reserved(p):
         """reserved : RESERVED N datasize"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_frame(p):
         """frame : begin FRAME I S N N frame_optional_list_optional end FRAME"""
-        p[0] = a2l_node_factory(*p[2:8])
+        p[0] = node_factory(*p[2:8])
 
     @staticmethod
     def p_frame_optional(p):
@@ -2236,7 +2250,7 @@ class A2lParser(object):
     @staticmethod
     def p_frame_measurement(p):
         """frame_measurement : FRAME_MEASUREMENT frame_measurement_optional_list_optional"""
-        p[0] = a2l_node_factory(*p[1:3])
+        p[0] = node_factory(*p[1:3])
 
     @staticmethod
     def p_frame_measurement_optional(p):
@@ -2261,7 +2275,7 @@ class A2lParser(object):
     @staticmethod
     def p_user_rights(p):
         """user_rights : begin USER_RIGHTS I user_rights_optional_list_optional end USER_RIGHTS"""
-        p[0] = a2l_node_factory(*p[2:5])
+        p[0] = node_factory(*p[2:5])
 
     @staticmethod
     def p_user_rights_optional(p):
@@ -2287,7 +2301,7 @@ class A2lParser(object):
     @staticmethod
     def p_ref_group(p):
         """ref_group : begin REF_GROUP ref_group_optional_list_optional end REF_GROUP"""
-        p[0] = a2l_node_factory(*p[2:4])
+        p[0] = node_factory(*p[2:4])
 
     @staticmethod
     def p_ref_group_optional(p):
@@ -2322,7 +2336,7 @@ class A2lParser(object):
     @staticmethod
     def p_unit(p):
         """unit : begin UNIT I S S unit_type unit_optional_list_optional end UNIT"""
-        p[0] = a2l_node_factory(*p[2:8])
+        p[0] = node_factory(*p[2:8])
 
     @staticmethod
     def p_unit_optional(p):
@@ -2355,12 +2369,12 @@ class A2lParser(object):
     @staticmethod
     def p_si_exponents(p):
         """si_exponents : SI_EXPONENTS N N N N N N N"""
-        p[0] = a2l_node_factory(*p[1:9])
+        p[0] = node_factory(*p[1:9])
 
     @staticmethod
     def p_unit_conversion(p):
         """unit_conversion : UNIT_CONVERSION N N"""
-        p[0] = a2l_node_factory(*p[1:4])
+        p[0] = node_factory(*p[1:4])
 
     @staticmethod
     def p_empty(p):
