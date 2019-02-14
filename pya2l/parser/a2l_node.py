@@ -14,10 +14,27 @@ enum_type = Ident
 enum_conversion_type = Ident
 enum_prg_type = Ident
 enum_memory_type = Ident
+enum_mode = Ident
+monotony_enum = Ident
+enum_tag = Ident
 
 
 class A2lNode(ASTNode):
-    pass
+    def __setattr__(self, key, value):
+        if hasattr(self, key) and isinstance(getattr(self, key), String):
+            value = String(value)
+        return super(A2lNode, self).__setattr__(key, value)
+
+    def dump(self, n=0):
+        yield n, '/begin {node}'.format(node=self.node)
+        for e in super(A2lNode, self).dump(n=n + 1):
+            yield e
+        yield n, '/end {node}'.format(node=self.node)
+
+
+class A2lTagNode(A2lNode):
+    def dump(self, n=0):
+        yield n, '{node} {value}'.format(node=self.node, value=getattr(self, list(self.properties)[0]))
 
 
 @node_type('a2l')
@@ -32,14 +49,14 @@ class A2lFile(A2lNode):
 
 
 @node_type('IF_DATA')
-class IfData(A2lNode):
+class IF_DATA(A2lNode):
     def __new__(cls, tag=None, value=None):
         cls.__slots__ = cls.__slots__ + tuple([tag])
         setattr(cls, tag, value)
-        return super(IfData, cls).__new__(cls)
+        return super(IF_DATA, cls).__new__(cls)
 
     def __init__(self, tag=None, value=None):
-        super(IfData, self).__init__((tag, value))
+        super(IF_DATA, self).__init__((tag, value))
 
     def dict(self):
         return dict((tag, getattr(self, tag).dict()) for tag in self.properties)
@@ -53,7 +70,7 @@ class IfData(A2lNode):
 
 
 @node_type('A2ML')
-class A2ml(A2lNode):
+class A2ML(A2lNode):
     def __new__(cls, a2ml):
         cls.__slots__ = tuple(['type_definition'] + list(b.tag for b in filter(lambda d: hasattr(d, 'tag'), a2ml)))
         setattr(cls, 'type_definition', list())
@@ -62,16 +79,16 @@ class A2ml(A2lNode):
                 setattr(cls, e.tag, e)
             # elif e not in getattr(cls, 'type_definition'):
             #     getattr(cls, 'type_definition').append(e)
-        return super(A2ml, cls).__new__(cls)
+        return super(A2ML, cls).__new__(cls)
 
     def __init__(self, a2ml):
         args = [('type_definition', d) for d in filter(lambda d: not hasattr(d, 'tag'), a2ml)]
         for block in filter(lambda d: hasattr(d, 'tag'), a2ml):
             args.append((block.tag, block))
-        super(A2ml, self).__init__(*args)
+        super(A2ML, self).__init__(*args)
 
     def dump(self, n=0):
-        return (e for e in super(A2ml, self).dump(n=n))
+        return (e for e in super(A2ML, self).dump(n=n))
 
 
 @node_type('A2ML_VERSION')
@@ -82,6 +99,84 @@ class A2ML_VERSION(A2lNode):
         self.version_no = Int(version_no)
         self.upgrade_no = Int(upgrade_no)
         super(A2ML_VERSION, self).__init__()
+
+
+@node_type('ADDR_EPK')
+class ADDR_EPK(Long):
+    def __init__(self, address):
+        super(ADDR_EPK, self).__init__(self, address)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ADDR_EPK, self).__str__())
+
+
+@node_type('ALIGNMENT_BYTE')
+class ALIGNMENT_BYTE(Int):
+    def __init__(self, alignment_border):
+        super(ALIGNMENT_BYTE, self).__init__(self, alignment_border)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ALIGNMENT_BYTE, self).__str__())
+
+
+@node_type('ALIGNMENT_FLOAT32_IEEE')
+class ALIGNMENT_FLOAT32_IEEE(Int):
+    def __init__(self, alignment_border):
+        super(ALIGNMENT_FLOAT32_IEEE, self).__init__(self, alignment_border)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ALIGNMENT_FLOAT32_IEEE, self).__str__())
+
+
+@node_type('ALIGNMENT_FLOAT64_IEEE')
+class ALIGNMENT_FLOAT64_IEEE(Int):
+    def __init__(self, alignment_border):
+        super(ALIGNMENT_FLOAT64_IEEE, self).__init__(self, alignment_border)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ALIGNMENT_FLOAT64_IEEE, self).__str__())
+
+
+@node_type('ALIGNMENT_LONG')
+class ALIGNMENT_LONG(Int):
+    def __init__(self, alignment_border):
+        super(ALIGNMENT_LONG, self).__init__(self, alignment_border)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ALIGNMENT_LONG, self).__str__())
+
+
+@node_type('ALIGNMENT_WORD')
+class ALIGNMENT_WORD(Int):
+    def __init__(self, alignment_border):
+        super(ALIGNMENT_WORD, self).__init__(self, alignment_border)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ALIGNMENT_WORD, self).__str__())
 
 
 @node_type('ANNOTATION')
@@ -95,12 +190,38 @@ class ANNOTATION(A2lNode):
         super(ANNOTATION, self).__init__(*args)
 
 
+@node_type('ANNOTATION_LABEL')
+class ANNOTATION_LABEL(String):
+    def __init__(self, label):
+        super(ANNOTATION_LABEL, self).__init__(self, label)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ANNOTATION_LABEL, self).__str__())
+
+
+@node_type('ANNOTATION_ORIGIN')
+class ANNOTATION_ORIGIN(String):
+    def __init__(self, origin):
+        super(ANNOTATION_ORIGIN, self).__init__(self, origin)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ANNOTATION_ORIGIN, self).__str__())
+
+
 @node_type('ANNOTATION_TEXT')
 class ANNOTATION_TEXT(A2lNode):
-    __slots__ = 'string', 
+    __slots__ = 'text', 
 
     def __init__(self, args):
-        self.string = list()
+        self.text = list()
         super(ANNOTATION_TEXT, self).__init__(*args)
 
 
@@ -170,6 +291,19 @@ class AXIS_PTS(A2lNode):
         self.calibration_access = None
         self.ecu_address_extension = None
         super(AXIS_PTS, self).__init__(*args)
+
+
+@node_type('AXIS_PTS_REF')
+class AXIS_PTS_REF(Ident):
+    def __init__(self, axis_points):
+        super(AXIS_PTS_REF, self).__init__(self, axis_points)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(AXIS_PTS_REF, self).__str__())
 
 
 @node_type('AXIS_PTS_X')
@@ -247,6 +381,19 @@ class AXIS_RESCALE_Z(A2lNode):
         super(AXIS_RESCALE_Z, self).__init__()
 
 
+@node_type('BIT_MASK')
+class BIT_MASK(Long):
+    def __init__(self, mask):
+        super(BIT_MASK, self).__init__(self, mask)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(BIT_MASK, self).__str__())
+
+
 @node_type('BIT_OPERATION')
 class BIT_OPERATION(A2lNode):
     __slots__ = 'left_shift', 'right_shift', 'sign_extend', 
@@ -256,6 +403,41 @@ class BIT_OPERATION(A2lNode):
         self.right_shift = None
         self.sign_extend = None
         super(BIT_OPERATION, self).__init__(*args)
+
+
+@node_type('BYTE_ORDER')
+class BYTE_ORDER(ByteOrder):
+    def __init__(self, byte_order):
+        super(BYTE_ORDER, self).__init__(self, byte_order)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(BYTE_ORDER, self).__str__())
+
+
+@node_type('CALIBRATION_ACCESS')
+class CALIBRATION_ACCESS(enum_type):
+    def __init__(self, type):
+        super(CALIBRATION_ACCESS, self).__init__(self, type)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(CALIBRATION_ACCESS, self).__str__())
+
+
+@node_type('CALIBRATION_HANDLE')
+class CALIBRATION_HANDLE(A2lNode):
+    __slots__ = 'handle', 
+
+    def __init__(self, args):
+        self.handle = list()
+        super(CALIBRATION_HANDLE, self).__init__(*args)
 
 
 @node_type('CALIBRATION_METHOD')
@@ -352,6 +534,19 @@ class COMPU_TAB(A2lNode):
         super(COMPU_TAB, self).__init__(*args)
 
 
+@node_type('COMPU_TAB_REF')
+class COMPU_TAB_REF(Ident):
+    def __init__(self, conversion_table):
+        super(COMPU_TAB_REF, self).__init__(self, conversion_table)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(COMPU_TAB_REF, self).__str__())
+
+
 @node_type('COMPU_VTAB')
 class COMPU_VTAB(A2lNode):
     __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pair', 'compu_vtab_in_val_out_val', 'default_value', 
@@ -379,6 +574,84 @@ class COMPU_VTAB_RANGE(A2lNode):
         super(COMPU_VTAB_RANGE, self).__init__(*args)
 
 
+@node_type('CPU_TYPE')
+class CPU_TYPE(String):
+    def __init__(self, cpu_identifier):
+        super(CPU_TYPE, self).__init__(self, cpu_identifier)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(CPU_TYPE, self).__str__())
+
+
+@node_type('CURVE_AXIS_REF')
+class CURVE_AXIS_REF(Ident):
+    def __init__(self, curve_axis):
+        super(CURVE_AXIS_REF, self).__init__(self, curve_axis)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(CURVE_AXIS_REF, self).__str__())
+
+
+@node_type('CUSTOMER')
+class CUSTOMER(String):
+    def __init__(self, customer):
+        super(CUSTOMER, self).__init__(self, customer)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(CUSTOMER, self).__str__())
+
+
+@node_type('CUSTOMER_NO')
+class CUSTOMER_NO(String):
+    def __init__(self, number):
+        super(CUSTOMER_NO, self).__init__(self, number)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(CUSTOMER_NO, self).__str__())
+
+
+@node_type('DATA_SIZE')
+class DATA_SIZE(Int):
+    def __init__(self, size):
+        super(DATA_SIZE, self).__init__(self, size)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(DATA_SIZE, self).__str__())
+
+
+@node_type('DEFAULT_VALUE')
+class DEFAULT_VALUE(String):
+    def __init__(self, display_string):
+        super(DEFAULT_VALUE, self).__init__(self, display_string)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(DEFAULT_VALUE, self).__str__())
+
+
 @node_type('DEF_CHARACTERISTIC')
 class DEF_CHARACTERISTIC(A2lNode):
     __slots__ = 'identifier', 
@@ -396,6 +669,32 @@ class DEPENDENT_CHARACTERISTIC(A2lNode):
         self.formula = String(formula)
         self.characteristic = list()  # TODO: defined as (Characteristic)* in specification, one or more?
         super(DEPENDENT_CHARACTERISTIC, self).__init__(*args)
+
+
+@node_type('DEPOSIT')
+class DEPOSIT(enum_mode):
+    def __init__(self, mode):
+        super(DEPOSIT, self).__init__(self, mode)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(DEPOSIT, self).__str__())
+
+
+@node_type('DISPLAY_IDENTIFIER')
+class DISPLAY_IDENTIFIER(Ident):
+    def __init__(self, display_name):
+        super(DISPLAY_IDENTIFIER, self).__init__(self, display_name)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(DISPLAY_IDENTIFIER, self).__str__())
 
 
 @node_type('DIST_OP_X')
@@ -426,6 +725,68 @@ class DIST_OP_Z(A2lNode):
         self.position = Int(position)
         self.data_type = DataType(data_type)
         super(DIST_OP_Z, self).__init__()
+
+
+@node_type('ECU')
+class ECU(String):
+    def __init__(self, control_unit):
+        super(ECU, self).__init__(self, control_unit)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ECU, self).__str__())
+
+
+@node_type('ECU_ADDRESS_EXTENSION')
+class ECU_ADDRESS_EXTENSION(Int):
+    def __init__(self, extension):
+        super(ECU_ADDRESS_EXTENSION, self).__init__(self, extension)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ECU_ADDRESS_EXTENSION, self).__str__())
+
+
+@node_type('ECU_CALIBRATION_OFFSET')
+class ECU_CALIBRATION_OFFSET(Long):
+    def __init__(self, offset):
+        super(ECU_CALIBRATION_OFFSET, self).__init__(self, offset)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ECU_CALIBRATION_OFFSET, self).__str__())
+
+
+@node_type('EPK')
+class EPK(String):
+    def __init__(self, identifier):
+        super(EPK, self).__init__(self, identifier)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(EPK, self).__str__())
+
+
+@node_type('EXTENDED_LIMITS')
+class EXTENDED_LIMITS(A2lNode):
+    __slots__ = 'lower_limit', 'upper_limit', 
+
+    def __init__(self, lower_limit, upper_limit, ):
+        self.lower_limit = Float(lower_limit)
+        self.upper_limit = Float(upper_limit)
+        super(EXTENDED_LIMITS, self).__init__()
 
 
 @node_type('FIX_AXIS_PAR')
@@ -460,30 +821,42 @@ class FIX_AXIS_PAR_LIST(A2lNode):
 
 
 @node_type('FIX_NO_AXIS_PTS_X')
-class FIX_NO_AXIS_PTS_X(A2lNode):
-    __slots__ = 'number_of_axis_points', 
+class FIX_NO_AXIS_PTS_X(Int):
+    def __init__(self, number_of_axis_points):
+        super(FIX_NO_AXIS_PTS_X, self).__init__(self, number_of_axis_points)
 
-    def __init__(self, number_of_axis_points, ):
-        self.number_of_axis_points = Int(number_of_axis_points)
-        super(FIX_NO_AXIS_PTS_X, self).__init__()
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(FIX_NO_AXIS_PTS_X, self).__str__())
 
 
 @node_type('FIX_NO_AXIS_PTS_Y')
-class FIX_NO_AXIS_PTS_Y(A2lNode):
-    __slots__ = 'number_of_axis_points', 
+class FIX_NO_AXIS_PTS_Y(Int):
+    def __init__(self, number_of_axis_points):
+        super(FIX_NO_AXIS_PTS_Y, self).__init__(self, number_of_axis_points)
 
-    def __init__(self, number_of_axis_points, ):
-        self.number_of_axis_points = Int(number_of_axis_points)
-        super(FIX_NO_AXIS_PTS_Y, self).__init__()
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(FIX_NO_AXIS_PTS_Y, self).__str__())
 
 
 @node_type('FIX_NO_AXIS_PTS_Z')
-class FIX_NO_AXIS_PTS_Z(A2lNode):
-    __slots__ = 'number_of_axis_points', 
+class FIX_NO_AXIS_PTS_Z(Int):
+    def __init__(self, number_of_axis_points):
+        super(FIX_NO_AXIS_PTS_Z, self).__init__(self, number_of_axis_points)
 
-    def __init__(self, number_of_axis_points, ):
-        self.number_of_axis_points = Int(number_of_axis_points)
-        super(FIX_NO_AXIS_PTS_Z, self).__init__()
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(FIX_NO_AXIS_PTS_Z, self).__str__())
 
 
 @node_type('FNC_VALUES')
@@ -498,6 +871,19 @@ class FNC_VALUES(A2lNode):
         super(FNC_VALUES, self).__init__()
 
 
+@node_type('FORMAT')
+class FORMAT(String):
+    def __init__(self, format_string):
+        super(FORMAT, self).__init__(self, format_string)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(FORMAT, self).__str__())
+
+
 @node_type('FORMULA')
 class FORMULA(A2lNode):
     __slots__ = 'f', 'formula_inv', 
@@ -506,6 +892,19 @@ class FORMULA(A2lNode):
         self.f = String(f)
         self.formula_inv = None
         super(FORMULA, self).__init__(*args)
+
+
+@node_type('FORMULA_INV')
+class FORMULA_INV(String):
+    def __init__(self, function):
+        super(FORMULA_INV, self).__init__(self, function)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(FORMULA_INV, self).__str__())
 
 
 @node_type('FRAME')
@@ -558,6 +957,19 @@ class FUNCTION_LIST(A2lNode):
         super(FUNCTION_LIST, self).__init__(*args)
 
 
+@node_type('FUNCTION_VERSION')
+class FUNCTION_VERSION(String):
+    def __init__(self, version_identifier):
+        super(FUNCTION_VERSION, self).__init__(self, version_identifier)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(FUNCTION_VERSION, self).__str__())
+
+
 @node_type('GROUP')
 class GROUP(A2lNode):
     __slots__ = 'group_name', 'group_long_identifier', 'annotation', 'root', 'ref_characteristic', 'ref_measurement', 'function_list', 'sub_group', 
@@ -604,6 +1016,19 @@ class IN_MEASUREMENT(A2lNode):
         super(IN_MEASUREMENT, self).__init__(*args)
 
 
+@node_type('LEFT_SHIFT')
+class LEFT_SHIFT(Long):
+    def __init__(self, bit_count):
+        super(LEFT_SHIFT, self).__init__(self, bit_count)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(LEFT_SHIFT, self).__str__())
+
+
 @node_type('LOC_MEASUREMENT')
 class LOC_MEASUREMENT(A2lNode):
     __slots__ = 'identifier', 
@@ -611,6 +1036,28 @@ class LOC_MEASUREMENT(A2lNode):
     def __init__(self, args):
         self.identifier = list()
         super(LOC_MEASUREMENT, self).__init__(*args)
+
+
+@node_type('MAP_LIST')
+class MAP_LIST(A2lNode):
+    __slots__ = 'name', 
+
+    def __init__(self, args):
+        self.name = list()
+        super(MAP_LIST, self).__init__(*args)
+
+
+@node_type('MAX_GRAD')
+class MAX_GRAD(Float):
+    def __init__(self, max_gradient):
+        super(MAX_GRAD, self).__init__(self, max_gradient)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(MAX_GRAD, self).__str__())
 
 
 @node_type('MAX_REFRESH')
@@ -757,6 +1204,19 @@ class MOD_PAR(A2lNode):
         super(MOD_PAR, self).__init__(*args)
 
 
+@node_type('MONOTONY')
+class MONOTONY(monotony_enum):
+    def __init__(self, monotony):
+        super(MONOTONY, self).__init__(self, monotony)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(MONOTONY, self).__str__())
+
+
 @node_type('NO_AXIS_PTS_X')
 class NO_AXIS_PTS_X(A2lNode):
     __slots__ = 'position', 'data_type', 
@@ -787,6 +1247,19 @@ class NO_AXIS_PTS_Z(A2lNode):
         super(NO_AXIS_PTS_Z, self).__init__()
 
 
+@node_type('NO_OF_INTERFACES')
+class NO_OF_INTERFACES(Int):
+    def __init__(self, number_of_interfaces):
+        super(NO_OF_INTERFACES, self).__init__(self, number_of_interfaces)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(NO_OF_INTERFACES, self).__str__())
+
+
 @node_type('NO_RESCALE_X')
 class NO_RESCALE_X(A2lNode):
     __slots__ = 'position', 'data_type', 
@@ -815,6 +1288,19 @@ class NO_RESCALE_Z(A2lNode):
         self.position = Int(position)
         self.data_type = DataType(data_type)
         super(NO_RESCALE_Z, self).__init__()
+
+
+@node_type('NUMBER')
+class NUMBER(Int):
+    def __init__(self, number):
+        super(NUMBER, self).__init__(self, number)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(NUMBER, self).__str__())
 
 
 @node_type('OFFSET_X')
@@ -856,6 +1342,19 @@ class OUT_MEASUREMENT(A2lNode):
         super(OUT_MEASUREMENT, self).__init__(*args)
 
 
+@node_type('PHONE_NO')
+class PHONE_NO(String):
+    def __init__(self, phone_number):
+        super(PHONE_NO, self).__init__(self, phone_number)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(PHONE_NO, self).__str__())
+
+
 @node_type('PROJECT')
 class PROJECT(A2lNode):
     __slots__ = 'name', 'long_identifier', 'header', 'module', 
@@ -866,6 +1365,19 @@ class PROJECT(A2lNode):
         self.header = None
         self.module = list()
         super(PROJECT, self).__init__(*args)
+
+
+@node_type('PROJECT_NO')
+class PROJECT_NO(Ident):
+    def __init__(self, project_number):
+        super(PROJECT_NO, self).__init__(self, project_number)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(PROJECT_NO, self).__str__())
 
 
 @node_type('RECORD_LAYOUT')
@@ -943,6 +1455,32 @@ class REF_MEASUREMENT(A2lNode):
         super(REF_MEASUREMENT, self).__init__(*args)
 
 
+@node_type('REF_MEMORY_SEGMENT')
+class REF_MEMORY_SEGMENT(Ident):
+    def __init__(self, name):
+        super(REF_MEMORY_SEGMENT, self).__init__(self, name)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(REF_MEMORY_SEGMENT, self).__str__())
+
+
+@node_type('REF_UNIT')
+class REF_UNIT(Ident):
+    def __init__(self, unit):
+        super(REF_UNIT, self).__init__(self, unit)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(REF_UNIT, self).__str__())
+
+
 @node_type('RESERVED')
 class RESERVED(A2lNode):
     __slots__ = 'position', 'data_size', 
@@ -951,6 +1489,19 @@ class RESERVED(A2lNode):
         self.position = Int(position)
         self.data_size = DataSize(data_size)
         super(RESERVED, self).__init__()
+
+
+@node_type('RIGHT_SHIFT')
+class RIGHT_SHIFT(Long):
+    def __init__(self, bit_count):
+        super(RIGHT_SHIFT, self).__init__(self, bit_count)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(RIGHT_SHIFT, self).__str__())
 
 
 @node_type('RIP_ADDR_W')
@@ -1086,6 +1637,19 @@ class SUB_GROUP(A2lNode):
         super(SUB_GROUP, self).__init__(*args)
 
 
+@node_type('SUPPLIER')
+class SUPPLIER(String):
+    def __init__(self, manufacturer):
+        super(SUPPLIER, self).__init__(self, manufacturer)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(SUPPLIER, self).__str__())
+
+
 @node_type('SYSTEM_CONSTANT')
 class SYSTEM_CONSTANT(A2lNode):
     __slots__ = 'name', 'value', 
@@ -1094,6 +1658,19 @@ class SYSTEM_CONSTANT(A2lNode):
         self.name = String(name)
         self.value = String(value)
         super(SYSTEM_CONSTANT, self).__init__()
+
+
+@node_type('S_REC_LAYOUT')
+class S_REC_LAYOUT(Ident):
+    def __init__(self, name):
+        super(S_REC_LAYOUT, self).__init__(self, name)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(S_REC_LAYOUT, self).__str__())
 
 
 @node_type('UNIT')
@@ -1119,6 +1696,19 @@ class UNIT_CONVERSION(A2lNode):
         self.gradient = Float(gradient)
         self.offset = Float(offset)
         super(UNIT_CONVERSION, self).__init__()
+
+
+@node_type('USER')
+class USER(String):
+    def __init__(self, user_name):
+        super(USER, self).__init__(self, user_name)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(USER, self).__str__())
 
 
 @node_type('USER_RIGHTS')
@@ -1187,13 +1777,69 @@ class VAR_FORBIDDEN_COMB(A2lNode):
         super(VAR_FORBIDDEN_COMB, self).__init__(*args)
 
 
-@node_type('VERSION')
-class VERSION(A2lNode):
-    __slots__ = 'version_identifier', 
+@node_type('VAR_MEASUREMENT')
+class VAR_MEASUREMENT(Ident):
+    def __init__(self, name):
+        super(VAR_MEASUREMENT, self).__init__(self, name)
 
-    def __init__(self, version_identifier, ):
-        self.version_identifier = String(version_identifier)
-        super(VERSION, self).__init__()
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(VAR_MEASUREMENT, self).__str__())
+
+
+@node_type('VAR_NAMING')
+class VAR_NAMING(enum_tag):
+    def __init__(self, tag):
+        super(VAR_NAMING, self).__init__(self, tag)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(VAR_NAMING, self).__str__())
+
+
+@node_type('VAR_SELECTION_CHARACTERISTIC')
+class VAR_SELECTION_CHARACTERISTIC(Ident):
+    def __init__(self, name):
+        super(VAR_SELECTION_CHARACTERISTIC, self).__init__(self, name)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(VAR_SELECTION_CHARACTERISTIC, self).__str__())
+
+
+@node_type('VAR_SEPARATOR')
+class VAR_SEPARATOR(String):
+    def __init__(self, separator):
+        super(VAR_SEPARATOR, self).__init__(self, separator)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(VAR_SEPARATOR, self).__str__())
+
+
+@node_type('VERSION')
+class VERSION(String):
+    def __init__(self, version_identifier):
+        super(VERSION, self).__init__(self, version_identifier)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(VERSION, self).__str__())
 
 
 @node_type('VIRTUAL_CHARACTERISTIC')

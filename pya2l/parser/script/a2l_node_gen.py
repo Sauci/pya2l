@@ -1,7 +1,7 @@
 import os
 import pystache
 
-config = [
+nodes = [
     {
         'args': [
             {
@@ -35,12 +35,32 @@ config = [
         'name': 'ANNOTATION'
     },
     {
+        'args': [
+            {
+                'name': 'label',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ANNOTATION_LABEL'
+    },
+    {
+        'args': [
+            {
+                'name': 'origin',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ANNOTATION_ORIGIN'
+    },
+    {
         'args': [],
         'kwargs': [
             {
                 'multiple': True,
-                'name': 'string',
-                'type': 'String'
+                'name': 'text',
+                'type': 'list'
             }
         ],
         'name': 'ANNOTATION_TEXT'
@@ -247,6 +267,18 @@ config = [
     {
         'args': [
             {
+                'name': 'axis_points',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [
+
+        ],
+        'name': 'AXIS_PTS_REF'
+    },
+    {
+        'args': [
+            {
                 'name': 'position',
                 'type': 'Int'
             },
@@ -405,6 +437,16 @@ config = [
             }
         ],
         'name': 'BIT_OPERATION'
+    },
+    {
+        'args': [
+            {
+                'name': 'byte_order',
+                'type': 'ByteOrder'
+            }
+        ],
+        'kwargs': [],
+        'name': 'BYTE_ORDER'
     },
     {
         'args': [
@@ -751,6 +793,26 @@ config = [
             }
         ],
         'name': 'DEPENDENT_CHARACTERISTIC'
+    },
+    {
+        'args': [
+            {
+                'name': 'mode',
+                'type': 'enum_mode'
+            }
+        ],
+        'kwargs': [],
+        'name': 'DEPOSIT'
+    },
+    {
+        'args': [
+            {
+                'name': 'display_name',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'DISPLAY_IDENTIFIER'
     },
     {
         'args': [
@@ -1103,6 +1165,16 @@ config = [
             }
         ],
         'name': 'LOC_MEASUREMENT'
+    },
+    {
+        'args': [
+            {
+                'name': 'max_gradient',
+                'type': 'Float'
+            }
+        ],
+        'kwargs': [],
+        'name': 'MAX_GRAD'
     },
     {
         'args': [
@@ -1525,6 +1597,16 @@ config = [
             }
         ],
         'name': 'MOD_PAR'
+    },
+    {
+        'args': [
+            {
+                'name': 'monotony',
+                'type': 'monotony_enum'
+            }
+        ],
+        'kwargs': [],
+        'name': 'MONOTONY'
     },
     {
         'args': [
@@ -2304,9 +2386,416 @@ config = [
             }
         ],
         'name': 'VIRTUAL_CHARACTERISTIC'
+    },
+    {
+        'args': [
+            {
+                'name': 'bit_count',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'LEFT_SHIFT'
+    },
+    {
+        'args': [
+            {
+                'name': 'bit_count',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'RIGHT_SHIFT'
+    },
+    {
+        'args': [
+            {
+                'name': 'name',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'REF_MEMORY_SEGMENT'
+    },
+    {
+        'args': [
+            {
+                'name': 'lower_limit',
+                'type': 'Float'
+            },
+            {
+                'name': 'upper_limit',
+                'type': 'Float'
+            }
+        ],
+        'kwargs': [],
+        'name': 'EXTENDED_LIMITS'
+    },
+    {
+        'args': [
+            {
+                'name': 'type',
+                'type': 'enum_type'
+            }
+        ],
+        'kwargs': [],
+        'name': 'CALIBRATION_ACCESS'
+    },
+    {
+        'args': [
+            {
+                'name': 'curve_axis',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'CURVE_AXIS_REF'
+    },
+    {
+        'args': [
+            {
+                'name': 'extension',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ECU_ADDRESS_EXTENSION'
+    },
+    {
+        'args': [
+            {
+                'name': 'number',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'NUMBER'
+    },
+    {
+        'args': [
+            {
+                'name': 'mask',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'BIT_MASK'
+    },
+    {
+        'args': [
+            {
+                'name': 'unit',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'REF_UNIT'
+    },
+    {
+        'args': [
+            {
+                'name': 'conversion_table',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'COMPU_TAB_REF'
+    },
+    {
+        'args': [],
+        'kwargs': [
+            {
+                'multiple': True,
+                'name': 'name',
+                'type': 'Ident'
+            }
+        ],
+        'name': 'MAP_LIST'
+    },
+    {
+        'args': [
+            {
+                'multiple': True,
+                'name': 'display_string',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'DEFAULT_VALUE'
+    },
+    {
+        'args': [],
+        'kwargs': [
+            {
+                'multiple': True,
+                'name': 'handle',
+                'type': 'Long'
+            }
+        ],
+        'name': 'CALIBRATION_HANDLE'
+    },
+    {
+        'args': [
+            {
+                'name': 'function',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'FORMULA_INV'
+    },
+    {
+        'args': [
+            {
+                'name': 'project_number',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'PROJECT_NO'
+    },
+    {
+        'args': [
+            {
+                'name': 'name',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'S_REC_LAYOUT'
+    },
+    {
+        'args': [
+            {
+                'name': 'separator',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'VAR_SEPARATOR'
+    },
+    {
+        'args': [
+            {
+                'name': 'tag',
+                'type': 'enum_tag'
+            }
+        ],
+        'kwargs': [],
+        'name': 'VAR_NAMING'
+    },
+    {
+        'args': [
+            {
+                'name': 'name',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'VAR_MEASUREMENT'
+    },
+    {
+        'args': [
+            {
+                'name': 'name',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'VAR_SELECTION_CHARACTERISTIC'
+    },
+    {
+        'args': [
+            {
+                'name': 'alignment_border',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ALIGNMENT_BYTE'
+    },
+    {
+        'args': [
+            {
+                'name': 'alignment_border',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ALIGNMENT_WORD'
+    },
+    {
+        'args': [
+            {
+                'name': 'alignment_border',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ALIGNMENT_LONG'
+    },
+    {
+        'args': [
+            {
+                'name': 'alignment_border',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ALIGNMENT_FLOAT32_IEEE'
+    },
+    {
+        'args': [
+            {
+                'name': 'alignment_border',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ALIGNMENT_FLOAT64_IEEE'
+    },
+    {
+        'args': [
+            {
+                'name': 'size',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'DATA_SIZE'
+    },
+    {
+        'args': [
+            {
+                'name': 'address',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ADDR_EPK'
+    },
+    {
+        'args': [
+            {
+                'name': 'identifier',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'EPK'
+    },
+    {
+        'args': [
+            {
+                'name': 'manufacturer',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'SUPPLIER'
+    },
+    {
+        'args': [
+            {
+                'name': 'customer',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'CUSTOMER'
+    },
+    {
+        'args': [
+            {
+                'name': 'number',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'CUSTOMER_NO'
+    },
+    {
+        'args': [
+            {
+                'name': 'user_name',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'USER'
+    },
+    {
+        'args': [
+            {
+                'name': 'phone_number',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'PHONE_NO'
+    },
+    {
+        'args': [
+            {
+                'name': 'control_unit',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ECU'
+    },
+    {
+        'args': [
+            {
+                'name': 'cpu_identifier',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'CPU_TYPE'
+    },
+    {
+        'args': [
+            {
+                'name': 'number_of_interfaces',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'NO_OF_INTERFACES'
+    },
+    {
+        'args': [
+            {
+                'name': 'offset',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ECU_CALIBRATION_OFFSET'
+    },
+    {
+        'args': [
+            {
+                'name': 'version_identifier',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'FUNCTION_VERSION'
+    },
+    {
+        'args': [
+            {
+                'name': 'format_string',
+                'type': 'String'
+            }
+        ],
+        'kwargs': [],
+        'name': 'FORMAT'
     }
 ]
-
+keywords = ['FORMAT', 'READ_ONLY', 'SIGN_EXTEND', 'GUARD_RAILS', 'ROOT', 'READ_WRITE']
 cls_template = """\"\"\"
 @project: parser
 @file: a2l_node.py
@@ -2323,10 +2812,27 @@ enum_type = Ident
 enum_conversion_type = Ident
 enum_prg_type = Ident
 enum_memory_type = Ident
+enum_mode = Ident
+monotony_enum = Ident
+enum_tag = Ident
 
 
 class A2lNode(ASTNode):
-    pass
+    def __setattr__(self, key, value):
+        if hasattr(self, key) and isinstance(getattr(self, key), String):
+            value = String(value)
+        return super(A2lNode, self).__setattr__(key, value)
+
+    def dump(self, n=0):
+        yield n, '/begin {node}'.format(node=self.node)
+        for e in super(A2lNode, self).dump(n=n + 1):
+            yield e
+        yield n, '/end {node}'.format(node=self.node)
+
+
+class A2lTagNode(A2lNode):
+    def dump(self, n=0):
+        yield n, '{node} {value}'.format(node=self.node, value=getattr(self, list(self.properties)[0]))
 
 
 @node_type('a2l')
@@ -2341,14 +2847,14 @@ class A2lFile(A2lNode):
 
 
 @node_type('IF_DATA')
-class IfData(A2lNode):
+class IF_DATA(A2lNode):
     def __new__(cls, tag=None, value=None):
         cls.__slots__ = cls.__slots__ + tuple([tag])
         setattr(cls, tag, value)
-        return super(IfData, cls).__new__(cls)
+        return super(IF_DATA, cls).__new__(cls)
 
     def __init__(self, tag=None, value=None):
-        super(IfData, self).__init__((tag, value))
+        super(IF_DATA, self).__init__((tag, value))
 
     def dict(self):
         return dict((tag, getattr(self, tag).dict()) for tag in self.properties)
@@ -2362,7 +2868,7 @@ class IfData(A2lNode):
 
 
 @node_type('A2ML')
-class A2ml(A2lNode):
+class A2ML(A2lNode):
     def __new__(cls, a2ml):
         cls.__slots__ = tuple(['type_definition'] + list(b.tag for b in filter(lambda d: hasattr(d, 'tag'), a2ml)))
         setattr(cls, 'type_definition', list())
@@ -2371,22 +2877,23 @@ class A2ml(A2lNode):
                 setattr(cls, e.tag, e)
             # elif e not in getattr(cls, 'type_definition'):
             #     getattr(cls, 'type_definition').append(e)
-        return super(A2ml, cls).__new__(cls)
+        return super(A2ML, cls).__new__(cls)
 
     def __init__(self, a2ml):
         args = [('type_definition', d) for d in filter(lambda d: not hasattr(d, 'tag'), a2ml)]
         for block in filter(lambda d: hasattr(d, 'tag'), a2ml):
             args.append((block.tag, block))
-        super(A2ml, self).__init__(*args)
+        super(A2ML, self).__init__(*args)
 
     def dump(self, n=0):
-        return (e for e in super(A2ml, self).dump(n=n))
+        return (e for e in super(A2ML, self).dump(n=n))
 
 {{#cls}}
 
 @node_type('{{name}}')
+{{^tagged}}
 class {{name}}(A2lNode):
-    __slots__ = {{#slots}}'{{name}}', {{/slots}}
+    __slots__ = {{#slots}}'{{name}}', {{/slots}}{{^slots}}tuple(){{/slots}}
 
     def __init__(self, {{#args}}{{name}}, {{/args}}{{#has_kwargs}}args{{/has_kwargs}}):
         {{#args}}
@@ -2401,10 +2908,26 @@ class {{name}}(A2lNode):
         {{/if_data}}
         {{/kwargs}}
         super({{name}}, self).__init__({{#has_kwargs}}*args{{/has_kwargs}})
+{{/tagged}}
+{{#tagged}}
+class {{name}}({{#args}}{{type}}{{/args}}):
+    def __init__(self, {{#args}}{{name}}{{/args}}):
+        super({{name}}, self).__init__(self, {{#args}}{{name}}{{/args}})
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super({{name}}, self).__str__())
+{{/tagged}}
 
 {{/cls}}"""
 
-for cls_config in config:
+for cls_config in nodes:
+    cls_config['name_lower'] = cls_config['name'].lower()
+    if len(cls_config['args']) == 1 and len(cls_config['kwargs']) == 0:
+        cls_config['tagged'] = True
     for arg in cls_config['args']:
         arg['name'] = arg['name'].lower()
     for arg in cls_config['kwargs']:
@@ -2415,17 +2938,42 @@ for cls_config in config:
     cls_config['has_kwargs'] = len(cls_config['kwargs']) != 0
 
 with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'a2l_node.py'), 'w') as fp:
-    fp.write(pystache.render(cls_template, dict(cls=config)))
+    fp.write(pystache.render(cls_template, dict(cls=sorted(nodes, key=lambda e: e['name']))))
 
 cls_test_template = """
-\"\"\"
+\"\"\"{{=<< >>=}}
 @project: parser
 @file: a2l_node_test.py
 @author: Guillaume Sottas
 @date: 13.02.2019
 \"\"\"
 
+import pytest
 from pya2l.parser.a2l_node import *
+from pya2l.parser.type import *
 
 
+<<#keywords>>
+<<.>> = (
+    pytest.param('<<.>>', id='keyword <<.>> defined'),
+    pytest.param('', id='keyword <<.>> not defined')
+)
+
+<</keywords>>
+
+<<#cls>>
+<<name_lower>>_string = '/begin <<name>><<#args>> {<<name>>}<</args>><<#kwargs>> {<<name>>}<</kwargs>> /end <<name>>'
+<</cls>>
+
+<<#cls>>
+<<name_lower>> = pytest.param(<<name_lower>>_string,
+    [<<#args>>('<<name>>', <<type>>), <</args>>],
+    [<<#kwargs>>('<<name>>', <<type>>), <</kwargs>>])
+<<name_lower>>_string = '/begin <<name>><<#args>> {<<name>>}<</args>><<#kwargs>> {<<name>>}<</kwargs>> /end <<name>>'
+
+<</cls>>
 """
+
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'test.py'), 'w') as fp:
+    fp.write(pystache.render(cls_test_template, dict(cls=sorted(nodes, key=lambda e: e['name']),
+                                                     keywords=keywords)))

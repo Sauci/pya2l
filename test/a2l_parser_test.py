@@ -1458,8 +1458,8 @@ def test_characteristic_extended_limits_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].characteristic[0], 'extended_limits')
-    assert a2l.ast.project.module[0].characteristic[0].extended_limits[0] == 0
-    assert a2l.ast.project.module[0].characteristic[0].extended_limits[1] == 1
+    assert a2l.ast.project.module[0].characteristic[0].extended_limits.lower_limit == 0
+    assert a2l.ast.project.module[0].characteristic[0].extended_limits.upper_limit == 1
 
 
 def test_characteristic_read_only_node():
@@ -2034,8 +2034,8 @@ def test_axis_pts_extended_limits_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].axis_pts[0], 'extended_limits')
-    assert a2l.ast.project.module[0].axis_pts[0].extended_limits[0] == 0
-    assert a2l.ast.project.module[0].axis_pts[0].extended_limits[1] == 1
+    assert a2l.ast.project.module[0].axis_pts[0].extended_limits.lower_limit == 0
+    assert a2l.ast.project.module[0].axis_pts[0].extended_limits.upper_limit == 1
 
 
 def test_axis_pts_annotation_node():
@@ -3135,7 +3135,7 @@ def test_record_layout_fix_no_axis_pts_x_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].record_layout[0], 'fix_no_axis_pts_x')
-    assert a2l.ast.project.module[0].record_layout[0].fix_no_axis_pts_x.number_of_axis_points == 0
+    assert a2l.ast.project.module[0].record_layout[0].fix_no_axis_pts_x == 0
 
 
 def test_record_layout_fix_no_axis_pts_y_node():
@@ -3149,7 +3149,7 @@ def test_record_layout_fix_no_axis_pts_y_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].record_layout[0], 'fix_no_axis_pts_y')
-    assert a2l.ast.project.module[0].record_layout[0].fix_no_axis_pts_y.number_of_axis_points == 0
+    assert a2l.ast.project.module[0].record_layout[0].fix_no_axis_pts_y == 0
 
 
 def test_record_layout_fix_no_axis_pts_z_node():
@@ -3163,7 +3163,7 @@ def test_record_layout_fix_no_axis_pts_z_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].record_layout[0], 'fix_no_axis_pts_z')
-    assert a2l.ast.project.module[0].record_layout[0].fix_no_axis_pts_z.number_of_axis_points == 0
+    assert a2l.ast.project.module[0].record_layout[0].fix_no_axis_pts_z == 0
 
 
 def test_record_layout_src_addr_x_node():
@@ -4177,8 +4177,8 @@ def test_map_list():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].map_list[0] == 'first_map'
-    assert a2l.ast.project.module[0].characteristic[0].map_list[1] == 'second_map'
+    assert a2l.ast.project.module[0].characteristic[0].map_list.name[0] == 'first_map'
+    assert a2l.ast.project.module[0].characteristic[0].map_list.name[1] == 'second_map'
 
 
 def test_dependent_characteristic():
@@ -4274,8 +4274,8 @@ def test_annotation():
     assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text is None
     assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_label == 'annotation label'
     assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_origin == 'annotation origin'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.string[0] == 'first annotation text'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.string[1] == 'second annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.text[0] == 'first annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[1].annotation_text.text[1] == 'second annotation text'
 
 
 def test_annotation_text():
@@ -4302,8 +4302,8 @@ def test_annotation_text():
             /end MODULE
         /end PROJECT"""
     a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.string[0] == 'first annotation text'
-    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.string[1] == 'second annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.text[0] == 'first annotation text'
+    assert a2l.ast.project.module[0].characteristic[0].annotation[0].annotation_text.text[1] == 'second annotation text'
 
 
 def test_axis_descr_read_only_node():
@@ -4530,8 +4530,8 @@ def test_axis_descr_extended_limits_node():
         /end PROJECT"""
     a2l = Parser(a2l_string)
     assert hasattr(a2l.ast.project.module[0].characteristic[0].axis_descr[0], 'extended_limits')
-    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].extended_limits[0] == 0
-    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].extended_limits[1] == 1
+    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].extended_limits.lower_limit == 0
+    assert a2l.ast.project.module[0].characteristic[0].axis_descr[0].extended_limits.upper_limit == 1
 
 
 def test_axis_descr_fix_axis_par_node():

@@ -86,30 +86,23 @@ class ASTNode(object):
         return result
 
     def dump(self, n=0):
-        yield n, '/begin {node}'.format(node=self.node)
         for p, v in ((k, getattr(self, k)) for k in self.properties):
-            if v in (None, list()) and not self.node == 'IF_DATA':
+            if v in (None, list()):
                 continue
             if isinstance(v, ASTNode):
-                for e in v.dump(n=n + 1):
+                for e in v.dump(n=n):
                     yield e
             elif isinstance(v, list):
                 for node in v:
                     if isinstance(node, ASTNode):
-                        for e in node.dump(n=n + 1):
+                        for e in node.dump(n=n):
                             yield e
                     else:
-                        yield n + 1, '{q}{string}{q}'.format(string=v, q='"' if isinstance(v, String) else '')
+                        yield n, '{q}{string}{q}'.format(string=v, q='"' if isinstance(v, String) else '')
             elif isinstance(v, dict):
                 continue
             else:
-                yield n + 1, '{q}{string}{q}'.format(string=v, q='"' if isinstance(v, String) else '')
-        yield n, '/end {node}'.format(node=self.node)
-
-    def __setattr__(self, key, value):
-        if hasattr(self, key) and isinstance(getattr(self, key), String):
-            value = String(value)
-        return super(ASTNode, self).__setattr__(key, value)
+                yield n, '{q}{string}{q}'.format(string=v, q='"' if type(v) is String else '')
 
     @property
     def properties(self):
