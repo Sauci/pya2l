@@ -156,8 +156,84 @@ with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input', 'asa
 
 a2ml_strings = (
     pytest.param(asap2_1_61, id='ASAP2 version 1.61'),
-    pytest.param(asap2_1_61_shared_type_definition, id='ASAP2 version 1.61 with shared type definitions'),
-)
+    pytest.param(asap2_1_61_shared_type_definition, id='ASAP2 version 1.61 with shared type definitions'))
+
+
+@pytest.mark.parametrize('a2l_string', (pytest.param("""
+        /begin PROJECT project ""
+            /begin MODULE module ""
+                /begin A2ML
+                    block "IF_DATA" taggedunion {
+                        "if_data_module" struct {
+                            uint;
+                        };
+                        "if_data_memory_layout" struct {
+                            uint[1];
+                        };
+                        "if_data_memory_segment" struct {
+                            uint[2];
+                        };
+                        "if_data_characteristic" struct {
+                            uint[3];
+                        };
+                        "if_data_axis_pts" struct {
+                            uint[4];
+                        };
+                        "if_data_measurement" struct {
+                            uint[5];
+                        };
+                        "if_data_frame" struct {
+                            uint[6];
+                        };
+                    };
+                /end A2ML
+                /begin IF_DATA if_data_module
+                    0
+                /end IF_DATA
+                /begin MOD_PAR ""
+                    /begin MEMORY_LAYOUT PRG_CODE 0 0 0 0 0 0 0
+                        /begin IF_DATA if_data_memory_layout
+                            0
+                        /end IF_DATA
+                    /end MEMORY_LAYOUT
+                    /begin MEMORY_SEGMENT _ "" CODE RAM INTERN 0 0 0 0 0 0 0
+                        /begin IF_DATA if_data_memory_segment
+                            1 2
+                        /end IF_DATA
+                    /end MEMORY_SEGMENT
+                /end MOD_PAR
+                /begin CHARACTERISTIC _ "" VALUE 0 _ 0.0 _ 0.0 0.0
+                    /begin IF_DATA if_data_characteristic
+                        3 4 5
+                    /end IF_DATA
+                /end CHARACTERISTIC
+                /begin AXIS_PTS _ "" 0 _ _ 0.0 _ 0 0.0 0.0
+                    /begin IF_DATA if_data_axis_pts
+                        6 7 8 9
+                    /end IF_DATA
+                /end AXIS_PTS
+                /begin MEASUREMENT _ "" UBYTE _ 0 0.0 0.0 0.0
+                    /begin IF_DATA if_data_measurement
+                        10 11 12 13 14
+                    /end IF_DATA
+                /end MEASUREMENT
+                /begin FRAME _ "" 0 0
+                    /begin IF_DATA if_data_frame
+                        15 16 17 18 19 20
+                    /end IF_DATA
+                /end FRAME
+            /end MODULE
+        /end PROJECT
+        """, id='fully defined node'),))
+def test_if_data_memory_layout_node(a2l_string):
+    p = Parser(a2l_string)
+    assert p.ast.project.module[0].if_data.if_data_module[0] == 0
+    assert p.ast.project.module[0].mod_par.memory_layout[0].if_data.if_data_memory_layout[0] == [0]
+    assert p.ast.project.module[0].mod_par.memory_segment[0].if_data.if_data_memory_segment[0] == [1, 2]
+    assert p.ast.project.module[0].characteristic[0].if_data.if_data_characteristic[0] == [3, 4, 5]
+    assert p.ast.project.module[0].axis_pts[0].if_data.if_data_axis_pts[0] == [6, 7, 8, 9]
+    assert p.ast.project.module[0].measurement[0].if_data.if_data_measurement[0] == [10, 11, 12, 13, 14]
+    assert p.ast.project.module[0].frame.if_data.if_data_frame[0] == [15, 16, 17, 18, 19, 20]
 
 
 @pytest.mark.parametrize('a2ml_string', a2ml_strings)

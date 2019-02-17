@@ -225,6 +225,19 @@ class ANNOTATION_TEXT(A2lNode):
         super(ANNOTATION_TEXT, self).__init__(*args)
 
 
+@node_type('ARRAY_SIZE')
+class ARRAY_SIZE(Int):
+    def __init__(self, number):
+        super(ARRAY_SIZE, self).__init__(self, number)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ARRAY_SIZE, self).__str__())
+
+
 @node_type('ASAP2_VERSION')
 class ASAP2_VERSION(A2lNode):
     __slots__ = 'version_no', 'upgrade_no', 
@@ -503,6 +516,19 @@ class COEFFS(A2lNode):
         super(COEFFS, self).__init__()
 
 
+@node_type('COMPARISON_QUANTITY')
+class COMPARISON_QUANTITY(Ident):
+    def __init__(self, name):
+        super(COMPARISON_QUANTITY, self).__init__(self, name)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(COMPARISON_QUANTITY, self).__str__())
+
+
 @node_type('COMPU_METHOD')
 class COMPU_METHOD(A2lNode):
     __slots__ = 'name', 'long_identifier', 'conversion_type', 'format', 'unit', 'formula', 'coeffs', 'compu_tab_ref', 'ref_unit', 
@@ -549,27 +575,27 @@ class COMPU_TAB_REF(Ident):
 
 @node_type('COMPU_VTAB')
 class COMPU_VTAB(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pair', 'compu_vtab_in_val_out_val', 'default_value', 
+    __slots__ = 'name', 'long_identifier', 'conversion_type', 'number_value_pair', 'in_val_out_val', 'default_value', 
 
     def __init__(self, name, long_identifier, conversion_type, number_value_pair, args):
         self.name = Ident(name)
         self.long_identifier = String(long_identifier)
         self.conversion_type = enum_conversion_type(conversion_type)
         self.number_value_pair = Int(number_value_pair)
-        self.compu_vtab_in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
+        self.in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
         self.default_value = None
         super(COMPU_VTAB, self).__init__(*args)
 
 
 @node_type('COMPU_VTAB_RANGE')
 class COMPU_VTAB_RANGE(A2lNode):
-    __slots__ = 'name', 'long_identifier', 'number_value_triple', 'compu_vtab_range_in_val_out_val', 'default_value', 
+    __slots__ = 'name', 'long_identifier', 'number_value_triple', 'in_val_out_val', 'default_value', 
 
     def __init__(self, name, long_identifier, number_value_triple, args):
         self.name = Ident(name)
         self.long_identifier = String(long_identifier)
         self.number_value_triple = Int(number_value_triple)
-        self.compu_vtab_range_in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
+        self.in_val_out_val = list()  # TODO: change in_val_out_val by value_pair...
         self.default_value = None
         super(COMPU_VTAB_RANGE, self).__init__(*args)
 
@@ -740,6 +766,19 @@ class ECU(String):
         return '{} {}'.format(self.node, super(ECU, self).__str__())
 
 
+@node_type('ECU_ADDRESS')
+class ECU_ADDRESS(Long):
+    def __init__(self, address):
+        super(ECU_ADDRESS, self).__init__(self, address)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ECU_ADDRESS, self).__str__())
+
+
 @node_type('ECU_ADDRESS_EXTENSION')
 class ECU_ADDRESS_EXTENSION(Int):
     def __init__(self, extension):
@@ -777,6 +816,19 @@ class EPK(String):
 
     def __str__(self):
         return '{} {}'.format(self.node, super(EPK, self).__str__())
+
+
+@node_type('ERROR_MASK')
+class ERROR_MASK(Long):
+    def __init__(self, mask):
+        super(ERROR_MASK, self).__init__(self, mask)
+
+    @property
+    def node(self):
+        return self._node
+
+    def __str__(self):
+        return '{} {}'.format(self.node, super(ERROR_MASK, self).__str__())
 
 
 @node_type('EXTENDED_LIMITS')
@@ -1045,6 +1097,17 @@ class MAP_LIST(A2lNode):
     def __init__(self, args):
         self.name = list()
         super(MAP_LIST, self).__init__(*args)
+
+
+@node_type('MATRIX_DIM')
+class MATRIX_DIM(A2lNode):
+    __slots__ = 'x', 'y', 'z', 
+
+    def __init__(self, x, y, z, ):
+        self.x = Int(x)
+        self.y = Int(y)
+        self.z = Int(z)
+        super(MATRIX_DIM, self).__init__()
 
 
 @node_type('MAX_GRAD')
@@ -1840,6 +1903,15 @@ class VERSION(String):
 
     def __str__(self):
         return '{} {}'.format(self.node, super(VERSION, self).__str__())
+
+
+@node_type('VIRTUAL')
+class VIRTUAL(A2lNode):
+    __slots__ = 'measuring_channel', 
+
+    def __init__(self, args):
+        self.measuring_channel = list()
+        super(VIRTUAL, self).__init__(*args)
 
 
 @node_type('VIRTUAL_CHARACTERISTIC')

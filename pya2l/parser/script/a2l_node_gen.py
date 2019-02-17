@@ -694,7 +694,7 @@ nodes = [
             {
                 'multiple': True,
                 'name': 'in_val_out_val',
-                'type': 'float_float',
+                'type': 'tuple',
                 'remark': 'TODO: change in_val_out_val by value_pair...'
             },
             {
@@ -726,8 +726,8 @@ nodes = [
         'kwargs': [
             {
                 'multiple': True,
-                'name': 'compu_vtab_in_val_out_val',
-                'type': 'float_string',
+                'name': 'in_val_out_val',
+                'type': 'tuple',
                 'remark': 'TODO: change in_val_out_val by value_pair...'
             },
             {
@@ -755,8 +755,8 @@ nodes = [
         'kwargs': [
             {
                 'multiple': True,
-                'name': 'compu_vtab_range_in_val_out_val',
-                'type': 'float_float_string',
+                'name': 'in_val_out_val',
+                'type': 'tuple',
                 'remark': 'TODO: change in_val_out_val by value_pair...'
             },
             {
@@ -2356,7 +2356,7 @@ nodes = [
             {
                 'multiple': True,
                 'name': 'criterion',
-                'type': 'ident_ident'
+                'type': 'tuple'
             }
         ],
         'name': 'VAR_FORBIDDEN_COMB'
@@ -2382,7 +2382,7 @@ nodes = [
             {
                 'multiple': True,
                 'name': 'characteristic',
-                'type': 'indent'
+                'type': 'Ident'
             }
         ],
         'name': 'VIRTUAL_CHARACTERISTIC'
@@ -2515,7 +2515,6 @@ nodes = [
     {
         'args': [
             {
-                'multiple': True,
                 'name': 'display_string',
                 'type': 'String'
             }
@@ -2793,6 +2792,75 @@ nodes = [
         ],
         'kwargs': [],
         'name': 'FORMAT'
+    },
+    {
+        'args': [
+            {
+                'name': 'number',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ARRAY_SIZE'
+    },
+    {
+        'args': [
+            {
+                'name': 'address',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ECU_ADDRESS'
+    },
+    {
+        'args': [
+            {
+                'name': 'mask',
+                'type': 'Long'
+            }
+        ],
+        'kwargs': [],
+        'name': 'ERROR_MASK'
+    },
+    {
+        'args': [],
+        'kwargs': [
+            {
+                'multiple': True,
+                'name': 'measuring_channel',
+                'type': 'Ident'
+            }
+        ],
+        'name': 'VIRTUAL'
+    },
+    {
+        'args': [
+            {
+                'name': 'name',
+                'type': 'Ident'
+            }
+        ],
+        'kwargs': [],
+        'name': 'COMPARISON_QUANTITY'
+    },
+    {
+        'args': [
+            {
+                'name': 'x',
+                'type': 'Int'
+            },
+            {
+                'name': 'y',
+                'type': 'Int'
+            },
+            {
+                'name': 'z',
+                'type': 'Int'
+            }
+        ],
+        'kwargs': [],
+        'name': 'MATRIX_DIM'
     }
 ]
 keywords = ['FORMAT', 'READ_ONLY', 'SIGN_EXTEND', 'GUARD_RAILS', 'ROOT', 'READ_WRITE']
@@ -2930,9 +2998,11 @@ for cls_config in nodes:
         cls_config['tagged'] = True
     for arg in cls_config['args']:
         arg['name'] = arg['name'].lower()
+        arg['type_lower'] = arg['type'].lower()
     for arg in cls_config['kwargs']:
         if arg['name'] == 'IF_DATA':
             arg['if_data'] = True
+        arg['type_lower'] = arg['type'].lower()
         arg['name'] = arg['name'].lower()
     cls_config['slots'] = cls_config['args'] + cls_config['kwargs']
     cls_config['has_kwargs'] = len(cls_config['kwargs']) != 0
@@ -2949,6 +3019,8 @@ cls_test_template = """
 \"\"\"
 
 import pytest
+
+from pya2l.parser.grammar.parser import A2lParser as Parser
 from pya2l.parser.a2l_node import *
 from pya2l.parser.type import *
 
@@ -2962,18 +3034,28 @@ from pya2l.parser.type import *
 <</keywords>>
 
 <<#cls>>
-<<name_lower>>_string = '/begin <<name>><<#args>> {<<name>>}<</args>><<#kwargs>> {<<name>>}<</kwargs>> /end <<name>>'
+<<name_lower>>_strings = ['<<^tagged>>/begin <<name>><</tagged>><<#args>><<^tagged>> <</tagged>>{<<type_lower>>}<</args>><<#kwargs>> {<<type_lower>>}<</kwargs>><<^tagged>> /end <<name>><</tagged>>']
 <</cls>>
 
 <<#cls>>
-<<name_lower>> = pytest.param(<<name_lower>>_string,
-    [<<#args>>('<<name>>', <<type>>), <</args>>],
-    [<<#kwargs>>('<<name>>', <<type>>), <</kwargs>>])
-<<name_lower>>_string = '/begin <<name>><<#args>> {<<name>>}<</args>><<#kwargs>> {<<name>>}<</kwargs>> /end <<name>>'
+<<name_lower>> = pytest.param(
+    <<name_lower>>_strings,
+    # required arguments (name, type, multiple).
+    [<<#args>>('<<name>>', <<type>>, <<#multiple>>True<</multiple>><<^multiple>>False<</multiple>>), <</args>>],
+    # optional arguments (name, type, multiple).
+    [<<#kwargs>>('<<name>>', <<type>>, <<#multiple>>True<</multiple>><<^multiple>>False<</multiple>>), <</kwargs>>])
 
 <</cls>>
+
+<<#cls>>
+def test_<<name_lower>>():
+    pytest.xfail('implement me...')
+
+
+<</cls>>
+
 """
 
-with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'test.py'), 'w') as fp:
+with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'test_.py'), 'w') as fp:
     fp.write(pystache.render(cls_test_template, dict(cls=sorted(nodes, key=lambda e: e['name']),
                                                      keywords=keywords)))
