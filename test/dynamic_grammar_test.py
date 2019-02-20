@@ -1,6 +1,6 @@
 """
-@project: parser
-@file: a2ml_parser_test.py
+@project: pya2l
+@file: dynamic_grammar_test.py
 @author: Guillaume Sottas
 @date: 28.12.2018
 """
@@ -9,29 +9,6 @@ import os
 import pytest
 
 from pya2l.parser.grammar.parser import A2lParser as Parser
-
-uint = (
-    pytest.param('0', 0),
-    pytest.param('1', 1)
-)
-
-predefined_type_names = (
-    pytest.param('char', id='signed char'),
-    pytest.param('int', id='signed integer'),
-    pytest.param('long', id='signed long'),
-    pytest.param('uchar', id='unsigned char'),
-    pytest.param('uint', id='unsigned integer'),
-    pytest.param('ulong', id='unsigned long'),
-    pytest.param('float', id='float'),
-    pytest.param('double', id='double')
-)
-
-type_names = predefined_type_names + (
-    pytest.param('struct {}', id='structure'),
-    pytest.param('taggedstruct {}', id='tagged structure'),
-    pytest.param('taggedunion {}', id='tagged union'),
-    pytest.param('enum {"_"}', id='enumeration')
-)
 
 
 def generate_a2l_string(a2ml_string='', if_data_string=''):
@@ -47,111 +24,9 @@ def generate_a2l_string(a2ml_string='', if_data_string=''):
     """.format(a2ml_string=a2ml_string, if_data_string=if_data_string)
 
 
-@pytest.mark.parametrize('type_name, array_size, array_size_value, if_data_string', (
-        ('int', '[1][2][3]', [1, 2, 3], '1 2 3 4 5 6'),
-))
-def test_array_size(type_name, array_size, array_size_value, if_data_string):
-    a2ml_string = """block "IF_DATA" taggedunion {{
-            "TAG" {type_name}{array_specifier};
-        }};""".format(type_name=type_name, array_specifier=array_size)
-    a2l_string = """/begin IF_DATA TAG {if_data_string} /end IF_DATA""".format(if_data_string=if_data_string)
-    p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=a2l_string))
-    for index in range(6):
-        assert p.ast.project.module[0].if_data.TAG[index] == index + 1
-
-
-@pytest.mark.parametrize('type_name', type_names)
-def test_a2ml_root_type_definition(type_name):
-    Parser(generate_a2l_string(a2ml_string='{};'.format(type_name)))
-
-
-@pytest.mark.parametrize('container', (
-        pytest.param('taggedunion', id='tagged union container'),
-        pytest.param('taggedstruct', id='tagged structure container')))
-@pytest.mark.parametrize('type_name, if_data_string, path, value', (
-        ('char', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('int', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('long', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('uchar', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('uint', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('ulong', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('float', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('double', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], 0),
-        ('struct {int;}', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], [0]),
-        ('taggedstruct {"_" int;}', '/begin IF_DATA TAG _ 0 /end IF_DATA', ['TAG', '_'], 0),
-        ('taggedunion {"_" int;}', '/begin IF_DATA TAG _ 0 /end IF_DATA', ['TAG', '_'], 0),
-        ('enum {"_"}', '/begin IF_DATA TAG _ /end IF_DATA', ['TAG'], '_'),
-))
-def test_a2ml_root_block_definition(container, type_name, if_data_string, path, value):
-    a2ml_string = 'block "IF_DATA" {container} {{"TAG" {type_name};}};'.format(container=container, type_name=type_name)
-    p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=if_data_string))
-    node = p.ast.project.module[0].if_data
-    for element in path:
-        node = getattr(node, element)
-    assert node == value
-
-
-def test_a2ml_structure_flattening():
-    a2ml_string = """block "IF_DATA" taggedunion {
-        "TAG" struct {
-            int; struct {int; struct {int; struct {int; int; struct {int; int; int; struct {int; int;};};};};};};
-    };"""
-    if_data_string = '/begin IF_DATA TAG 0 1 2 3 4 5 6 7 8 9 /end IF_DATA'
-    p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=if_data_string))
-    for index in range(10):
-        assert p.ast.project.module[0].if_data.TAG[index] == index
-
-
-@pytest.mark.parametrize('forward_definition_type, forward_definition_content, if_data_string, path, value', (
-        ('struct', '{int;}', '/begin IF_DATA TAG 0 /end IF_DATA', ['TAG'], [0]),
-        ('taggedstruct', '{"_" int;}', '/begin IF_DATA TAG _ 0 /end IF_DATA', ['TAG', '_'], 0),
-        ('taggedunion', '{"_" int;}', '/begin IF_DATA TAG _ 0 /end IF_DATA', ['TAG', '_'], 0),
-        ('enum', '{"_"}', '/begin IF_DATA TAG _ /end IF_DATA', ['TAG'], '_'),
-))
-def test_a2ml_forward_type_definition(forward_definition_type, forward_definition_content, if_data_string, path, value):
-    a2ml_string = """{forward_definition_type} tag {forward_definition_content};
-    block "IF_DATA" taggedunion {{
-        "TAG" {forward_definition_type} tag;
-    }};""".format(forward_definition_type=forward_definition_type,
-                  forward_definition_content=forward_definition_content)
-    p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=if_data_string))
-    node = p.ast.project.module[0].if_data
-    for element in path:
-        node = getattr(node, element)
-    assert node == value
-
-
-@pytest.mark.parametrize('a2ml_string, if_data_string, value', (
-        pytest.param("""block "IF_DATA" taggedunion {
-            "TAG" taggedstruct {
-                ("_" int)*;
-            };
-        };""", '/begin IF_DATA TAG /end IF_DATA', list(), id='empty tagged structure'),
-        pytest.param("""block "IF_DATA" taggedunion {
-            "TAG" taggedstruct {
-                ("_" int)*;
-            };
-        };""", '/begin IF_DATA TAG _ 0 _ 1 /end IF_DATA', [0, 1], id='non empty tagged structure'),
-        pytest.param("""block "IF_DATA" taggedunion {
-            "TAG" taggedunion {
-                "_" int;
-            };
-        };""", '/begin IF_DATA TAG /end IF_DATA', None, id='empty tagged union'),
-        pytest.param("""block "IF_DATA" taggedunion {
-            "TAG" taggedunion {
-                "_" int;
-            };
-        };""", '/begin IF_DATA TAG _ 0 /end IF_DATA', 0, id='non empty tagged union'),
-))
-def test_a2ml_tagged_structure_multiplicity(a2ml_string, if_data_string, value):
-    p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=if_data_string))
-    assert p.ast.project.module[0].if_data.TAG._ == value
-
-
 with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input', 'asap2_1_61.aml'), 'r') as fp:
     asap2_1_61 = fp.read()
-with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input', 'asap2_1_61_shared_type_definition.aml'),
-          'r') as fp:
+with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'input', 'asap2_1_61_shared_type_definition.aml'), 'r') as fp:
     asap2_1_61_shared_type_definition = fp.read()
 
 a2ml_strings = (
@@ -225,7 +100,7 @@ a2ml_strings = (
             /end MODULE
         /end PROJECT
         """, id='fully defined node'),))
-def test_if_data_memory_layout_node(a2l_string):
+def test_if_data_static_node(a2l_string):
     p = Parser(a2l_string)
     assert p.ast.project.module[0].if_data.if_data_module[0] == 0
     assert p.ast.project.module[0].mod_par.memory_layout[0].if_data.if_data_memory_layout[0] == [0]
@@ -781,21 +656,33 @@ def test_a2ml_xcp_on_can_node(a2ml_string, a2l_string):
     assert node().XCP.XCP_ON_CAN.DAQ_LIST_CAN_ID[1][0] == 11
     assert node().XCP.XCP_ON_CAN.DAQ_LIST_CAN_ID[1].VARIABLE is True
     assert node().XCP.XCP_ON_CAN.DAQ_LIST_CAN_ID[1].FIXED == 12
+    assert node().XCP.XCP_ON_CAN.PROTOCOL_LAYER is None
+    assert node().XCP.XCP_ON_CAN.SEGMENT is None
+    assert node().XCP.XCP_ON_CAN.DAQ is None
+    assert node().XCP.XCP_ON_CAN.PAG is None
+    assert node().XCP.XCP_ON_CAN.PGM is None
+    assert node().XCP.XCP_ON_CAN.DAQ_EVENT is None
     assert node().XCP.XCP_ON_SxI is None
     assert node().XCP.XCP_ON_TCP_IP is None
     assert node().XCP.XCP_ON_UDP_IP is None
     assert node().XCP.XCP_ON_USB is None
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize('a2ml_string, a2l_string', (
-        pytest.param(asap2_1_61, """
+@pytest.mark.parametrize('a2ml_string', a2ml_strings)
+@pytest.mark.parametrize('a2l_string', (pytest.param("""
         /begin IF_DATA XCP
             /begin XCP_ON_SxI
+                1
+                2
+                ASYNCH_FULL_DUPLEX_MODE
+                    PARITY_NONE
+                    ONE_STOP_BIT
+                SYNCH_FULL_DUPLEX_MODE_BYTE
+                HEADER_LEN_BYTE
+                NO_CHECKSUM
             /end XCP_ON_SxI
         /end IF_DATA
-        """, id='ASAP2 version 1.61'),
-))
+        """, id='ASAP2 version 1.61'),))
 def test_a2ml_xcp_on_sxi_node(a2ml_string, a2l_string):
     p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=a2l_string))
 
@@ -808,21 +695,40 @@ def test_a2ml_xcp_on_sxi_node(a2ml_string, a2l_string):
     assert node().XCP.PGM is None
     assert node().XCP.DAQ_EVENT is None
     assert node().XCP.XCP_ON_CAN is None
-    assert node().XCP.XCP_ON_SxI is None
+    assert node().XCP.XCP_ON_SxI[0] == 1
+    assert node().XCP.XCP_ON_SxI[1] == 2
+    assert node().XCP.XCP_ON_SxI.ASYNCH_FULL_DUPLEX_MODE[0] == 'PARITY_NONE'
+    assert node().XCP.XCP_ON_SxI.ASYNCH_FULL_DUPLEX_MODE[1] == 'ONE_STOP_BIT'
+    assert node().XCP.XCP_ON_SxI.SYNCH_FULL_DUPLEX_MODE_BYTE is True
+    assert node().XCP.XCP_ON_SxI.SYNCH_FULL_DUPLEX_MODE_WORD is None
+    assert node().XCP.XCP_ON_SxI.SYNCH_FULL_DUPLEX_MODE_DWORD is None
+    assert node().XCP.XCP_ON_SxI.SYNCH_MASTER_SLAVE_MODE_BYTE is None
+    assert node().XCP.XCP_ON_SxI.SYNCH_MASTER_SLAVE_MODE_WORD is None
+    assert node().XCP.XCP_ON_SxI.SYNCH_MASTER_SLAVE_MODE_DWORD is None
+    assert node().XCP.XCP_ON_SxI[2] == 'HEADER_LEN_BYTE'
+    assert node().XCP.XCP_ON_SxI[3] == 'NO_CHECKSUM'
+    assert node().XCP.XCP_ON_SxI.PROTOCOL_LAYER is None
+    assert node().XCP.XCP_ON_SxI.SEGMENT is None
+    assert node().XCP.XCP_ON_SxI.DAQ is None
+    assert node().XCP.XCP_ON_SxI.PAG is None
+    assert node().XCP.XCP_ON_SxI.PGM is None
+    assert node().XCP.XCP_ON_SxI.DAQ_EVENT is None
     assert node().XCP.XCP_ON_TCP_IP is None
     assert node().XCP.XCP_ON_UDP_IP is None
     assert node().XCP.XCP_ON_USB is None
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize('a2ml_string, a2l_string', (
-        pytest.param(asap2_1_61, """
+@pytest.mark.parametrize('a2ml_string', a2ml_strings)
+@pytest.mark.parametrize('a2l_string', (pytest.param("""
         /begin IF_DATA XCP
             /begin XCP_ON_TCP_IP
+                1
+                2
+                HOST_NAME s1
+                ADDRESS s2
             /end XCP_ON_TCP_IP
         /end IF_DATA
-        """, id='ASAP2 version 1.61'),
-))
+        """, id='ASAP2 version 1.61'),))
 def test_a2ml_xcp_on_tcp_ip_node(a2ml_string, a2l_string):
     p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=a2l_string))
 
@@ -836,20 +742,31 @@ def test_a2ml_xcp_on_tcp_ip_node(a2ml_string, a2l_string):
     assert node().XCP.DAQ_EVENT is None
     assert node().XCP.XCP_ON_CAN is None
     assert node().XCP.XCP_ON_SxI is None
-    assert node().XCP.XCP_ON_TCP_IP is None
+    assert node().XCP.XCP_ON_TCP_IP[0] == 1
+    assert node().XCP.XCP_ON_TCP_IP[1] == 2
+    assert node().XCP.XCP_ON_TCP_IP.HOST_NAME == 's1'
+    assert node().XCP.XCP_ON_TCP_IP.ADDRESS == 's2'
+    assert node().XCP.XCP_ON_TCP_IP.PROTOCOL_LAYER is None
+    assert node().XCP.XCP_ON_TCP_IP.SEGMENT is None
+    assert node().XCP.XCP_ON_TCP_IP.DAQ is None
+    assert node().XCP.XCP_ON_TCP_IP.PAG is None
+    assert node().XCP.XCP_ON_TCP_IP.PGM is None
+    assert node().XCP.XCP_ON_TCP_IP.DAQ_EVENT is None
     assert node().XCP.XCP_ON_UDP_IP is None
     assert node().XCP.XCP_ON_USB is None
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize('a2ml_string, a2l_string', (
-        pytest.param(asap2_1_61, """
+@pytest.mark.parametrize('a2ml_string', a2ml_strings)
+@pytest.mark.parametrize('a2l_string', (pytest.param("""
         /begin IF_DATA XCP
             /begin XCP_ON_UDP_IP
+                1
+                2
+                HOST_NAME s1
+                ADDRESS s2
             /end XCP_ON_UDP_IP
         /end IF_DATA
-        """, id='ASAP2 version 1.61'),
-))
+        """, id='ASAP2 version 1.61'),))
 def test_a2ml_xcp_on_udp_ip_node(a2ml_string, a2l_string):
     p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=a2l_string))
 
@@ -864,19 +781,73 @@ def test_a2ml_xcp_on_udp_ip_node(a2ml_string, a2l_string):
     assert node().XCP.XCP_ON_CAN is None
     assert node().XCP.XCP_ON_SxI is None
     assert node().XCP.XCP_ON_TCP_IP is None
-    assert node().XCP.XCP_ON_UDP_IP is None
+    assert node().XCP.XCP_ON_UDP_IP[0] == 1
+    assert node().XCP.XCP_ON_UDP_IP[1] == 2
+    assert node().XCP.XCP_ON_UDP_IP.HOST_NAME == 's1'
+    assert node().XCP.XCP_ON_UDP_IP.ADDRESS == 's2'
+    assert node().XCP.XCP_ON_UDP_IP.PROTOCOL_LAYER is None
+    assert node().XCP.XCP_ON_UDP_IP.SEGMENT is None
+    assert node().XCP.XCP_ON_UDP_IP.DAQ is None
+    assert node().XCP.XCP_ON_UDP_IP.PAG is None
+    assert node().XCP.XCP_ON_UDP_IP.PGM is None
+    assert node().XCP.XCP_ON_UDP_IP.DAQ_EVENT is None
     assert node().XCP.XCP_ON_USB is None
 
 
-@pytest.mark.skip
-@pytest.mark.parametrize('a2ml_string, a2l_string', (
-        pytest.param(asap2_1_61, """
+@pytest.mark.parametrize('a2ml_string', a2ml_strings)
+@pytest.mark.parametrize('a2l_string', (pytest.param("""
         /begin IF_DATA XCP
             /begin XCP_ON_USB
+                1
+                2
+                3
+                4
+                HEADER_LEN_BYTE
+                /begin OUT_EP_CMD_STIM
+                    5
+                    BULK_TRANSFER
+                    6
+                    7
+                    MESSAGE_PACKING_SINGLE
+                    ALIGNMENT_8_BIT
+                    RECOMMENDED_HOST_BUFSIZE 8
+                /end OUT_EP_CMD_STIM
+                /begin IN_EP_RESERR_DAQ_EVSERV
+                    9
+                    INTERRUPT_TRANSFER
+                    10
+                    11
+                    MESSAGE_PACKING_MULTIPLE
+                    ALIGNMENT_16_BIT
+                    RECOMMENDED_HOST_BUFSIZE 12
+                /end IN_EP_RESERR_DAQ_EVSERV
+                ALTERNATE_SETTING_NO 13
+                INTERFACE_STRING_DESCRIPTOR s1
+                /begin OUT_EP_ONLY_STIM
+                    14
+                    BULK_TRANSFER
+                    15
+                    16
+                    MESSAGE_PACKING_STREAMING
+                    ALIGNMENT_32_BIT
+                    RECOMMENDED_HOST_BUFSIZE 17
+                /end OUT_EP_ONLY_STIM
+                /begin OUT_EP_ONLY_STIM
+                    18
+                    INTERRUPT_TRANSFER
+                    19
+                    20
+                    MESSAGE_PACKING_MULTIPLE
+                    ALIGNMENT_64_BIT
+                /end OUT_EP_ONLY_STIM
+                /begin DAQ_LIST_USB_ENDPOINT
+                    21
+                    FIXED_IN 22
+                    FIXED_OUT 23
+                /end DAQ_LIST_USB_ENDPOINT
             /end XCP_ON_USB
         /end IF_DATA
-        """, id='ASAP2 version 1.61'),
-))
+        """, id='ASAP2 version 1.61'),))
 def test_a2ml_xcp_on_usb_node(a2ml_string, a2l_string):
     p = Parser(generate_a2l_string(a2ml_string=a2ml_string, if_data_string=a2l_string))
 
@@ -892,4 +863,49 @@ def test_a2ml_xcp_on_usb_node(a2ml_string, a2l_string):
     assert node().XCP.XCP_ON_SxI is None
     assert node().XCP.XCP_ON_TCP_IP is None
     assert node().XCP.XCP_ON_UDP_IP is None
-    assert node().XCP.XCP_ON_USB is None
+    assert node().XCP.XCP_ON_USB[0] == 1
+    assert node().XCP.XCP_ON_USB[1] == 2
+    assert node().XCP.XCP_ON_USB[2] == 3
+    assert node().XCP.XCP_ON_USB[3] == 4
+    assert node().XCP.XCP_ON_USB[4] == 'HEADER_LEN_BYTE'
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM[0] == 5
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM[1] == 'BULK_TRANSFER'
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM[2] == 6
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM[3] == 7
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM[4] == 'MESSAGE_PACKING_SINGLE'
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM[5] == 'ALIGNMENT_8_BIT'
+    assert node().XCP.XCP_ON_USB.OUT_EP_CMD_STIM.RECOMMENDED_HOST_BUFSIZE == 8
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV[0] == 9
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV[1] == 'INTERRUPT_TRANSFER'
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV[2] == 10
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV[3] == 11
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV[4] == 'MESSAGE_PACKING_MULTIPLE'
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV[5] == 'ALIGNMENT_16_BIT'
+    assert node().XCP.XCP_ON_USB.IN_EP_RESERR_DAQ_EVSERV.RECOMMENDED_HOST_BUFSIZE == 12
+    assert node().XCP.XCP_ON_USB.ALTERNATE_SETTING_NO == 13
+    assert node().XCP.XCP_ON_USB.INTERFACE_STRING_DESCRIPTOR == 's1'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0][0] == 14
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0][1] == 'BULK_TRANSFER'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0][2] == 15
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0][3] == 16
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0][4] == 'MESSAGE_PACKING_STREAMING'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0][5] == 'ALIGNMENT_32_BIT'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[0].RECOMMENDED_HOST_BUFSIZE == 17
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1][0] == 18
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1][1] == 'INTERRUPT_TRANSFER'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1][2] == 19
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1][3] == 20
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1][4] == 'MESSAGE_PACKING_MULTIPLE'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1][5] == 'ALIGNMENT_64_BIT'
+    assert node().XCP.XCP_ON_USB.OUT_EP_ONLY_STIM[1].RECOMMENDED_HOST_BUFSIZE is None
+    assert node().XCP.XCP_ON_USB.IN_EP_ONLY_DAQ == []
+    assert node().XCP.XCP_ON_USB.IN_EP_ONLY_EVSERV is None
+    assert node().XCP.XCP_ON_USB.DAQ_LIST_USB_ENDPOINT[0][0] == 21
+    assert node().XCP.XCP_ON_USB.DAQ_LIST_USB_ENDPOINT[0].FIXED_IN == 22
+    assert node().XCP.XCP_ON_USB.DAQ_LIST_USB_ENDPOINT[0].FIXED_OUT == 23
+    assert node().XCP.XCP_ON_USB.PROTOCOL_LAYER is None
+    assert node().XCP.XCP_ON_USB.SEGMENT is None
+    assert node().XCP.XCP_ON_USB.DAQ is None
+    assert node().XCP.XCP_ON_USB.PAG is None
+    assert node().XCP.XCP_ON_USB.PGM is None
+    assert node().XCP.XCP_ON_USB.DAQ_EVENT is None

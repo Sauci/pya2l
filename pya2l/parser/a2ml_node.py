@@ -193,22 +193,22 @@ class Struct(TypeName):
             return super(Struct, self).get_class(tokens)
         else:
             args, kwargs = list(), dict()
-            for node in filter(lambda n: n.required, self):
+            for node in self:
                 obj = node.get_class(tokens)
-                if isinstance(obj, AmlDynStruct):
-                    for arg in obj.positionals():
-                        args.append(arg)
+                if node.required:
+                    if isinstance(obj, AmlDynStruct):
+                        for arg in obj.positionals():
+                            args.append(arg)
+                    else:
+                        args.append(obj)
                 else:
-                    args.append(obj)
-            for node in filter(lambda n: not n.required, self):
-                obj = node.get_class(tokens)
-                if isinstance(obj, AmlDynNode):
-                    for k, v in obj.keywords():
-                        kwargs[k] = v
-                # elif isinstance(obj, list):
-                #    raise NotImplementedError
-                else:
-                    args.append(obj)
+                    if isinstance(obj, AmlDynNode):
+                        for k, v in obj.keywords():
+                            kwargs[k] = v
+                        for arg in obj.positionals():
+                            args.append(arg)
+                    else:
+                        args.append(obj)
             return AmlDynStruct(args, kwargs)
 
     def dump(self, n=0):
@@ -255,19 +255,16 @@ class TaggedStruct(TypeName):
         if self.tagged and not recurse:
             return super(TaggedStruct, self).get_class(tokens)
         else:
-            kwargs = dict()
-            for node in self:
-                if node.multiple:
-                    if len(tokens):
-                        while len(tokens) and tokens[0] == node.tag:
-                            kwargs.setdefault(node.tag, list()).append(node.get_class(tokens))
+            kwargs = dict([(n.tag, list() if n.multiple else None) for n in self])
+            while tokens:
+                if tokens[0] in [n.tag for n in self]:
+                    node = dict([(n.tag, n) for n in self])[tokens[0]]
+                    if node.multiple:
+                        kwargs[node.tag].append(node.get_class(tokens))
                     else:
-                        kwargs.setdefault(node.tag, list())
+                        kwargs[node.tag] = node.get_class(tokens)
                 else:
-                    if len(tokens) and tokens[0] == node.tag:
-                        kwargs.setdefault(node.tag, node.get_class(tokens))
-                    else:
-                        kwargs.setdefault(node.tag, None)
+                    break
             return AmlDynNode(list(), kwargs)
 
     def dump(self, n=0):
@@ -324,7 +321,7 @@ class TaggedUnion(TypeName):
             kwargs = dict()
             for node in self:
                 if len(tokens) and tokens[0] == node.tag:
-                    kwargs.setdefault(tokens.pop(0), node.get_class(tokens))
+                    kwargs.setdefault(tokens[0], node.get_class(tokens))
                 else:
                     kwargs.setdefault(node.tag, None)
             return AmlDynNode(list(), kwargs)
@@ -343,6 +340,7 @@ class TaggedUnionMember(A2MLNode):
         super(TaggedUnionMember, self).__init__(tag, member)
 
     def get_class(self, tokens):
+        tokens.pop(0)
         return self.member.get_class(tokens)
 
     def dump(self, n=0):
@@ -414,13 +412,14 @@ class TaggedStructDefinition(A2MLNode):
         # taggedstruct_definition ::= <tag> member | <tag> "("member")*"
         # where the member is not an optional element.
         # however, if the above case happens, the tag will be set to true, as it seems to be used as a flag.
-        if self.member is not None:
-            if len(tokens) and tokens.pop(0) == self.tag:
+        if len(tokens) and tokens[0] == self.tag:
+            tokens.pop(0)
+            if self.member is not None:
                 return self.member.get_class(tokens)
+            else:
+                return True
         else:
-            if len(tokens):
-                tokens.pop(0)
-            return True
+            return None
 
     def dump(self, n=0):
         raise NotImplementedError
@@ -449,14 +448,8 @@ class Member(A2MLNode):
         return 0
 
     def get_class(self, tokens):
-        if self.array_specifier_int:
-            args = list()
-            for idx in range(self.array_specifier_int):
-                if isinstance(self.type_name, (Char, UChar)):
-                    return self.type_name.get_class(tokens)
-                else:
-                    args.append(self.type_name.get_class(tokens))
-            return AmlDynNode(args, dict())
+        if self.array_specifier_int and not isinstance(self.type_name, (Char, UChar)):
+            return AmlDynNode([self.type_name.get_class(tokens) for _ in range(self.array_specifier_int)], dict())
         else:
             return self.type_name.get_class(tokens)
 
