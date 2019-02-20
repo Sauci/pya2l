@@ -1,3 +1,10 @@
+"""
+@project: pya2l
+@file: cli.py
+@author: Guillaume Sottas
+@date: 28.12.2018
+"""
+
 import argparse
 from json import dump
 

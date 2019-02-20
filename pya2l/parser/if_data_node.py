@@ -1,5 +1,5 @@
 """
-@project: parser
+@project: pya2l
 @file: if_data_node.py
 @author: Guillaume Sottas
 @date: 12.02.2019

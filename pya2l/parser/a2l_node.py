@@ -1,5 +1,5 @@
 """
-@project: parser
+@project: pya2l
 @file: a2l_node.py
 @author: Guillaume Sottas
 @date: 05.04.2018

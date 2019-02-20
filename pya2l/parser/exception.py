@@ -1,5 +1,5 @@
 """
-@project: parser
+@project: pya2l
 @file: exception.py
 @author: Guillaume Sottas
 @date: 04.01.2019

@@ -1,6 +1,6 @@
 """
-@project: parser
-@file: a2ml_parser_test.py
+@project: pya2l
+@file: node_test.py
 @author: Guillaume Sottas
 @date: 28.12.2018
 """

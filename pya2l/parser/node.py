@@ -1,6 +1,6 @@
 """
-@project: parser
-@file: common.py
+@project: pya2l
+@file: node.py
 @author: Guillaume Sottas
 @date: 31.12.2018
 """
