@@ -8,7 +8,7 @@
 import argparse
 from json import dump
 
-from pya2l.parser import A2lParser
+from pya2l.parser import Parser
 
 JSON_CMD = 'to_json'
 
@@ -27,7 +27,7 @@ def main():
     with open(args.input_file[0], 'r') as fp:
         data = fp.read()
 
-    a2l = A2lParser(data)
+    a2l = Parser(data)
 
     if args.sub_command == JSON_CMD:
         with open(args.o[0] if args.o is not None else args.input_file[0] + '.json', 'wb') as fp:

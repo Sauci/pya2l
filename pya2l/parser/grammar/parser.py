@@ -10,7 +10,7 @@ import warnings
 import ply.yacc as yacc
 
 from pya2l.parser.exception import A2lFormatException
-from .lexer import tokens as lex_tokens, lexer, token_function
+from pya2l.parser.grammar.lexer import tokens as lex_tokens, lexer, token_function
 from pya2l.parser.node import node_factory
 from pya2l.parser.a2l_node import *
 from pya2l.parser.a2ml_node import *
