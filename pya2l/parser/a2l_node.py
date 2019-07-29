@@ -103,8 +103,8 @@ class A2ML_VERSION(A2lNode):
 
 @node_type('ADDR_EPK')
 class ADDR_EPK(Long):
-    def __init__(self, address):
-        super(ADDR_EPK, self).__init__(self, address)
+    def __new__(cls, address):
+        return super(ADDR_EPK, cls).__new__(cls, address)
 
     @property
     def node(self):
@@ -116,8 +116,8 @@ class ADDR_EPK(Long):
 
 @node_type('ALIGNMENT_BYTE')
 class ALIGNMENT_BYTE(Int):
-    def __init__(self, alignment_border):
-        super(ALIGNMENT_BYTE, self).__init__(self, alignment_border)
+    def __new__(cls, alignment_border):
+        return super(ALIGNMENT_BYTE, cls).__new__(cls, alignment_border)
 
     @property
     def node(self):
@@ -129,8 +129,8 @@ class ALIGNMENT_BYTE(Int):
 
 @node_type('ALIGNMENT_FLOAT32_IEEE')
 class ALIGNMENT_FLOAT32_IEEE(Int):
-    def __init__(self, alignment_border):
-        super(ALIGNMENT_FLOAT32_IEEE, self).__init__(self, alignment_border)
+    def __new__(cls, alignment_border):
+        return super(ALIGNMENT_FLOAT32_IEEE, cls).__new__(cls, alignment_border)
 
     @property
     def node(self):
@@ -142,8 +142,8 @@ class ALIGNMENT_FLOAT32_IEEE(Int):
 
 @node_type('ALIGNMENT_FLOAT64_IEEE')
 class ALIGNMENT_FLOAT64_IEEE(Int):
-    def __init__(self, alignment_border):
-        super(ALIGNMENT_FLOAT64_IEEE, self).__init__(self, alignment_border)
+    def __new__(cls, alignment_border):
+        return super(ALIGNMENT_FLOAT64_IEEE, cls).__new__(cls, alignment_border)
 
     @property
     def node(self):
@@ -155,8 +155,8 @@ class ALIGNMENT_FLOAT64_IEEE(Int):
 
 @node_type('ALIGNMENT_LONG')
 class ALIGNMENT_LONG(Int):
-    def __init__(self, alignment_border):
-        super(ALIGNMENT_LONG, self).__init__(self, alignment_border)
+    def __new__(cls, alignment_border):
+        return super(ALIGNMENT_LONG, cls).__new__(cls, alignment_border)
 
     @property
     def node(self):
@@ -168,8 +168,8 @@ class ALIGNMENT_LONG(Int):
 
 @node_type('ALIGNMENT_WORD')
 class ALIGNMENT_WORD(Int):
-    def __init__(self, alignment_border):
-        super(ALIGNMENT_WORD, self).__init__(self, alignment_border)
+    def __new__(cls, alignment_border):
+        return super(ALIGNMENT_WORD, cls).__new__(cls, alignment_border)
 
     @property
     def node(self):
@@ -192,8 +192,8 @@ class ANNOTATION(A2lNode):
 
 @node_type('ANNOTATION_LABEL')
 class ANNOTATION_LABEL(String):
-    def __init__(self, label):
-        super(ANNOTATION_LABEL, self).__init__(self, label)
+    def __new__(cls, label):
+        return super(ANNOTATION_LABEL, cls).__new__(cls, label)
 
     @property
     def node(self):
@@ -205,8 +205,8 @@ class ANNOTATION_LABEL(String):
 
 @node_type('ANNOTATION_ORIGIN')
 class ANNOTATION_ORIGIN(String):
-    def __init__(self, origin):
-        super(ANNOTATION_ORIGIN, self).__init__(self, origin)
+    def __new__(cls, origin):
+        return super(ANNOTATION_ORIGIN, cls).__new__(cls, origin)
 
     @property
     def node(self):
@@ -227,8 +227,8 @@ class ANNOTATION_TEXT(A2lNode):
 
 @node_type('ARRAY_SIZE')
 class ARRAY_SIZE(Int):
-    def __init__(self, number):
-        super(ARRAY_SIZE, self).__init__(self, number)
+    def __new__(cls, number):
+        return super(ARRAY_SIZE, cls).__new__(cls, number)
 
     @property
     def node(self):
@@ -308,8 +308,8 @@ class AXIS_PTS(A2lNode):
 
 @node_type('AXIS_PTS_REF')
 class AXIS_PTS_REF(Ident):
-    def __init__(self, axis_points):
-        super(AXIS_PTS_REF, self).__init__(self, axis_points)
+    def __new__(cls, axis_points):
+        return super(AXIS_PTS_REF, cls).__new__(cls, axis_points)
 
     @property
     def node(self):
@@ -396,8 +396,8 @@ class AXIS_RESCALE_Z(A2lNode):
 
 @node_type('BIT_MASK')
 class BIT_MASK(Long):
-    def __init__(self, mask):
-        super(BIT_MASK, self).__init__(self, mask)
+    def __new__(cls, mask):
+        return super(BIT_MASK, cls).__new__(cls, mask)
 
     @property
     def node(self):
@@ -420,8 +420,8 @@ class BIT_OPERATION(A2lNode):
 
 @node_type('BYTE_ORDER')
 class BYTE_ORDER(ByteOrder):
-    def __init__(self, byte_order):
-        super(BYTE_ORDER, self).__init__(self, byte_order)
+    def __new__(cls, byte_order):
+        return super(BYTE_ORDER, cls).__new__(cls, byte_order)
 
     @property
     def node(self):
@@ -433,8 +433,8 @@ class BYTE_ORDER(ByteOrder):
 
 @node_type('CALIBRATION_ACCESS')
 class CALIBRATION_ACCESS(enum_type):
-    def __init__(self, type):
-        super(CALIBRATION_ACCESS, self).__init__(self, type)
+    def __new__(cls, type):
+        return super(CALIBRATION_ACCESS, cls).__new__(cls, type)
 
     @property
     def node(self):
@@ -518,8 +518,8 @@ class COEFFS(A2lNode):
 
 @node_type('COMPARISON_QUANTITY')
 class COMPARISON_QUANTITY(Ident):
-    def __init__(self, name):
-        super(COMPARISON_QUANTITY, self).__init__(self, name)
+    def __new__(cls, name):
+        return super(COMPARISON_QUANTITY, cls).__new__(cls, name)
 
     @property
     def node(self):
@@ -562,8 +562,8 @@ class COMPU_TAB(A2lNode):
 
 @node_type('COMPU_TAB_REF')
 class COMPU_TAB_REF(Ident):
-    def __init__(self, conversion_table):
-        super(COMPU_TAB_REF, self).__init__(self, conversion_table)
+    def __new__(cls, conversion_table):
+        return super(COMPU_TAB_REF, cls).__new__(cls, conversion_table)
 
     @property
     def node(self):
@@ -602,8 +602,8 @@ class COMPU_VTAB_RANGE(A2lNode):
 
 @node_type('CPU_TYPE')
 class CPU_TYPE(String):
-    def __init__(self, cpu_identifier):
-        super(CPU_TYPE, self).__init__(self, cpu_identifier)
+    def __new__(cls, cpu_identifier):
+        return super(CPU_TYPE, cls).__new__(cls, cpu_identifier)
 
     @property
     def node(self):
@@ -615,8 +615,8 @@ class CPU_TYPE(String):
 
 @node_type('CURVE_AXIS_REF')
 class CURVE_AXIS_REF(Ident):
-    def __init__(self, curve_axis):
-        super(CURVE_AXIS_REF, self).__init__(self, curve_axis)
+    def __new__(cls, curve_axis):
+        return super(CURVE_AXIS_REF, cls).__new__(cls, curve_axis)
 
     @property
     def node(self):
@@ -628,8 +628,8 @@ class CURVE_AXIS_REF(Ident):
 
 @node_type('CUSTOMER')
 class CUSTOMER(String):
-    def __init__(self, customer):
-        super(CUSTOMER, self).__init__(self, customer)
+    def __new__(cls, customer):
+        return super(CUSTOMER, cls).__new__(cls, customer)
 
     @property
     def node(self):
@@ -641,8 +641,8 @@ class CUSTOMER(String):
 
 @node_type('CUSTOMER_NO')
 class CUSTOMER_NO(String):
-    def __init__(self, number):
-        super(CUSTOMER_NO, self).__init__(self, number)
+    def __new__(cls, number):
+        return super(CUSTOMER_NO, cls).__new__(cls, number)
 
     @property
     def node(self):
@@ -654,8 +654,8 @@ class CUSTOMER_NO(String):
 
 @node_type('DATA_SIZE')
 class DATA_SIZE(Int):
-    def __init__(self, size):
-        super(DATA_SIZE, self).__init__(self, size)
+    def __new__(cls, size):
+        return super(DATA_SIZE, cls).__new__(cls, size)
 
     @property
     def node(self):
@@ -667,8 +667,8 @@ class DATA_SIZE(Int):
 
 @node_type('DEFAULT_VALUE')
 class DEFAULT_VALUE(String):
-    def __init__(self, display_string):
-        super(DEFAULT_VALUE, self).__init__(self, display_string)
+    def __new__(cls, display_string):
+        return super(DEFAULT_VALUE, cls).__new__(cls, display_string)
 
     @property
     def node(self):
@@ -699,8 +699,8 @@ class DEPENDENT_CHARACTERISTIC(A2lNode):
 
 @node_type('DEPOSIT')
 class DEPOSIT(enum_mode):
-    def __init__(self, mode):
-        super(DEPOSIT, self).__init__(self, mode)
+    def __new__(cls, mode):
+        return super(DEPOSIT, cls).__new__(cls, mode)
 
     @property
     def node(self):
@@ -712,8 +712,8 @@ class DEPOSIT(enum_mode):
 
 @node_type('DISPLAY_IDENTIFIER')
 class DISPLAY_IDENTIFIER(Ident):
-    def __init__(self, display_name):
-        super(DISPLAY_IDENTIFIER, self).__init__(self, display_name)
+    def __new__(cls, display_name):
+        return super(DISPLAY_IDENTIFIER, cls).__new__(cls, display_name)
 
     @property
     def node(self):
@@ -755,8 +755,8 @@ class DIST_OP_Z(A2lNode):
 
 @node_type('ECU')
 class ECU(String):
-    def __init__(self, control_unit):
-        super(ECU, self).__init__(self, control_unit)
+    def __new__(cls, control_unit):
+        return super(ECU, cls).__new__(cls, control_unit)
 
     @property
     def node(self):
@@ -768,8 +768,8 @@ class ECU(String):
 
 @node_type('ECU_ADDRESS')
 class ECU_ADDRESS(Long):
-    def __init__(self, address):
-        super(ECU_ADDRESS, self).__init__(self, address)
+    def __new__(cls, address):
+        return super(ECU_ADDRESS, cls).__new__(cls, address)
 
     @property
     def node(self):
@@ -781,8 +781,8 @@ class ECU_ADDRESS(Long):
 
 @node_type('ECU_ADDRESS_EXTENSION')
 class ECU_ADDRESS_EXTENSION(Int):
-    def __init__(self, extension):
-        super(ECU_ADDRESS_EXTENSION, self).__init__(self, extension)
+    def __new__(cls, extension):
+        return super(ECU_ADDRESS_EXTENSION, cls).__new__(cls, extension)
 
     @property
     def node(self):
@@ -794,8 +794,8 @@ class ECU_ADDRESS_EXTENSION(Int):
 
 @node_type('ECU_CALIBRATION_OFFSET')
 class ECU_CALIBRATION_OFFSET(Long):
-    def __init__(self, offset):
-        super(ECU_CALIBRATION_OFFSET, self).__init__(self, offset)
+    def __new__(cls, offset):
+        return super(ECU_CALIBRATION_OFFSET, cls).__new__(cls, offset)
 
     @property
     def node(self):
@@ -807,8 +807,8 @@ class ECU_CALIBRATION_OFFSET(Long):
 
 @node_type('EPK')
 class EPK(String):
-    def __init__(self, identifier):
-        super(EPK, self).__init__(self, identifier)
+    def __new__(cls, identifier):
+        return super(EPK, cls).__new__(cls, identifier)
 
     @property
     def node(self):
@@ -820,8 +820,8 @@ class EPK(String):
 
 @node_type('ERROR_MASK')
 class ERROR_MASK(Long):
-    def __init__(self, mask):
-        super(ERROR_MASK, self).__init__(self, mask)
+    def __new__(cls, mask):
+        return super(ERROR_MASK, cls).__new__(cls, mask)
 
     @property
     def node(self):
@@ -874,8 +874,8 @@ class FIX_AXIS_PAR_LIST(A2lNode):
 
 @node_type('FIX_NO_AXIS_PTS_X')
 class FIX_NO_AXIS_PTS_X(Int):
-    def __init__(self, number_of_axis_points):
-        super(FIX_NO_AXIS_PTS_X, self).__init__(self, number_of_axis_points)
+    def __new__(cls, number_of_axis_points):
+        return super(FIX_NO_AXIS_PTS_X, cls).__new__(cls, number_of_axis_points)
 
     @property
     def node(self):
@@ -887,8 +887,8 @@ class FIX_NO_AXIS_PTS_X(Int):
 
 @node_type('FIX_NO_AXIS_PTS_Y')
 class FIX_NO_AXIS_PTS_Y(Int):
-    def __init__(self, number_of_axis_points):
-        super(FIX_NO_AXIS_PTS_Y, self).__init__(self, number_of_axis_points)
+    def __new__(cls, number_of_axis_points):
+        return super(FIX_NO_AXIS_PTS_Y, cls).__new__(cls, number_of_axis_points)
 
     @property
     def node(self):
@@ -900,8 +900,8 @@ class FIX_NO_AXIS_PTS_Y(Int):
 
 @node_type('FIX_NO_AXIS_PTS_Z')
 class FIX_NO_AXIS_PTS_Z(Int):
-    def __init__(self, number_of_axis_points):
-        super(FIX_NO_AXIS_PTS_Z, self).__init__(self, number_of_axis_points)
+    def __new__(cls, number_of_axis_points):
+        return super(FIX_NO_AXIS_PTS_Z, cls).__new__(cls, number_of_axis_points)
 
     @property
     def node(self):
@@ -925,8 +925,8 @@ class FNC_VALUES(A2lNode):
 
 @node_type('FORMAT')
 class FORMAT(String):
-    def __init__(self, format_string):
-        super(FORMAT, self).__init__(self, format_string)
+    def __new__(cls, format_string):
+        return super(FORMAT, cls).__new__(cls, format_string)
 
     @property
     def node(self):
@@ -948,8 +948,8 @@ class FORMULA(A2lNode):
 
 @node_type('FORMULA_INV')
 class FORMULA_INV(String):
-    def __init__(self, function):
-        super(FORMULA_INV, self).__init__(self, function)
+    def __new__(cls, function):
+        return super(FORMULA_INV, cls).__new__(cls, function)
 
     @property
     def node(self):
@@ -1011,8 +1011,8 @@ class FUNCTION_LIST(A2lNode):
 
 @node_type('FUNCTION_VERSION')
 class FUNCTION_VERSION(String):
-    def __init__(self, version_identifier):
-        super(FUNCTION_VERSION, self).__init__(self, version_identifier)
+    def __new__(cls, version_identifier):
+        return super(FUNCTION_VERSION, cls).__new__(cls, version_identifier)
 
     @property
     def node(self):
@@ -1070,8 +1070,8 @@ class IN_MEASUREMENT(A2lNode):
 
 @node_type('LEFT_SHIFT')
 class LEFT_SHIFT(Long):
-    def __init__(self, bit_count):
-        super(LEFT_SHIFT, self).__init__(self, bit_count)
+    def __new__(cls, bit_count):
+        return super(LEFT_SHIFT, cls).__new__(cls, bit_count)
 
     @property
     def node(self):
@@ -1112,8 +1112,8 @@ class MATRIX_DIM(A2lNode):
 
 @node_type('MAX_GRAD')
 class MAX_GRAD(Float):
-    def __init__(self, max_gradient):
-        super(MAX_GRAD, self).__init__(self, max_gradient)
+    def __new__(cls, max_gradient):
+        return super(MAX_GRAD, cls).__new__(cls, max_gradient)
 
     @property
     def node(self):
@@ -1269,8 +1269,8 @@ class MOD_PAR(A2lNode):
 
 @node_type('MONOTONY')
 class MONOTONY(monotony_enum):
-    def __init__(self, monotony):
-        super(MONOTONY, self).__init__(self, monotony)
+    def __new__(cls, monotony):
+        return super(MONOTONY, cls).__new__(cls, monotony)
 
     @property
     def node(self):
@@ -1312,8 +1312,8 @@ class NO_AXIS_PTS_Z(A2lNode):
 
 @node_type('NO_OF_INTERFACES')
 class NO_OF_INTERFACES(Int):
-    def __init__(self, number_of_interfaces):
-        super(NO_OF_INTERFACES, self).__init__(self, number_of_interfaces)
+    def __new__(cls, number_of_interfaces):
+        return super(NO_OF_INTERFACES, cls).__new__(cls, number_of_interfaces)
 
     @property
     def node(self):
@@ -1355,8 +1355,8 @@ class NO_RESCALE_Z(A2lNode):
 
 @node_type('NUMBER')
 class NUMBER(Int):
-    def __init__(self, number):
-        super(NUMBER, self).__init__(self, number)
+    def __new__(cls, number):
+        return super(NUMBER, cls).__new__(cls, number)
 
     @property
     def node(self):
@@ -1407,8 +1407,8 @@ class OUT_MEASUREMENT(A2lNode):
 
 @node_type('PHONE_NO')
 class PHONE_NO(String):
-    def __init__(self, phone_number):
-        super(PHONE_NO, self).__init__(self, phone_number)
+    def __new__(cls, phone_number):
+        return super(PHONE_NO, cls).__new__(cls, phone_number)
 
     @property
     def node(self):
@@ -1432,8 +1432,8 @@ class PROJECT(A2lNode):
 
 @node_type('PROJECT_NO')
 class PROJECT_NO(Ident):
-    def __init__(self, project_number):
-        super(PROJECT_NO, self).__init__(self, project_number)
+    def __new__(cls, project_number):
+        return super(PROJECT_NO, cls).__new__(cls, project_number)
 
     @property
     def node(self):
@@ -1520,8 +1520,8 @@ class REF_MEASUREMENT(A2lNode):
 
 @node_type('REF_MEMORY_SEGMENT')
 class REF_MEMORY_SEGMENT(Ident):
-    def __init__(self, name):
-        super(REF_MEMORY_SEGMENT, self).__init__(self, name)
+    def __new__(cls, name):
+        return super(REF_MEMORY_SEGMENT, cls).__new__(cls, name)
 
     @property
     def node(self):
@@ -1533,8 +1533,8 @@ class REF_MEMORY_SEGMENT(Ident):
 
 @node_type('REF_UNIT')
 class REF_UNIT(Ident):
-    def __init__(self, unit):
-        super(REF_UNIT, self).__init__(self, unit)
+    def __new__(cls, unit):
+        return super(REF_UNIT, cls).__new__(cls, unit)
 
     @property
     def node(self):
@@ -1556,8 +1556,8 @@ class RESERVED(A2lNode):
 
 @node_type('RIGHT_SHIFT')
 class RIGHT_SHIFT(Long):
-    def __init__(self, bit_count):
-        super(RIGHT_SHIFT, self).__init__(self, bit_count)
+    def __new__(cls, bit_count):
+        return super(RIGHT_SHIFT, cls).__new__(cls, bit_count)
 
     @property
     def node(self):
@@ -1702,8 +1702,8 @@ class SUB_GROUP(A2lNode):
 
 @node_type('SUPPLIER')
 class SUPPLIER(String):
-    def __init__(self, manufacturer):
-        super(SUPPLIER, self).__init__(self, manufacturer)
+    def __new__(cls, manufacturer):
+        return super(SUPPLIER, cls).__new__(cls, manufacturer)
 
     @property
     def node(self):
@@ -1725,8 +1725,8 @@ class SYSTEM_CONSTANT(A2lNode):
 
 @node_type('S_REC_LAYOUT')
 class S_REC_LAYOUT(Ident):
-    def __init__(self, name):
-        super(S_REC_LAYOUT, self).__init__(self, name)
+    def __new__(cls, name):
+        return super(S_REC_LAYOUT, cls).__new__(cls, name)
 
     @property
     def node(self):
@@ -1763,8 +1763,8 @@ class UNIT_CONVERSION(A2lNode):
 
 @node_type('USER')
 class USER(String):
-    def __init__(self, user_name):
-        super(USER, self).__init__(self, user_name)
+    def __new__(cls, user_name):
+        return super(USER, cls).__new__(cls, user_name)
 
     @property
     def node(self):
@@ -1842,8 +1842,8 @@ class VAR_FORBIDDEN_COMB(A2lNode):
 
 @node_type('VAR_MEASUREMENT')
 class VAR_MEASUREMENT(Ident):
-    def __init__(self, name):
-        super(VAR_MEASUREMENT, self).__init__(self, name)
+    def __new__(cls, name):
+        return super(VAR_MEASUREMENT, cls).__new__(cls, name)
 
     @property
     def node(self):
@@ -1855,8 +1855,8 @@ class VAR_MEASUREMENT(Ident):
 
 @node_type('VAR_NAMING')
 class VAR_NAMING(enum_tag):
-    def __init__(self, tag):
-        super(VAR_NAMING, self).__init__(self, tag)
+    def __new__(cls, tag):
+        return super(VAR_NAMING, cls).__new__(cls, tag)
 
     @property
     def node(self):
@@ -1868,8 +1868,8 @@ class VAR_NAMING(enum_tag):
 
 @node_type('VAR_SELECTION_CHARACTERISTIC')
 class VAR_SELECTION_CHARACTERISTIC(Ident):
-    def __init__(self, name):
-        super(VAR_SELECTION_CHARACTERISTIC, self).__init__(self, name)
+    def __new__(cls, name):
+        return super(VAR_SELECTION_CHARACTERISTIC, cls).__new__(cls, name)
 
     @property
     def node(self):
@@ -1881,8 +1881,8 @@ class VAR_SELECTION_CHARACTERISTIC(Ident):
 
 @node_type('VAR_SEPARATOR')
 class VAR_SEPARATOR(String):
-    def __init__(self, separator):
-        super(VAR_SEPARATOR, self).__init__(self, separator)
+    def __new__(cls, separator):
+        return super(VAR_SEPARATOR, cls).__new__(cls, separator)
 
     @property
     def node(self):
