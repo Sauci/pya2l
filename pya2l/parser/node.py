@@ -5,7 +5,7 @@
 @date: 31.12.2018
 """
 
-from pya2l.parser.type import String
+from pya2l.parser.a2l_type import String
 
 
 class ASTNode(object):

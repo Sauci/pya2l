@@ -14,7 +14,7 @@ from pya2l.parser.grammar.lexer import tokens as lex_tokens, lexer, token_functi
 from pya2l.parser.node import node_factory
 from pya2l.parser.a2l_node import *
 from pya2l.parser.a2ml_node import *
-from pya2l.parser.type import *
+from pya2l.parser.a2l_type import *
 
 
 class A2lParser(object):

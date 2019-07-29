@@ -6,7 +6,7 @@
 """
 
 from pya2l.parser.node import ASTNode, node_type
-from pya2l.parser.type import *
+from pya2l.parser.a2l_type import *
 
 enum_index_mode = Ident
 enum_attribute = Ident

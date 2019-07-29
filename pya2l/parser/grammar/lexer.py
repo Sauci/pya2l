@@ -9,7 +9,7 @@ import os
 import ply.lex as lex
 
 from pya2l.parser.exception import A2lLexerException
-from pya2l.parser.type import String
+from pya2l.parser.a2l_type import String
 
 a2l_keywords = dict((k, k) for k in {
     'A2ML',
