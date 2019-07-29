@@ -6,9 +6,7 @@ python:
   - "3.7"
 install:
   - pip install codecov
-  - pip install pytest>=3.6
-  - pip install pytest-cov==2.6.1
-  - pip install git+https://github.com/Sauci/pya2l.git@master
+  - pip install -r requirements.txt
 script:
   - if [ $TRAVIS_BRANCH == 'master' ];
     then py.test --cov-report html --cov pya2l --verbose --cov-fail-under 95;
