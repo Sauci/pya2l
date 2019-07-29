@@ -13,4 +13,10 @@ install:
   - "%PYTHON%/Scripts/pip.exe install pytest pytest-cov"
   - "%PYTHON%/Scripts/pip.exe install git+https://github.com/Sauci/pya2l.git@master"
 test_script:
-  - "%PYTHON%/Scripts/pytest --cov-report html --cov pya2l --verbose --cov-fail-under 95"
+  - IF "%APPVEYOR_REPO_BRANCH%"=="master" (
+    call "%PYTHON%/python.exe" -m pytest --cov-report html --cov pya2l --verbose --cov-fail-under 95
+    )
+    ELSE
+    (
+    call "%PYTHON%/python.exe" -m pytest --cov-report html --cov pya2l --verbose
+    )
