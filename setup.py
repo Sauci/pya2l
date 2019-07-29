@@ -18,6 +18,7 @@ setup(
     },
     long_description='this package provides an API to access different nodes in an a2l-formatted file',
     install_requires=[
+        'mock',
         'ply',
         'pystache',
         'pytest'

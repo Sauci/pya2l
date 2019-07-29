@@ -7,7 +7,7 @@
 
 import pytest
 
-from unittest.mock import mock_open, patch
+from mock import mock_open, patch
 from pya2l.parser.exception import A2lLexerException
 from pya2l.parser.grammar.lexer import Lexer
 
