@@ -14,6 +14,10 @@ class String(str):
     pass
 
 
+class ConstString(String):
+    pass
+
+
 class Float(float):
     pass
 

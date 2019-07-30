@@ -1038,6 +1038,11 @@ class GROUP(A2lNode):
         super(GROUP, self).__init__(*args)
 
 
+@node_type('GUARD_RAILS')
+class GUARD_RAILS(ConstString):
+    pass
+
+
 @node_type('HEADER')
 class HEADER(A2lNode):
     __slots__ = 'comment', 'version', 'project_no', 
@@ -1443,6 +1448,16 @@ class PROJECT_NO(Ident):
         return '{} {}'.format(self.node, super(PROJECT_NO, self).__str__())
 
 
+@node_type('READ_ONLY')
+class READ_ONLY(ConstString):
+    pass
+
+
+@node_type('READ_WRITE')
+class READ_WRITE(ConstString):
+    pass
+
+
 @node_type('RECORD_LAYOUT')
 class RECORD_LAYOUT(A2lNode):
     __slots__ = 'name', 'fnc_values', 'identification', 'axis_pts_x', 'axis_pts_y', 'axis_pts_z', 'axis_rescale_x', 'axis_rescale_y', 'axis_rescale_z', 'no_axis_pts_x', 'no_axis_pts_y', 'no_axis_pts_z', 'no_rescale_x', 'no_rescale_y', 'no_rescale_z', 'fix_no_axis_pts_x', 'fix_no_axis_pts_y', 'fix_no_axis_pts_z', 'src_addr_x', 'src_addr_y', 'src_addr_z', 'rip_addr_x', 'rip_addr_y', 'rip_addr_z', 'rip_addr_w', 'shift_op_x', 'shift_op_y', 'shift_op_z', 'offset_x', 'offset_y', 'offset_z', 'dist_op_x', 'dist_op_y', 'dist_op_z', 'alignment_byte', 'alignment_word', 'alignment_long', 'alignment_float32_ieee', 'alignment_float64_ieee', 'reserved', 
@@ -1607,6 +1622,11 @@ class RIP_ADDR_Z(A2lNode):
         super(RIP_ADDR_Z, self).__init__()
 
 
+@node_type('ROOT')
+class ROOT(ConstString):
+    pass
+
+
 @node_type('SHIFT_OP_X')
 class SHIFT_OP_X(A2lNode):
     __slots__ = 'position', 'data_type', 
@@ -1635,6 +1655,11 @@ class SHIFT_OP_Z(A2lNode):
         self.position = Int(position)
         self.data_type = DataType(data_type)
         super(SHIFT_OP_Z, self).__init__()
+
+
+@node_type('SIGN_EXTEND')
+class SIGN_EXTEND(ConstString):
+    pass
 
 
 @node_type('SI_EXPONENTS')
@@ -1894,8 +1919,8 @@ class VAR_SEPARATOR(String):
 
 @node_type('VERSION')
 class VERSION(String):
-    def __init__(self, version_identifier):
-        super(VERSION, self).__init__(self, version_identifier)
+    def __new__(cls, version_identifier):
+        return super(VERSION, cls).__new__(cls, version_identifier)
 
     @property
     def node(self):
