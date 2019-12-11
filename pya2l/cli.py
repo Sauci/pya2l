@@ -8,7 +8,7 @@
 import argparse
 from json import dump
 
-from pya2l.parser import Parser
+from pya2l.a2l import A2lParser as Parser
 
 JSON_CMD = 'to_json'
 

@@ -7,7 +7,7 @@
 
 import pytest
 
-from pya2l.parser.exception import A2lFormatException
+from pya2l.a2l import A2lFormatException
 from pya2l.parser.grammar.parser import A2lParser as Parser
 
 idents = (

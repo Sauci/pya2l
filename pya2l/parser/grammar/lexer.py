@@ -8,7 +8,7 @@
 import os
 import ply.lex as lex
 
-from pya2l.parser.exception import A2lLexerException
+from pya2l.a2l.exception import A2lLexerException
 from pya2l.shared.type import String
 from pya2l.a2l.token import tokens as a2l_tokens
 from pya2l.a2ml.token import tokens as a2ml_tokens

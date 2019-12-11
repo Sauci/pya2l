@@ -8,7 +8,7 @@
 import pytest
 
 from mock import mock_open, patch
-from pya2l.parser.exception import A2lLexerException
+from pya2l.a2l.exception import A2lLexerException
 from pya2l.parser.grammar.lexer import Lexer
 
 
