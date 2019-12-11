@@ -11,10 +11,9 @@ import ply.yacc as yacc
 
 from pya2l.parser.exception import A2lFormatException
 from pya2l.parser.grammar.lexer import Lexer
-from pya2l.parser.node import node_factory
-from pya2l.parser.a2l_node import *
-from pya2l.parser.a2ml_node import *
-from pya2l.parser.a2l_type import *
+from pya2l.shared.node import node_factory
+from pya2l.a2l import *
+from pya2l.a2ml import *
 
 
 class A2lParser(object):

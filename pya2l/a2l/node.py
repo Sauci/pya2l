@@ -1,12 +1,12 @@
 """
 @project: pya2l
-@file: a2l_node.py
+@file: node.py
 @author: Guillaume Sottas
 @date: 05.04.2018
 """
 
-from pya2l.parser.node import ASTNode, node_type
-from pya2l.parser.a2l_type import *
+from pya2l.shared import ASTNode, node_type
+from pya2l.shared.type import *
 
 enum_index_mode = Ident
 enum_attribute = Ident

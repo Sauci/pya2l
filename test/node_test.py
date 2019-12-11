@@ -5,7 +5,7 @@
 @date: 28.12.2018
 """
 
-from pya2l.parser.node import ASTNode
+from pya2l.shared.node import ASTNode
 
 
 def test_init():

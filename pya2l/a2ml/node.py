@@ -1,12 +1,12 @@
 """
 @project: pya2l
-@file: a2ml_node.py
+@file: node.py
 @author: Guillaume Sottas
 @date: 28.12.2018
 """
 
 from pya2l.parser.if_data_node import AmlDynNode, AmlDynStruct
-from pya2l.parser.node import ASTNode, node_type
+from pya2l.shared import ASTNode, node_type
 
 
 class A2MLNode(ASTNode):
