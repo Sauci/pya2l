@@ -1,0 +1,13 @@
+tokens = {'block',
+          'char',
+          'double',
+          'enum',
+          'float',
+          'int',
+          'long',
+          'struct',
+          'taggedstruct',
+          'taggedunion',
+          'uchar',
+          'uint',
+          'ulong'}
