@@ -5,5 +5,5 @@
 @date: 13.04.2018
 """
 
-from .a2l.parser import A2lParser as Parser, A2lFormatException
+from .parser.grammar import A2lParser as Parser, A2lFormatException
 from .cli import main
