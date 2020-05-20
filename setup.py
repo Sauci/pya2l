@@ -8,7 +8,10 @@ setup(
     version='0.0.1',
     packages=[
         'pya2l',
+        'pya2l.a2l',
+        'pya2l.a2ml',
         'pya2l.parser',
+        'pya2l.shared',
         'pya2l.parser.grammar'
     ],
     url='https://github.com/Sauci/pya2l',
