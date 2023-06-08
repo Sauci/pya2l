@@ -1,5 +1,1 @@
-mock==3.0.5
-ply==3.11
-pystache==0.5.4
-pytest>=3.6
-pytest-cov==2.6.1
+argparse

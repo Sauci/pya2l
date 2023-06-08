@@ -5,5 +5,4 @@
 @date: 13.04.2018
 """
 
-from .parser.grammar import A2lParser, A2lFormatException
 from .cli import main

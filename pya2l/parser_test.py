@@ -7,8 +7,14 @@
 
 import pytest
 
-from pya2l.a2l import A2lFormatException
 from .parser import A2lParser as Parser
+
+def is_iterable(e):
+    try:
+        iter(e)
+        return True
+    except TypeError:
+        return False
 
 idents = (
     pytest.param('name', 'name', id='valid ident'),
@@ -21,7 +27,7 @@ ints = (pytest.param('0', 0, id='zero'),)
 
 longs = (pytest.param('0', 0, id='zero'),)
 
-strings = (pytest.param('\"\"', '', id='valid string'),)
+strings = (pytest.param('\"\"', '', id='valid string'), pytest.param('\"asd\"', 'asd', id='valid string'),)
 
 addr_types = (
     pytest.param('PBYTE', 'PBYTE', id='1 byte'),
@@ -44,7 +50,7 @@ data_types = (
     pytest.param('FLOAT32_IEEE', 'FLOAT32_IEEE', id='f32'),
     pytest.param('FLOAT64_IEEE', 'FLOAT64_IEEE', id='f64'))
 
-index_orders = (
+index_increments = (
     pytest.param('INDEX_INCR', 'INDEX_INCR', id='increasing'),
     pytest.param('INDEX_DECR', 'INDEX_DECR', id='decreasing'))
 
@@ -405,21 +411,21 @@ def virtual_characteristic_string(request):
 
 @pytest.fixture()
 def project(request):
-    lookup = dict(axis_descr=axis_descr_string_minimal,
-                  axis_pts=axis_pts_string_minimal,
-                  characteristic=characteristic_string_minimal,
-                  compu_method=compu_method_string_minimal,
-                  function=function_string_minimal,
-                  group=group_string_minimal,
-                  header=header_string_minimal,
-                  measurement=measurement_string_minimal,
-                  mod_par=mod_par_string_minimal,
-                  module=module_string_minimal,
-                  project=project_string_minimal,
-                  record_layout=record_layout_string_minimal,
-                  variant_coding=variant_coding_string_minimal)
+    lookup = dict(AXIS_DESCR=axis_descr_string_minimal,
+                  AXIS_PTS=axis_pts_string_minimal,
+                  CHARACTERISTIC=characteristic_string_minimal,
+                  COMPU_METHOD=compu_method_string_minimal,
+                  FUNCTION=function_string_minimal,
+                  GROUP=group_string_minimal,
+                  HEADER=header_string_minimal,
+                  MEASUREMENT=measurement_string_minimal,
+                  MOD_PAR=mod_par_string_minimal,
+                  MODULE=module_string_minimal,
+                  PROJECT=project_string_minimal,
+                  RECORD_LAYOUT=record_layout_string_minimal,
+                  VARIANT_CODING=variant_coding_string_minimal)
     result = None
-    prefix = ['project']
+    prefix = ['PROJECT']
     for element in prefix + request.param:
         try:
             if result:
@@ -433,29 +439,29 @@ def project(request):
 
 @pytest.fixture()
 def module(request):
-    lookup = dict(annotation=annotation_string_minimal,  # TODO: check.
-                  axis_descr=axis_descr_string_minimal,
-                  axis_pts=axis_pts_string_minimal,
-                  bit_operation=bit_operation_string_minimal,  # TODO: check.
-                  characteristic=characteristic_string_minimal,
-                  compu_method=compu_method_string_minimal,
-                  compu_tab=compu_tab_string_minimal,
-                  compu_vtab=compu_vtab_string_minimal,
-                  compu_vtab_range=compu_vtab_range_string_minimal,
-                  frame=frame_string_minimal,
-                  function=function_string_minimal,
-                  group=group_string_minimal,
-                  measurement=measurement_string_minimal,
-                  mod_common=mod_common_string_minimal,
-                  mod_par=mod_par_string_minimal,
-                  module=module_string_minimal,
-                  project=project_string_minimal,
-                  record_layout=record_layout_string_minimal,
-                  unit=unit_string_minimal,
-                  user_rights=user_rights_string_minimal,
-                  variant_coding=variant_coding_string_minimal)
+    lookup = dict(ANNOTATION=annotation_string_minimal,  # TODO: check.
+                  AXIS_DESCR=axis_descr_string_minimal,
+                  AXIS_PTS=axis_pts_string_minimal,
+                  BIT_OPERATION=bit_operation_string_minimal,  # TODO: check.
+                  CHARACTERISTIC=characteristic_string_minimal,
+                  COMPU_METHOD=compu_method_string_minimal,
+                  COMPU_TAB=compu_tab_string_minimal,
+                  COMPU_VTAB=compu_vtab_string_minimal,
+                  COMPU_VTAB_RANGE=compu_vtab_range_string_minimal,
+                  FRAME=frame_string_minimal,
+                  FUNCTION=function_string_minimal,
+                  GROUP=group_string_minimal,
+                  MEASUREMENT=measurement_string_minimal,
+                  MOD_COMMON=mod_common_string_minimal,
+                  MOD_PAR=mod_par_string_minimal,
+                  MODULE=module_string_minimal,
+                  PROJECT=project_string_minimal,
+                  RECORD_LAYOUT=record_layout_string_minimal,
+                  UNIT=unit_string_minimal,
+                  USER_RIGHTS=user_rights_string_minimal,
+                  VARIANT_CODING=variant_coding_string_minimal)
     result = None
-    prefix = ['project', 'module', 0]
+    prefix = ['PROJECT', 'MODULE', 0]
     for element in prefix + request.param:
         try:
             if result:
@@ -469,11 +475,11 @@ def module(request):
 
 @pytest.fixture()
 def variant_coding(request):
-    lookup = dict(var_address=var_address_string_minimal,
-                  var_characteristic=var_characteristic_string_minimal,
-                  var_criterion=var_criterion_string_minimal)
+    lookup = dict(VAR_ADDRESS=var_address_string_minimal,
+                  VAR_CHARACTERISTIC=var_characteristic_string_minimal,
+                  VAR_CRITERION=var_criterion_string_minimal)
     result = None
-    prefix = ['project', 'module', 0, 'variant_coding']
+    prefix = ['PROJECT', 'MODULE', 0, 'VARIANT_CODING']
     for element in prefix + request.param:
         try:
             if result:
@@ -489,9 +495,9 @@ def variant_coding(request):
 
 @pytest.fixture()
 def calibration_method(request):
-    lookup = dict(calibration_handle=calibration_handle_string_minimal)
+    lookup = dict(CALIBRATION_HANDLE=calibration_handle_string_minimal)
     result = None
-    prefix = ['project', 'module', 0, 'mod_par', 'calibration_method', 0]
+    prefix = ['PROJECT', 'MODULE', 0, 'MOD_PAR', 'CALIBRATION_METHOD', 0]
     for element in prefix + request.param:
         try:
             if result:
@@ -508,9 +514,9 @@ def calibration_method(request):
 
 @pytest.fixture()
 def compu_method(request):
-    lookup = dict(formula='/begin FORMULA "" {} /end FORMULA')
+    lookup = dict(FORMULA='/begin FORMULA "" {} /end FORMULA')
     result = None
-    prefix = ['project', 'module', 0, 'compu_method', 0]
+    prefix = ['PROJECT', 'MODULE', 0, 'COMPU_METHOD', 0]
     for element in prefix + request.param:
         try:
             if result:
@@ -535,168 +541,168 @@ def get_node_from_ast(ast, path):
 
 
 def test_a2l():
-    pytest.xfail('implement me...')
+    pass  # pytest.xfail('implement me...')
 
 
-@pytest.mark.parametrize('e', ['A2ML_VERSION {int} {int}'])
+@pytest.mark.parametrize('e', ['A2ML_VERSION {int} {int} /begin PROJECT _ "" /end PROJECT'])
 @pytest.mark.parametrize('s, v', ints)
 def test_a2ml_version(e, s, v):
-    p = Parser(e.format(int=s))
-    assert p.ast.a2ml_version.version_no == v
-    assert p.ast.a2ml_version.upgrade_no == v
+    with Parser(e.format(int=s)) as p:
+        assert p.ast.A2ML_VERSION.VersionNo.Value == v
+        assert p.ast.A2ML_VERSION.UpgradeNo.Value == v
 
 
 @pytest.mark.parametrize('project', [
-    pytest.param(['module', 0, 'mod_par', 'addr_epk', 0], id='MOD_PAR')], indirect=True)
+    pytest.param(['MODULE', 0, 'MOD_PAR', 'ADDR_EPK', 0], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ADDR_EPK {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_addr_epk(project, e, s, v):
-    p = Parser(project[0].format(e.format(s)))
-    version = get_node_from_ast(p.ast, project[1])
-    assert version == v
+    with Parser(project[0].format(e.format(s))) as p:
+        addr_epk = get_node_from_ast(p.ast, project[1])
+        assert addr_epk.Address.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['mod_common', 'alignment_byte'], id='MOD_COMMON'),
-    pytest.param(['record_layout', 0, 'alignment_byte'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['MOD_COMMON', 'ALIGNMENT_BYTE'], id='MOD_COMMON'),
+    pytest.param(['RECORD_LAYOUT', 0, 'ALIGNMENT_BYTE'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_BYTE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_byte(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    alignment_byte = get_node_from_ast(p.ast, module[1])
-    assert alignment_byte == v
+    with Parser(module[0].format(e.format(s))) as p:
+        alignment_byte = get_node_from_ast(p.ast, module[1])
+        assert alignment_byte.AlignmentBorder.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['mod_common', 'alignment_float32_ieee'], id='MOD_COMMON'),
-    pytest.param(['record_layout', 0, 'alignment_float32_ieee'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['MOD_COMMON', 'ALIGNMENT_FLOAT32_IEEE'], id='MOD_COMMON'),
+    pytest.param(['RECORD_LAYOUT', 0, 'ALIGNMENT_FLOAT32_IEEE'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_FLOAT32_IEEE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_float32_ieee(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    alignment_float32_ieee = get_node_from_ast(p.ast, module[1])
-    assert alignment_float32_ieee == v
+    with Parser(module[0].format(e.format(s))) as p:
+        alignment_float32_ieee = get_node_from_ast(p.ast, module[1])
+        assert alignment_float32_ieee.AlignmentBorder.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['mod_common', 'alignment_float64_ieee'], id='MOD_COMMON'),
-    pytest.param(['record_layout', 0, 'alignment_float64_ieee'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['MOD_COMMON', 'ALIGNMENT_FLOAT64_IEEE'], id='MOD_COMMON'),
+    pytest.param(['RECORD_LAYOUT', 0, 'ALIGNMENT_FLOAT64_IEEE'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_FLOAT64_IEEE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_float64_ieee(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    alignment_float64_ieee = get_node_from_ast(p.ast, module[1])
-    assert alignment_float64_ieee == v
+    with Parser(module[0].format(e.format(s))) as p:
+        alignment_float64_ieee = get_node_from_ast(p.ast, module[1])
+        assert alignment_float64_ieee.AlignmentBorder.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['mod_common', 'alignment_long'], id='MOD_COMMON'),
-    pytest.param(['record_layout', 0, 'alignment_long'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['MOD_COMMON', 'ALIGNMENT_LONG'], id='MOD_COMMON'),
+    pytest.param(['RECORD_LAYOUT', 0, 'ALIGNMENT_LONG'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_LONG {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_long(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    alignment_long = get_node_from_ast(p.ast, module[1])
-    assert alignment_long == v
+    with Parser(module[0].format(e.format(s))) as p:
+        alignment_long = get_node_from_ast(p.ast, module[1])
+        assert alignment_long.AlignmentBorder.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['mod_common', 'alignment_word'], id='MOD_COMMON'),
-    pytest.param(['record_layout', 0, 'alignment_word'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['MOD_COMMON', 'ALIGNMENT_WORD'], id='MOD_COMMON'),
+    pytest.param(['RECORD_LAYOUT', 0, 'ALIGNMENT_WORD'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_WORD {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_word(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    alignment_word = get_node_from_ast(p.ast, module[1])
-    assert alignment_word == v
+    with Parser(module[0].format(e.format(s))) as p:
+        alignment_word = get_node_from_ast(p.ast, module[1])
+        assert alignment_word.AlignmentBorder.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['axis_pts', 0, 'annotation', 0], id='AXIS_PTS'),
-    pytest.param(['measurement', 0, 'annotation', 0], id='MEASUREMENT'),
-    pytest.param(['characteristic', 0, 'annotation', 0], id='CHARACTERISTIC'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'annotation', 0], id='AXIS_DESCR'),
-    pytest.param(['function', 0, 'annotation', 0], id='FUNCTION'),
-    pytest.param(['group', 0, 'annotation', 0], id='GROUP')], indirect=True)
+    pytest.param(['AXIS_PTS', 0, 'ANNOTATION', 0], id='AXIS_PTS'),
+    pytest.param(['MEASUREMENT', 0, 'ANNOTATION', 0], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'ANNOTATION', 0], id='CHARACTERISTIC'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'ANNOTATION', 0], id='AXIS_DESCR'),
+    pytest.param(['FUNCTION', 0, 'ANNOTATION', 0], id='FUNCTION'),
+    pytest.param(['GROUP', 0, 'ANNOTATION', 0], id='GROUP')], indirect=True)
 def test_annotation(module):
-    p = Parser(module[0].format(''))
-    annotation = get_node_from_ast(p.ast, module[1])
-    assert annotation.annotation_label is None
-    assert annotation.annotation_origin is None
-    assert annotation.annotation_text is None
+    with Parser(module[0].format('')) as p:
+        annotation = get_node_from_ast(p.ast, module[1])
+        assert annotation.ANNOTATION_LABEL.is_none
+        assert annotation.ANNOTATION_ORIGIN.is_none
+        assert annotation.ANNOTATION_TEXT.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['axis_pts', 0, 'annotation', 0, 'annotation_label'], id='AXIS_PTS'),
-    pytest.param(['measurement', 0, 'annotation', 0, 'annotation_label'], id='MEASUREMENT'),
-    pytest.param(['characteristic', 0, 'annotation', 0, 'annotation_label'], id='CHARACTERISTIC'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'annotation', 0, 'annotation_label'], id='AXIS_DESCR'),
-    pytest.param(['function', 0, 'annotation', 0, 'annotation_label'], id='FUNCTION'),
-    pytest.param(['group', 0, 'annotation', 0, 'annotation_label'], id='GROUP')
+    pytest.param(['AXIS_PTS', 0, 'ANNOTATION', 0, 'ANNOTATION_LABEL'], id='AXIS_PTS'),
+    pytest.param(['MEASUREMENT', 0, 'ANNOTATION', 0, 'ANNOTATION_LABEL'], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'ANNOTATION', 0, 'ANNOTATION_LABEL'], id='CHARACTERISTIC'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'ANNOTATION', 0, 'ANNOTATION_LABEL'], id='AXIS_DESCR'),
+    pytest.param(['FUNCTION', 0, 'ANNOTATION', 0, 'ANNOTATION_LABEL'], id='FUNCTION'),
+    pytest.param(['GROUP', 0, 'ANNOTATION', 0, 'ANNOTATION_LABEL'], id='GROUP')
 ], indirect=True)
 @pytest.mark.parametrize('e', ['ANNOTATION_LABEL {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_annotation_label(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    annotation_label = get_node_from_ast(p.ast, module[1])
-    assert annotation_label == v
+    with Parser(module[0].format(e.format(s))) as p:
+        annotation_label = get_node_from_ast(p.ast, module[1])
+        assert annotation_label.Label.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['axis_pts', 0, 'annotation', 0, 'annotation_origin'], id='AXIS_PTS'),
-    pytest.param(['measurement', 0, 'annotation', 0, 'annotation_origin'], id='MEASUREMENT'),
-    pytest.param(['characteristic', 0, 'annotation', 0, 'annotation_origin'], id='CHARACTERISTIC'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'annotation', 0, 'annotation_origin'], id='AXIS_DESCR'),
-    pytest.param(['function', 0, 'annotation', 0, 'annotation_origin'], id='FUNCTION'),
-    pytest.param(['group', 0, 'annotation', 0, 'annotation_origin'], id='GROUP')
+    pytest.param(['AXIS_PTS', 0, 'ANNOTATION', 0, 'ANNOTATION_ORIGIN'], id='AXIS_PTS'),
+    pytest.param(['MEASUREMENT', 0, 'ANNOTATION', 0, 'ANNOTATION_ORIGIN'], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'ANNOTATION', 0, 'ANNOTATION_ORIGIN'], id='CHARACTERISTIC'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'ANNOTATION', 0, 'ANNOTATION_ORIGIN'], id='AXIS_DESCR'),
+    pytest.param(['FUNCTION', 0, 'ANNOTATION', 0, 'ANNOTATION_ORIGIN'], id='FUNCTION'),
+    pytest.param(['GROUP', 0, 'ANNOTATION', 0, 'ANNOTATION_ORIGIN'], id='GROUP')
 ], indirect=True)
 @pytest.mark.parametrize('e', ['ANNOTATION_ORIGIN {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_annotation_origin(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    annotation_origin = get_node_from_ast(p.ast, module[1])
-    assert annotation_origin == v
+    with Parser(module[0].format(e.format(s))) as p:
+        annotation_origin = get_node_from_ast(p.ast, module[1])
+        assert annotation_origin.Origin.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['axis_pts', 0, 'annotation', 0, 'annotation_text'], id='AXIS_PTS'),
-    pytest.param(['measurement', 0, 'annotation', 0, 'annotation_text'], id='MEASUREMENT'),
-    pytest.param(['characteristic', 0, 'annotation', 0, 'annotation_text'], id='CHARACTERISTIC'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'annotation', 0, 'annotation_text'], id='AXIS_DESCR'),
-    pytest.param(['function', 0, 'annotation', 0, 'annotation_text'], id='FUNCTION'),
-    pytest.param(['group', 0, 'annotation', 0, 'annotation_text'], id='GROUP')], indirect=True)
+    pytest.param(['AXIS_PTS', 0, 'ANNOTATION', 0, 'ANNOTATION_TEXT'], id='AXIS_PTS'),
+    pytest.param(['MEASUREMENT', 0, 'ANNOTATION', 0, 'ANNOTATION_TEXT'], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'ANNOTATION', 0, 'ANNOTATION_TEXT'], id='CHARACTERISTIC'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'ANNOTATION', 0, 'ANNOTATION_TEXT'], id='AXIS_DESCR'),
+    pytest.param(['FUNCTION', 0, 'ANNOTATION', 0, 'ANNOTATION_TEXT'], id='FUNCTION'),
+    pytest.param(['GROUP', 0, 'ANNOTATION', 0, 'ANNOTATION_TEXT'], id='GROUP')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('''/begin ANNOTATION_TEXT /end ANNOTATION_TEXT''', 0, id='no text'),
     pytest.param('''/begin ANNOTATION_TEXT {s} /end ANNOTATION_TEXT''', 1, id='one text'),
     pytest.param('''/begin ANNOTATION_TEXT {s} {s} /end ANNOTATION_TEXT''', 2, id='two text')])
 @pytest.mark.parametrize('s, v', strings)
 def test_annotation_text(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(s=s)))
-    annotation_text = get_node_from_ast(p.ast, module[1])
-    assert type(annotation_text.text) is list
-    assert len(annotation_text.text) == count
-    for text in annotation_text.text:
-        assert text == v
+    with Parser(module[0].format(e.format(s=s))) as p:
+        annotation_text = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(annotation_text.AnnotationText)
+        assert len(annotation_text.AnnotationText) == count
+        for text in annotation_text.AnnotationText:
+            assert text.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['measurement', 0, 'array_size'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'ARRAY_SIZE'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ARRAY_SIZE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_array_size(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    array_size = get_node_from_ast(p.ast, module[1])
-    assert array_size == v
+    with Parser(module[0].format(e.format(s))) as p:
+        array_size = get_node_from_ast(p.ast, module[1])
+        assert array_size.Number.Value == v
 
 
-@pytest.mark.parametrize('s', ['ASAP2_VERSION {int} {int}'])
+@pytest.mark.parametrize('s', ['ASAP2_VERSION {int} {int} /begin PROJECT _ "" /end PROJECT']) #  TODO: create a root fixture containing PROJECT, ASAP2_VERSION and A2ML_VERSION
 @pytest.mark.parametrize('int_string, int_value', ints)
 def test_asap2_version(s, int_string, int_value):
-    p = Parser(s.format(int=int_string))
-    assert p.ast.asap2_version.version_no == int_value
-    assert p.ast.asap2_version.upgrade_no == int_value
+    with Parser(s.format(int=int_string)) as p:
+        assert p.ast.ASAP2_VERSION.VersionNo.Value == int_value
+        assert p.ast.ASAP2_VERSION.UpgradeNo.Value == int_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['characteristic', 0], id='CHARACTERISTIC')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['CHARACTERISTIC', 0], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('s', ['''/begin AXIS_DESCR 
     {enum_attribute}
     {ident}
@@ -728,7 +734,7 @@ def test_axis_descr(module,
                     ident_string, ident_value,
                     int_string, int_value,
                     float_string, float_value):
-    p = Parser(module[0].format(s.format(
+    with Parser(module[0].format(s.format(
         enum_attribute=enum_attribute_string,
         ident=ident_string,
         int=int_string,
@@ -745,27 +751,27 @@ def test_axis_descr(module,
         deposit=empty_string,
         annotation=empty_string,
         extended_limits=empty_string,
-        curve_axis_ref=empty_string)))
-    axis_descr = get_node_from_ast(p.ast, module[1] + ['axis_descr', 0])
-    assert axis_descr.attribute == enum_attribute_value
-    assert axis_descr.input_quantity == ident_value
-    assert axis_descr.conversion == ident_value
-    assert axis_descr.max_axis_points == int_value
-    assert axis_descr.lower_limit == float_value
-    assert axis_descr.upper_limit == float_value
-    assert axis_descr.read_only is None
-    assert axis_descr.format is None
-    assert axis_descr.axis_pts_ref is None
-    assert axis_descr.max_grad is None
-    assert axis_descr.monotony is None
-    assert axis_descr.byte_order is None
-    assert axis_descr.fix_axis_par is None
-    assert axis_descr.fix_axis_par_dist is None
-    assert axis_descr.fix_axis_par_list is None
-    assert axis_descr.deposit is None
-    assert type(axis_descr.annotation) is list
-    assert axis_descr.extended_limits is None
-    assert axis_descr.curve_axis_ref is None
+        curve_axis_ref=empty_string))) as p:
+        axis_descr = get_node_from_ast(p.ast, module[1] + ['AXIS_DESCR', 0])
+        assert axis_descr.Attribute == enum_attribute_value
+        assert axis_descr.InputQuantity.Value == ident_value
+        assert axis_descr.Conversion.Value == ident_value
+        assert axis_descr.MaxAxisPoints.Value == int_value
+        assert axis_descr.LowerLimit.Value == float_value
+        assert axis_descr.UpperLimit.Value == float_value
+        assert axis_descr.READ_ONLY.is_none
+        assert axis_descr.FORMAT.is_none
+        assert axis_descr.AXIS_PTS_REF.is_none
+        assert axis_descr.MAX_GRAD.is_none
+        assert axis_descr.MONOTONY.is_none
+        assert axis_descr.BYTE_ORDER.is_none
+        assert axis_descr.FIX_AXIS_PAR.is_none
+        assert axis_descr.FIX_AXIS_PAR_DIST.is_none
+        assert axis_descr.FIX_AXIS_PAR_LIST.is_none
+        assert axis_descr.DEPOSIT.is_none
+        assert is_iterable(axis_descr.ANNOTATION)
+        assert axis_descr.EXTENDED_LIMITS.is_none
+        assert axis_descr.CURVE_AXIS_REF.is_none
 
 
 @pytest.mark.parametrize('s', [
@@ -805,7 +811,7 @@ def test_axis_pts(s,
                   long_string, long_value,
                   float_string, float_value,
                   int_string, int_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         long=long_string,
@@ -823,49 +829,48 @@ def test_axis_pts(s,
         annotation=empty_string,
         extended_limits=empty_string,
         calibration_access=empty_string,
-        ecu_address_extension=empty_string))))
-    axis_pts = p.ast.project.module[0].axis_pts[0]
-    assert axis_pts.name == ident_value
-    assert axis_pts.long_identifier == string_value
-    assert axis_pts.address == long_value
-    assert axis_pts.input_quantity == ident_value
-    # TODO: axis_pts.deposit positional parameter is overridden by optional DEPOSIT parameter, is it correct?
-    # assert axis_pts.deposit == ident_value
-    assert axis_pts.max_diff == float_value
-    assert axis_pts.conversion == ident_value
-    assert axis_pts.max_axis_points == int_value
-    assert axis_pts.lower_limit == float_value
-    assert axis_pts.upper_limit == float_value
-    assert axis_pts.display_identifier is None
-    assert axis_pts.read_only is None
-    assert axis_pts.format is None
-    assert axis_pts.deposit is None
-    assert axis_pts.byte_order is None
-    assert axis_pts.function_list is None
-    assert axis_pts.ref_memory_segment is None
-    assert axis_pts.guard_rails is None
-    assert type(axis_pts.annotation) is list
-    assert axis_pts.extended_limits is None
-    assert axis_pts.calibration_access is None
-    assert axis_pts.ecu_address_extension is None
+        ecu_address_extension=empty_string)))) as p:
+        axis_pts = p.ast.PROJECT.MODULE[0].AXIS_PTS[0]
+        assert axis_pts.Name.Value == ident_value
+        assert axis_pts.LongIdentifier.Value == string_value
+        assert axis_pts.Address.Value == long_value
+        assert axis_pts.InputQuantity.Value == ident_value
+        assert axis_pts.DepositR.Value == ident_value
+        assert axis_pts.MaxDiff.Value == float_value
+        assert axis_pts.Conversion.Value == ident_value
+        assert axis_pts.MaxAxisPoints.Value == int_value
+        assert axis_pts.LowerLimit.Value == float_value
+        assert axis_pts.UpperLimit.Value == float_value
+        assert axis_pts.DISPLAY_IDENTIFIER.is_none
+        assert axis_pts.READ_ONLY.is_none
+        assert axis_pts.FORMAT.is_none
+        assert axis_pts.DEPOSIT.is_none
+        assert axis_pts.BYTE_ORDER.is_none
+        assert axis_pts.FUNCTION_LIST.is_none
+        assert axis_pts.REF_MEMORY_SEGMENT.is_none
+        assert axis_pts.GUARD_RAILS.is_none
+        assert is_iterable(axis_pts.ANNOTATION)
+        assert axis_pts.EXTENDED_LIMITS.is_none
+        assert axis_pts.CALIBRATION_ACCESS.is_none
+        assert axis_pts.ECU_ADDRESS_EXTENSION.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'axis_pts_ref'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'AXIS_PTS_REF'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('AXIS_PTS_REF {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_axis_pts_ref(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    axis_pts_ref = get_node_from_ast(p.ast, module[1])
-    assert axis_pts_ref == v
+    with Parser(module[0].format(e.format(s))) as p:
+        axis_pts_ref = get_node_from_ast(p.ast, module[1])
+        assert axis_pts_ref.AxisPoints.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'axis_pts_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'AXIS_PTS_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['AXIS_PTS_X {int} {data_type} {index_order} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
-@pytest.mark.parametrize('index_order_string, index_order_value', index_orders)
+@pytest.mark.parametrize('index_order_string, index_order_value', index_increments)
 @pytest.mark.parametrize('addr_type_string, addr_type_value', addr_types)
 def test_axis_pts_x(module,
                     s,
@@ -873,23 +878,23 @@ def test_axis_pts_x(module,
                     data_type_string, data_type_value,
                     index_order_string, index_order_value,
                     addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
                                          index_order=index_order_string,
-                                         addr_type=addr_type_string)))
-    axis_pts_x = get_node_from_ast(p.ast, module[1])
-    assert axis_pts_x.position == int_value
-    assert axis_pts_x.data_type == data_type_value
-    assert axis_pts_x.index_incr == index_order_value
-    assert axis_pts_x.addressing == addr_type_value
+                                         addr_type=addr_type_string))) as p:
+        axis_pts_x = get_node_from_ast(p.ast, module[1])
+        assert axis_pts_x.Position.Value == int_value
+        assert axis_pts_x.DataType.Value == data_type_value
+        assert axis_pts_x.IndexIncr.Value == index_order_value
+        assert axis_pts_x.Addressing.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'axis_pts_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'AXIS_PTS_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['AXIS_PTS_Y {int} {data_type} {index_order} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
-@pytest.mark.parametrize('index_order_string, index_order_value', index_orders)
+@pytest.mark.parametrize('index_order_string, index_order_value', index_increments)
 @pytest.mark.parametrize('addr_type_string, addr_type_value', addr_types)
 def test_axis_pts_y(module,
                     s,
@@ -897,23 +902,23 @@ def test_axis_pts_y(module,
                     data_type_string, data_type_value,
                     index_order_string, index_order_value,
                     addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
                                          index_order=index_order_string,
-                                         addr_type=addr_type_string)))
-    axis_pts_y = get_node_from_ast(p.ast, module[1])
-    assert axis_pts_y.position == int_value
-    assert axis_pts_y.data_type == data_type_value
-    assert axis_pts_y.index_incr == index_order_value
-    assert axis_pts_y.addressing == addr_type_value
+                                         addr_type=addr_type_string))) as p:
+        axis_pts_y = get_node_from_ast(p.ast, module[1])
+        assert axis_pts_y.Position.Value == int_value
+        assert axis_pts_y.DataType.Value == data_type_value
+        assert axis_pts_y.IndexIncr.Value == index_order_value
+        assert axis_pts_y.Addressing.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'axis_pts_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'AXIS_PTS_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['AXIS_PTS_Z {int} {data_type} {index_order} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
-@pytest.mark.parametrize('index_order_string, index_order_value', index_orders)
+@pytest.mark.parametrize('index_order_string, index_order_value', index_increments)
 @pytest.mark.parametrize('addr_type_string, addr_type_value', addr_types)
 def test_axis_pts_z(module,
                     s,
@@ -921,163 +926,163 @@ def test_axis_pts_z(module,
                     data_type_string, data_type_value,
                     index_order_string, index_order_value,
                     addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
                                          index_order=index_order_string,
-                                         addr_type=addr_type_string)))
-    axis_pts_z = get_node_from_ast(p.ast, module[1])
-    assert axis_pts_z.position == int_value
-    assert axis_pts_z.data_type == data_type_value
-    assert axis_pts_z.index_incr == index_order_value
-    assert axis_pts_z.addressing == addr_type_value
+                                         addr_type=addr_type_string))) as p:
+        axis_pts_z = get_node_from_ast(p.ast, module[1])
+        assert axis_pts_z.Position.Value == int_value
+        assert axis_pts_z.DataType.Value == data_type_value
+        assert axis_pts_z.IndexIncr.Value == index_order_value
+        assert axis_pts_z.Addressing.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'axis_rescale_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'AXIS_RESCALE_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['AXIS_RESCALE_X {int} {data_type} {int} {index_order} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
-@pytest.mark.parametrize('index_order_string, index_order_value', index_orders)
+@pytest.mark.parametrize('index_incr_string, index_incr_value', index_increments)
 @pytest.mark.parametrize('addr_type_string, addr_type_value', addr_types)
 def test_axis_rescale_x(module,
                         s,
                         int_string, int_value,
                         data_type_string, data_type_value,
-                        index_order_string, index_order_value,
+                        index_incr_string, index_incr_value,
                         addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
-                                         index_order=index_order_string,
-                                         addr_type=addr_type_string)))
-    axis_rescale_x = get_node_from_ast(p.ast, module[1])
-    assert axis_rescale_x.position == int_value
-    assert axis_rescale_x.data_type == data_type_value
-    assert axis_rescale_x.max_number_of_rescale_pairs == int_value
-    assert axis_rescale_x.index_incr == index_order_value
-    assert axis_rescale_x.addressing == addr_type_value
+                                         index_order=index_incr_string,
+                                         addr_type=addr_type_string))) as p:
+        axis_rescale_x = get_node_from_ast(p.ast, module[1])
+        assert axis_rescale_x.Position.Value == int_value
+        assert axis_rescale_x.DataType.Value == data_type_value
+        assert axis_rescale_x.MaxNumberOfRescalePairs.Value == int_value
+        assert axis_rescale_x.IndexIncr.Value == index_incr_value
+        assert axis_rescale_x.Addressing.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'axis_rescale_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'AXIS_RESCALE_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['AXIS_RESCALE_Y {int} {data_type} {int} {index_order} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
-@pytest.mark.parametrize('index_order_string, index_order_value', index_orders)
+@pytest.mark.parametrize('index_incr_string, index_incr_value', index_increments)
 @pytest.mark.parametrize('addr_type_string, addr_type_value', addr_types)
 def test_axis_rescale_y(module,
                         s,
                         int_string, int_value,
                         data_type_string, data_type_value,
-                        index_order_string, index_order_value,
+                        index_incr_string, index_incr_value,
                         addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
-                                         index_order=index_order_string,
-                                         addr_type=addr_type_string)))
-    axis_rescale_y = get_node_from_ast(p.ast, module[1])
-    assert axis_rescale_y.position == int_value
-    assert axis_rescale_y.data_type == data_type_value
-    assert axis_rescale_y.max_number_of_rescale_pairs == int_value
-    assert axis_rescale_y.index_incr == index_order_value
-    assert axis_rescale_y.addressing == addr_type_value
+                                         index_order=index_incr_string,
+                                         addr_type=addr_type_string))) as p:
+        axis_rescale_y = get_node_from_ast(p.ast, module[1])
+        assert axis_rescale_y.Position.Value == int_value
+        assert axis_rescale_y.DataType.Value == data_type_value
+        assert axis_rescale_y.MaxNumberOfRescalePairs.Value == int_value
+        assert axis_rescale_y.IndexIncr.Value == index_incr_value
+        assert axis_rescale_y.Addressing.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'axis_rescale_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'AXIS_RESCALE_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['AXIS_RESCALE_Z {int} {data_type} {int} {index_order} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
-@pytest.mark.parametrize('index_order_string, index_order_value', index_orders)
+@pytest.mark.parametrize('index_incr_string, index_incr_value', index_increments)
 @pytest.mark.parametrize('addr_type_string, addr_type_value', addr_types)
 def test_axis_rescale_z(module,
                         s,
                         int_string, int_value,
                         data_type_string, data_type_value,
-                        index_order_string, index_order_value,
+                        index_incr_string, index_incr_value,
                         addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
-                                         index_order=index_order_string,
-                                         addr_type=addr_type_string)))
-    axis_rescale_z = get_node_from_ast(p.ast, module[1])
-    assert axis_rescale_z.position == int_value
-    assert axis_rescale_z.data_type == data_type_value
-    assert axis_rescale_z.max_number_of_rescale_pairs == int_value
-    assert axis_rescale_z.index_incr == index_order_value
-    assert axis_rescale_z.addressing == addr_type_value
+                                         index_order=index_incr_string,
+                                         addr_type=addr_type_string))) as p:
+        axis_rescale_z = get_node_from_ast(p.ast, module[1])
+        assert axis_rescale_z.Position.Value == int_value
+        assert axis_rescale_z.DataType.Value == data_type_value
+        assert axis_rescale_z.MaxNumberOfRescalePairs.Value == int_value
+        assert axis_rescale_z.IndexIncr.Value == index_incr_value
+        assert axis_rescale_z.Addressing.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'bit_mask'], id='CHARACTERISTIC'),
-    pytest.param(['measurement', 0, 'bit_mask'], id='MEASUREMENT')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'BIT_MASK'], id='CHARACTERISTIC'),
+    pytest.param(['MEASUREMENT', 0, 'BIT_MASK'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('BIT_MASK {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_bit_mask(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    bit_mask = get_node_from_ast(p.ast, module[1])
-    assert bit_mask == v
+    with Parser(module[0].format(e.format(s))) as p:
+        bit_mask = get_node_from_ast(p.ast, module[1])
+        assert bit_mask.Mask.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['measurement', 0, 'bit_operation'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'BIT_OPERATION'], id='MEASUREMENT')], indirect=True)
 def test_bit_operation(module):
-    p = Parser(module[0].format(''))
-    bit_operation = get_node_from_ast(p.ast, module[1])
-    assert bit_operation.left_shift is None
-    assert bit_operation.right_shift is None
-    assert bit_operation.sign_extend is None
+    with Parser(module[0].format('')) as p:
+        bit_operation = get_node_from_ast(p.ast, module[1])
+        assert bit_operation.LEFT_SHIFT.is_none
+        assert bit_operation.RIGHT_SHIFT.is_none
+        assert bit_operation.SIGN_EXTEND.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['axis_pts', 0, 'byte_order'], id='AXIS_PTS'),
-    pytest.param(['characteristic', 0, 'byte_order'], id='CHARACTERISTIC'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'byte_order'], id='AXIS_DESCR'),
-    pytest.param(['measurement', 0, 'byte_order'], id='MEASUREMENT'),
-    pytest.param(['mod_common', 'byte_order'], id='MOD_COMMON')], indirect=True)
+    pytest.param(['AXIS_PTS', 0, 'BYTE_ORDER'], id='AXIS_PTS'),
+    pytest.param(['CHARACTERISTIC', 0, 'BYTE_ORDER'], id='CHARACTERISTIC'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'BYTE_ORDER'], id='AXIS_DESCR'),
+    pytest.param(['MEASUREMENT', 0, 'BYTE_ORDER'], id='MEASUREMENT'),
+    pytest.param(['MOD_COMMON', 'BYTE_ORDER'], id='MOD_COMMON')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('BYTE_ORDER {}')])
 @pytest.mark.parametrize('s, v', enum_byte_order)
 def test_byte_order(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    byte_order = get_node_from_ast(p.ast, module[1])
-    assert byte_order == v
+    with Parser(module[0].format(e.format(s))) as p:
+        byte_order = get_node_from_ast(p.ast, module[1])
+        assert byte_order.ByteOrder == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'calibration_access'], id='CHARACTERISTIC'),
-    pytest.param(['axis_pts', 0, 'calibration_access'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'CALIBRATION_ACCESS'], id='CHARACTERISTIC'),
+    pytest.param(['AXIS_PTS', 0, 'CALIBRATION_ACCESS'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('CALIBRATION_ACCESS {}')])
 @pytest.mark.parametrize('s, v', enum_calibration_access)
 def test_calibration_access(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    calibration_access = get_node_from_ast(p.ast, module[1])
-    assert calibration_access == v
+    with Parser(module[0].format(e.format(s))) as p:
+        calibration_access = get_node_from_ast(p.ast, module[1])
+        assert calibration_access.Type == v
 
 
 @pytest.mark.parametrize('calibration_method', [
-    pytest.param(['calibration_handle', 0], id='CALIBRATION_METHOD')], indirect=True)
+    pytest.param(['CALIBRATION_HANDLE', 0], id='CALIBRATION_METHOD')], indirect=True)
 @pytest.mark.parametrize('e, count', [
-    pytest.param('', 0, id='no handle', marks=pytest.mark.xfail(raises=A2lFormatException, strict=True)),
+    pytest.param('', 0, id='no handle'),
     pytest.param('{long}', 1, id='one handle'),
     pytest.param('{long} {long}', 2, id='two handle')])
 @pytest.mark.parametrize('s, v', longs)
 def test_calibration_handle(calibration_method, e, count, s, v):
-    p = Parser(calibration_method[0].format(e.format(long=s)))
-    calibration_handle = get_node_from_ast(p.ast, calibration_method[1])
-    assert type(calibration_handle.handle) is list
-    assert len(calibration_handle.handle) == count
-    for handle in calibration_handle.handle:
-        assert handle == v
+    with Parser(calibration_method[0].format(e.format(long=s))) as p:
+        calibration_handle = get_node_from_ast(p.ast, calibration_method[1])
+        assert is_iterable(calibration_handle.Handle)
+        assert len(calibration_handle.Handle) == count
+        for handle in calibration_handle.Handle:
+            assert handle.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'calibration_method', 0], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'CALIBRATION_METHOD', 0], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('s', ['/begin CALIBRATION_METHOD {string} {long} /end CALIBRATION_METHOD'])
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('long_string, long_value', longs)
 def test_calibration_method(module, s, string_string, string_value, long_string, long_value):
-    p = Parser(module[0].format(s.format(string=string_string, long=long_string)))
-    calibration_method = get_node_from_ast(p.ast, module[1])
-    assert calibration_method.method == string_value
-    assert calibration_method.version == long_value
-    assert type(calibration_method.calibration_handle) is list
+    with Parser(module[0].format(s.format(string=string_string, long=long_string))) as p:
+        calibration_method = get_node_from_ast(p.ast, module[1])
+        assert calibration_method.Method.Value == string_value
+        assert calibration_method.Version.Value == long_value
+        assert is_iterable(calibration_method.CALIBRATION_HANDLE)
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1115,7 +1120,7 @@ def test_characteristic(s,
                         enum_type_string, enum_type_value,
                         long_string, long_value,
                         float_string, float_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         enum_type=enum_type_string,
@@ -1141,61 +1146,61 @@ def test_characteristic(s,
         axis_descr=empty_string,
         calibration_access=empty_string,
         matrix_dim=empty_string,
-        ecu_address_extension=empty_string))))
-    characteristic = p.ast.project.module[0].characteristic[0]
-    assert characteristic.name == ident_value
-    assert characteristic.long_identifier == string_value
-    assert characteristic.type == enum_type_value
-    assert characteristic.address == long_value
-    assert characteristic.deposit == ident_value
-    assert characteristic.max_diff == float_value
-    assert characteristic.conversion == ident_value
-    assert characteristic.lower_limit == float_value
-    assert characteristic.upper_limit == float_value
-    assert characteristic.display_identifier is None
-    assert characteristic.format is None
-    assert characteristic.byte_order is None
-    assert characteristic.bit_mask is None
-    assert characteristic.function_list is None
-    assert characteristic.number is None
-    assert characteristic.extended_limits is None
-    assert characteristic.read_only is None
-    assert characteristic.guard_rails is None
-    assert characteristic.map_list is None
-    assert characteristic.max_refresh is None
-    assert characteristic.dependent_characteristic is None
-    assert characteristic.virtual_characteristic is None
-    assert characteristic.ref_memory_segment is None
-    assert type(characteristic.annotation) is list
-    assert characteristic.comparison_quantity is None
-    assert type(characteristic.axis_descr) is list
-    assert characteristic.calibration_access is None
-    assert characteristic.matrix_dim is None
-    assert characteristic.ecu_address_extension is None
+        ecu_address_extension=empty_string)))) as p:
+        characteristic = p.ast.PROJECT.MODULE[0].CHARACTERISTIC[0]
+        assert characteristic.Name.Value == ident_value
+        assert characteristic.LongIdentifier.Value == string_value
+        assert characteristic.Type == enum_type_value
+        assert characteristic.Address.Value == long_value
+        assert characteristic.Deposit.Value == ident_value
+        assert characteristic.MaxDiff.Value == float_value
+        assert characteristic.Conversion.Value == ident_value
+        assert characteristic.LowerLimit.Value == float_value
+        assert characteristic.UpperLimit.Value == float_value
+        assert characteristic.DISPLAY_IDENTIFIER.is_none
+        assert characteristic.FORMAT.is_none
+        assert characteristic.BYTE_ORDER.is_none
+        assert characteristic.BIT_MASK.is_none
+        assert characteristic.FUNCTION_LIST.is_none
+        assert characteristic.NUMBER.is_none
+        assert characteristic.EXTENDED_LIMITS.is_none
+        assert characteristic.READ_ONLY.is_none
+        assert characteristic.GUARD_RAILS.is_none
+        assert characteristic.MAP_LIST.is_none
+        assert characteristic.MAX_REFRESH.is_none
+        assert characteristic.DEPENDENT_CHARACTERISTIC.is_none
+        assert characteristic.VIRTUAL_CHARACTERISTIC.is_none
+        assert characteristic.REF_MEMORY_SEGMENT.is_none
+        assert is_iterable(characteristic.ANNOTATION)
+        assert characteristic.COMPARISON_QUANTITY.is_none
+        assert is_iterable(characteristic.AXIS_DESCR)
+        assert characteristic.CALIBRATION_ACCESS.is_none
+        assert characteristic.MATRIX_DIM.is_none
+        assert characteristic.ECU_ADDRESS_EXTENSION.is_none
 
 
-@pytest.mark.parametrize('module', [pytest.param(['compu_method', 0, 'coeffs'], id='COMPU_METHOD')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['COMPU_METHOD', 0, 'COEFFS'], id='COMPU_METHOD')], indirect=True)
 @pytest.mark.parametrize('s', ['COEFFS {float} {float} {float} {float} {float} {float}'])
 @pytest.mark.parametrize('float_string, float_value', floats)
 def test_coeffs(module, s, float_string, float_value):
-    p = Parser(module[0].format(s.format(float=float_string)))
-    coeffs = get_node_from_ast(p.ast, module[1])
-    assert coeffs.a == float_value
-    assert coeffs.b == float_value
-    assert coeffs.c == float_value
-    assert coeffs.d == float_value
-    assert coeffs.e == float_value
-    assert coeffs.f == float_value
+    with Parser(module[0].format(s.format(float=float_string))) as p:
+        coeffs = get_node_from_ast(p.ast, module[1])
+        assert coeffs.A.Value == float_value
+        assert coeffs.B.Value == float_value
+        assert coeffs.C.Value == float_value
+        assert coeffs.D.Value == float_value
+        assert coeffs.E.Value == float_value
+        assert coeffs.F.Value == float_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'comparison_quantity'], id='CHARACTERISTIC')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'COMPARISON_QUANTITY'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('COMPARISON_QUANTITY {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_comparison_quantity(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    comparison_quantity = get_node_from_ast(p.ast, module[1])
-    assert comparison_quantity == v
+    with Parser(module[0].format(e.format(s))) as p:
+        comparison_quantity = get_node_from_ast(p.ast, module[1])
+        assert comparison_quantity.Name.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1212,24 +1217,24 @@ def test_compu_method(s,
                       ident_string, ident_value,
                       string_string, string_value,
                       conversion_type_string, conversion_type_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         enum_conversion_type=conversion_type_string,
         formula=empty_string,
         coeffs=empty_string,
         compu_tab_ref=empty_string,
-        ref_unit=empty_string))))
-    compu_method = p.ast.project.module[0].compu_method[0]
-    assert compu_method.name == ident_value
-    assert compu_method.long_identifier == string_value
-    assert compu_method.conversion_type == conversion_type_value
-    assert compu_method.format == string_value
-    assert compu_method.unit == string_value
-    assert compu_method.formula is None
-    assert compu_method.coeffs is None
-    assert compu_method.compu_tab_ref is None
-    assert compu_method.ref_unit is None
+        ref_unit=empty_string)))) as p:
+        compu_method = p.ast.PROJECT.MODULE[0].COMPU_METHOD[0]
+        assert compu_method.Name.Value == ident_value
+        assert compu_method.LongIdentifier.Value == string_value
+        assert compu_method.ConversionType == conversion_type_value
+        assert compu_method.Format.Value == string_value
+        assert compu_method.Unit.Value == string_value
+        assert compu_method.FORMULA.is_none
+        assert compu_method.COEFFS.is_none
+        assert compu_method.COMPU_TAB_REF.is_none
+        assert compu_method.REF_UNIT.is_none
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1250,31 +1255,31 @@ def test_compu_tab(s,
                    conversion_type_string, conversion_type_value,
                    int_string, int_value,
                    in_val_out_val_string, in_val_out_val_value, in_val_out_val_count):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         enum_conversion_type=conversion_type_string,
         int=int_string,
         default_value=empty_string,
-        in_val_out_val=in_val_out_val_string))))
-    compu_tab = p.ast.project.module[0].compu_tab[0]
-    assert compu_tab.name == ident_value
-    assert compu_tab.long_identifier == string_value
-    assert compu_tab.conversion_type == conversion_type_value
-    assert compu_tab.number_value_pair == int_value
-    assert type(compu_tab.in_val_out_val) is list
-    assert compu_tab.in_val_out_val == in_val_out_val_value
-    assert compu_tab.default_value is None
+        in_val_out_val=in_val_out_val_string)))) as p:
+        compu_tab = p.ast.PROJECT.MODULE[0].COMPU_TAB[0]
+        assert compu_tab.Name.Value == ident_value
+        assert compu_tab.LongIdentifier.Value == string_value
+        assert compu_tab.ConversionType == conversion_type_value
+        assert compu_tab.NumberValuePairs.Value == int_value
+        assert is_iterable(compu_tab.InValOutVal)
+        assert [(e.InVal.Value, e.OutVal.Value) for e in compu_tab.InValOutVal] == in_val_out_val_value
+        assert compu_tab.DEFAULT_VALUE.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['compu_method', 0, 'compu_tab_ref'], id='COMPU_METHOD')], indirect=True)
+    pytest.param(['COMPU_METHOD', 0, 'COMPU_TAB_REF'], id='COMPU_METHOD')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('COMPU_TAB_REF {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_compu_tab_ref(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    compu_tab_ref = get_node_from_ast(p.ast, module[1])
-    assert compu_tab_ref == v
+    with Parser(module[0].format(e.format(s))) as p:
+        compu_tab_ref = get_node_from_ast(p.ast, module[1])
+        assert compu_tab_ref.ConversionTable.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1295,21 +1300,21 @@ def test_compu_vtab(s,
                     conversion_type_string, conversion_type_value,
                     int_string, int_value,
                     in_val_out_val_string, in_val_out_val_value, in_val_out_val_count):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         enum_conversion_type=conversion_type_string,
         int=int_string,
         default_value=empty_string,
-        in_val_out_val=in_val_out_val_string))))
-    compu_vtab = p.ast.project.module[0].compu_vtab[0]
-    assert compu_vtab.name == ident_value
-    assert compu_vtab.long_identifier == string_value
-    assert compu_vtab.conversion_type == conversion_type_value
-    assert compu_vtab.number_value_pair == int_value
-    assert type(compu_vtab.in_val_out_val) is list
-    assert compu_vtab.in_val_out_val == in_val_out_val_value
-    assert compu_vtab.default_value is None
+        in_val_out_val=in_val_out_val_string)))) as p:
+        compu_vtab = p.ast.PROJECT.MODULE[0].COMPU_VTAB[0]
+        assert compu_vtab.Name.Value == ident_value
+        assert compu_vtab.LongIdentifier.Value == string_value
+        assert compu_vtab.ConversionType == conversion_type_value
+        assert compu_vtab.NumberValuePairs.Value == int_value
+        assert is_iterable(compu_vtab.InValOutVal)
+        assert [(e.InVal.Value, e.OutVal.Value) for e in compu_vtab.InValOutVal] == in_val_out_val_value
+        assert compu_vtab.DEFAULT_VALUE.is_none
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1328,99 +1333,100 @@ def test_compu_vtab_range(s,
                           string_string, string_value,
                           int_string, int_value,
                           in_val_out_val_string, in_val_out_val_value, in_val_out_val_count):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         int=int_string,
         default_value=empty_string,
-        in_val_out_val=in_val_out_val_string))))
-    compu_vtab_range = p.ast.project.module[0].compu_vtab_range[0]
-    assert compu_vtab_range.name == ident_value
-    assert compu_vtab_range.long_identifier == string_value
-    assert compu_vtab_range.number_value_triple == int_value
-    assert type(compu_vtab_range.in_val_out_val) is list
-    assert compu_vtab_range.in_val_out_val == in_val_out_val_value
-    assert compu_vtab_range.default_value is None
+        in_val_out_val=in_val_out_val_string)))) as p:
+        compu_vtab_range = p.ast.PROJECT.MODULE[0].COMPU_VTAB_RANGE[0]
+        assert compu_vtab_range.Name.Value == ident_value
+        assert compu_vtab_range.LongIdentifier.Value == string_value
+        assert compu_vtab_range.NumberOfValuesTriples.Value == int_value
+        assert is_iterable(compu_vtab_range.InValMinInValMaxOutVal)
+        assert [(e.InValMin.Value, e.InValMax.Value, e.OutVal.Value) for e in compu_vtab_range.InValMinInValMaxOutVal]\
+               == in_val_out_val_value
+        assert compu_vtab_range.DEFAULT_VALUE.is_none
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'cpu_type'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'CPU_TYPE'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('s', [pytest.param('CPU_TYPE {}')])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_cpu_type(module, s, string_string, string_value):
-    p = Parser(module[0].format(s.format(string_string)))
-    cpu_type = get_node_from_ast(p.ast, module[1])
-    assert cpu_type == string_value
+    with Parser(module[0].format(s.format(string_string))) as p:
+        cpu_type = get_node_from_ast(p.ast, module[1])
+        assert cpu_type.Cpu.Value == string_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'curve_axis_ref'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'CURVE_AXIS_REF'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('CURVE_AXIS_REF {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_curve_axis_ref(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    curve_axis_ref = get_node_from_ast(p.ast, module[1])
-    assert curve_axis_ref == v
+    with Parser(module[0].format(e.format(s))) as p:
+        curve_axis_ref = get_node_from_ast(p.ast, module[1])
+        assert curve_axis_ref.CurveAxis.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'customer'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'CUSTOMER'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('s', [pytest.param('CUSTOMER {}')])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_customer(module, s, string_string, string_value):
-    p = Parser(module[0].format(s.format(string_string)))
-    customer = get_node_from_ast(p.ast, module[1])
-    assert customer == string_value
+    with Parser(module[0].format(s.format(string_string))) as p:
+        customer = get_node_from_ast(p.ast, module[1])
+        assert customer.Customer.Value == string_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'customer_no'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'CUSTOMER_NO'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('s', [pytest.param('CUSTOMER_NO {}')])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_customer_no(module, s, string_string, string_value):
-    p = Parser(module[0].format(s.format(string_string)))
-    customer_no = get_node_from_ast(p.ast, module[1])
-    assert customer_no == string_value
+    with Parser(module[0].format(s.format(string_string))) as p:
+        customer_no = get_node_from_ast(p.ast, module[1])
+        assert customer_no.Number.Value == string_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_common', 'data_size'], id='MOD_COMMON')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_COMMON', 'DATA_SIZE'], id='MOD_COMMON')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('DATA_SIZE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_data_size(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    data_size = get_node_from_ast(p.ast, module[1])
-    assert data_size == v
+    with Parser(module[0].format(e.format(s))) as p:
+        data_size = get_node_from_ast(p.ast, module[1])
+        assert data_size.Size.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['compu_tab', 0, 'default_value'], id='COMPU_TAB'),
-    pytest.param(['compu_vtab', 0, 'default_value'], id='COMPU_VTAB'),
-    pytest.param(['compu_vtab_range', 0, 'default_value'], id='COMPU_VTAB_RANGE')], indirect=True)
+    pytest.param(['COMPU_TAB', 0, 'DEFAULT_VALUE'], id='COMPU_TAB'),
+    pytest.param(['COMPU_VTAB', 0, 'DEFAULT_VALUE'], id='COMPU_VTAB'),
+    pytest.param(['COMPU_VTAB_RANGE', 0, 'DEFAULT_VALUE'], id='COMPU_VTAB_RANGE')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('DEFAULT_VALUE {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_default_value(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    default_value = get_node_from_ast(p.ast, module[1])
-    assert default_value == v
+    with Parser(module[0].format(e.format(s))) as p:
+        default_value = get_node_from_ast(p.ast, module[1])
+        assert default_value.DisplayString.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['function', 0, 'def_characteristic'], id='FUNCTION')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['FUNCTION', 0, 'DEF_CHARACTERISTIC'], id='FUNCTION')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin DEF_CHARACTERISTIC /end DEF_CHARACTERISTIC', 0, id='no identifier'),
     pytest.param('/begin DEF_CHARACTERISTIC {ident} /end DEF_CHARACTERISTIC', 1, id='one identifier'),
     pytest.param('/begin DEF_CHARACTERISTIC {ident} {ident} /end DEF_CHARACTERISTIC', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_def_characteristic(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    def_characteristic = get_node_from_ast(p.ast, module[1])
-    assert type(def_characteristic.identifier) is list
-    assert len(def_characteristic.identifier) == count
-    for identifier in def_characteristic.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        def_characteristic = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(def_characteristic.Identifier)
+        assert len(def_characteristic.Identifier) == count
+        for identifier in def_characteristic.Identifier:
+            assert identifier.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'dependent_characteristic'], id='CHARACTERISTIC')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'DEPENDENT_CHARACTERISTIC'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin DEPENDENT_CHARACTERISTIC {string} /end DEPENDENT_CHARACTERISTIC', 0,
-                 id='no characteristic', marks=pytest.mark.xfail(raises=A2lFormatException, strict=True)),
+                 id='no characteristic'),
     pytest.param('/begin DEPENDENT_CHARACTERISTIC {string} {ident} /end DEPENDENT_CHARACTERISTIC', 1,
                  id='one characteristic'),
     pytest.param('/begin DEPENDENT_CHARACTERISTIC {string} {ident} {ident} /end DEPENDENT_CHARACTERISTIC', 2,
@@ -1428,41 +1434,41 @@ def test_def_characteristic(module, e, count, s, v):
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_dependent_characteristic(module, e, count, string_string, string_value, ident_string, ident_value):
-    p = Parser(module[0].format(e.format(string=string_string, ident=ident_string)))
-    dependent_characteristic = get_node_from_ast(p.ast, module[1])
-    assert dependent_characteristic.formula == string_value
-    assert type(dependent_characteristic.characteristic) is list
-    assert len(dependent_characteristic.characteristic) == count
-    for characteristic in dependent_characteristic.characteristic:
-        assert characteristic == ident_value
+    with Parser(module[0].format(e.format(string=string_string, ident=ident_string))) as p:
+        dependent_characteristic = get_node_from_ast(p.ast, module[1])
+        assert dependent_characteristic.Formula.Value == string_value
+        assert is_iterable(dependent_characteristic.Characteristic)
+        assert len(dependent_characteristic.Characteristic) == count
+        for characteristic in dependent_characteristic.Characteristic:
+            assert characteristic.Value == ident_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['mod_common', 'deposit'], id='MOD_COMMON'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'deposit'], id='AXIS_DESCR'),
-    pytest.param(['axis_pts', 0, 'deposit'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['MOD_COMMON', 'DEPOSIT'], id='MOD_COMMON'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'DEPOSIT'], id='AXIS_DESCR'),
+    pytest.param(['AXIS_PTS', 0, 'DEPOSIT'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('DEPOSIT {}')])
 @pytest.mark.parametrize('s, v', enum_mode_deposit)
 def test_deposit(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    deposit = get_node_from_ast(p.ast, module[1])
-    assert deposit == v
+    with Parser(module[0].format(e.format(s))) as p:
+        deposit = get_node_from_ast(p.ast, module[1])
+        assert deposit.Mode == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['measurement', 0, 'display_identifier'], id='MEASUREMENT'),
-    pytest.param(['characteristic', 0, 'display_identifier'], id='CHARACTERISTIC'),
-    pytest.param(['axis_pts', 0, 'display_identifier'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['MEASUREMENT', 0, 'DISPLAY_IDENTIFIER'], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'DISPLAY_IDENTIFIER'], id='CHARACTERISTIC'),
+    pytest.param(['AXIS_PTS', 0, 'DISPLAY_IDENTIFIER'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('DISPLAY_IDENTIFIER {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_display_identifier(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    display_identifier = get_node_from_ast(p.ast, module[1])
-    assert display_identifier == v
+    with Parser(module[0].format(e.format(s))) as p:
+        display_identifier = get_node_from_ast(p.ast, module[1])
+        assert display_identifier.DisplayName.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'dist_op_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'DIST_OP_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['DIST_OP_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
@@ -1470,15 +1476,14 @@ def test_dist_op_x(module,
                    s,
                    int_string, int_value,
                    data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string)))
-    dist_op_x = get_node_from_ast(p.ast, module[1])
-    assert dist_op_x.position == int_value
-    assert dist_op_x.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        dist_op_x = get_node_from_ast(p.ast, module[1])
+        assert dist_op_x.Position.Value == int_value
+        assert dist_op_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'dist_op_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'DIST_OP_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['DIST_OP_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
@@ -1486,15 +1491,14 @@ def test_dist_op_y(module,
                    s,
                    int_string, int_value,
                    data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string)))
-    dist_op_y = get_node_from_ast(p.ast, module[1])
-    assert dist_op_y.position == int_value
-    assert dist_op_y.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        dist_op_y = get_node_from_ast(p.ast, module[1])
+        assert dist_op_y.Position.Value == int_value
+        assert dist_op_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'dist_op_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'DIST_OP_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['DIST_OP_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
@@ -1502,154 +1506,153 @@ def test_dist_op_z(module,
                    s,
                    int_string, int_value,
                    data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string)))
-    dist_op_z = get_node_from_ast(p.ast, module[1])
-    assert dist_op_z.position == int_value
-    assert dist_op_z.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        dist_op_z = get_node_from_ast(p.ast, module[1])
+        assert dist_op_z.Position.Value == int_value
+        assert dist_op_z.DataType.Value == data_type_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'ecu'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'ECU'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ECU {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_ecu(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    ecu = get_node_from_ast(p.ast, module[1])
-    assert ecu == v
+    with Parser(module[0].format(e.format(s))) as p:
+        ecu = get_node_from_ast(p.ast, module[1])
+        assert ecu.ControlUnit.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['measurement', 0, 'ecu_address'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'ECU_ADDRESS'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ECU_ADDRESS {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_ecu_address(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    ecu_address = get_node_from_ast(p.ast, module[1])
-    assert ecu_address == v
+    with Parser(module[0].format(e.format(s))) as p:
+        ecu_address = get_node_from_ast(p.ast, module[1])
+        assert ecu_address.Address.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'ecu_address_extension'], id='CHARACTERISTIC'),
-    pytest.param(['measurement', 0, 'ecu_address_extension'], id='MEASUREMENT'),
-    pytest.param(['axis_pts', 0, 'ecu_address_extension'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'ECU_ADDRESS_EXTENSION'], id='CHARACTERISTIC'),
+    pytest.param(['MEASUREMENT', 0, 'ECU_ADDRESS_EXTENSION'], id='MEASUREMENT'),
+    pytest.param(['AXIS_PTS', 0, 'ECU_ADDRESS_EXTENSION'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ECU_ADDRESS_EXTENSION {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_ecu_address_extension(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    ecu_address_extension = get_node_from_ast(p.ast, module[1])
-    assert ecu_address_extension == v
+    with Parser(module[0].format(e.format(s))) as p:
+        ecu_address_extension = get_node_from_ast(p.ast, module[1])
+        assert ecu_address_extension.Extension.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'ecu_calibration_offset'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'ECU_CALIBRATION_OFFSET'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ECU_CALIBRATION_OFFSET {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_ecu_calibration_offset(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    ecu_calibration_offset = get_node_from_ast(p.ast, module[1])
-    assert ecu_calibration_offset == v
+    with Parser(module[0].format(e.format(s))) as p:
+        ecu_calibration_offset = get_node_from_ast(p.ast, module[1])
+        assert ecu_calibration_offset.Offset.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'epk'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'EPK'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('EPK {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_epk(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    epk = get_node_from_ast(p.ast, module[1])
-    assert epk == v
+    with Parser(module[0].format(e.format(s))) as p:
+        epk = get_node_from_ast(p.ast, module[1])
+        assert epk.Identifier.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['measurement', 0, 'error_mask'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'ERROR_MASK'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('ERROR_MASK {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_error_mask(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    error_mask = get_node_from_ast(p.ast, module[1])
-    assert error_mask == v
+    with Parser(module[0].format(e.format(s))) as p:
+        error_mask = get_node_from_ast(p.ast, module[1])
+        assert error_mask.Mask.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'extended_limits'], id='AXIS_DESCR'),
-    pytest.param(['axis_pts', 0, 'extended_limits'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'EXTENDED_LIMITS'], id='AXIS_DESCR'),
+    pytest.param(['AXIS_PTS', 0, 'EXTENDED_LIMITS'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', ['EXTENDED_LIMITS {float} {float}'])
 @pytest.mark.parametrize('s, v', floats)
 def test_extended_limits(module, e, s, v):
-    p = Parser(module[0].format(e.format(float=s)))
-    extended_limits = get_node_from_ast(p.ast, module[1])
-    assert extended_limits.lower_limit == v
-    assert extended_limits.upper_limit == v
+    with Parser(module[0].format(e.format(float=s))) as p:
+        extended_limits = get_node_from_ast(p.ast, module[1])
+        assert extended_limits.LowerLimit.Value == v
+        assert extended_limits.UpperLimit.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'fix_axis_par'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'FIX_AXIS_PAR'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e', ['FIX_AXIS_PAR {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_axis_par(module, e, s, v):
-    p = Parser(module[0].format(e.format(int=s)))
-    fix_axis_par = get_node_from_ast(p.ast, module[1])
-    assert fix_axis_par.offset == v
-    assert fix_axis_par.shift == v
-    assert fix_axis_par.numberapo == v
+    with Parser(module[0].format(e.format(int=s))) as p:
+        fix_axis_par = get_node_from_ast(p.ast, module[1])
+        assert fix_axis_par.Offset.Value == v
+        assert fix_axis_par.Shift.Value == v
+        assert fix_axis_par.Numberapo.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'fix_axis_par_dist'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'FIX_AXIS_PAR_DIST'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e', ['FIX_AXIS_PAR_DIST {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_axis_par_dist(module, e, s, v):
-    p = Parser(module[0].format(e.format(int=s)))
-    fix_axis_par_dist = get_node_from_ast(p.ast, module[1])
-    assert fix_axis_par_dist.offset == v
-    assert fix_axis_par_dist.distance == v
-    assert fix_axis_par_dist.numberapo == v
+    with Parser(module[0].format(e.format(int=s))) as p:
+        fix_axis_par_dist = get_node_from_ast(p.ast, module[1])
+        assert fix_axis_par_dist.Offset.Value == v
+        assert fix_axis_par_dist.Distance.Value == v
+        assert fix_axis_par_dist.Numberapo.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'fix_axis_par_list'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'FIX_AXIS_PAR_LIST'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin FIX_AXIS_PAR_LIST /end FIX_AXIS_PAR_LIST', 0, id='no axis_pts_value'),
     pytest.param('/begin FIX_AXIS_PAR_LIST {float} /end FIX_AXIS_PAR_LIST', 1, id='one axis_pts_value'),
     pytest.param('/begin FIX_AXIS_PAR_LIST {float} {float} /end FIX_AXIS_PAR_LIST', 2, id='two axis_pts_value')])
 @pytest.mark.parametrize('s, v', floats)
 def test_fix_axis_par_list(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(float=s)))
-    fix_axis_par_list = get_node_from_ast(p.ast, module[1])
-    assert type(fix_axis_par_list.axis_pts_value) is list
-    assert len(fix_axis_par_list.axis_pts_value) == count
-    for axis_pts_value in fix_axis_par_list.axis_pts_value:
-        assert axis_pts_value == v
+    with Parser(module[0].format(e.format(float=s))) as p:
+        fix_axis_par_list = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(fix_axis_par_list.AxisPtsValue)
+        assert len(fix_axis_par_list.AxisPtsValue) == count
+        for axis_pts_value in fix_axis_par_list.AxisPtsValue:
+            assert axis_pts_value.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'fix_no_axis_pts_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'FIX_NO_AXIS_PTS_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['FIX_NO_AXIS_PTS_X {}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_no_axis_pts_x(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    fix_no_axis_pts_x = get_node_from_ast(p.ast, module[1])
-    assert fix_no_axis_pts_x == v
+    with Parser(module[0].format(e.format(s))) as p:
+        fix_no_axis_pts_x = get_node_from_ast(p.ast, module[1])
+        assert fix_no_axis_pts_x.NumberOfAxisPoints.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'fix_no_axis_pts_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'FIX_NO_AXIS_PTS_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['FIX_NO_AXIS_PTS_Y {}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_no_axis_pts_y(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    fix_no_axis_pts_y = get_node_from_ast(p.ast, module[1])
-    assert fix_no_axis_pts_y == v
+    with Parser(module[0].format(e.format(s))) as p:
+        fix_no_axis_pts_y = get_node_from_ast(p.ast, module[1])
+        assert fix_no_axis_pts_y.NumberOfAxisPoints.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'fix_no_axis_pts_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'FIX_NO_AXIS_PTS_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['FIX_NO_AXIS_PTS_Z {}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_no_axis_pts_z(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    fix_no_axis_pts_z = get_node_from_ast(p.ast, module[1])
-    assert fix_no_axis_pts_z == v
+    with Parser(module[0].format(e.format(s))) as p:
+        fix_no_axis_pts_z = get_node_from_ast(p.ast, module[1])
+        assert fix_no_axis_pts_z.NumberOfAxisPoints.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'fnc_values'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'FNC_VALUES'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['FNC_VALUES {int} {data_type} {enum_index_mode} {addr_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
@@ -1661,47 +1664,47 @@ def test_fnc_values(module,
                     data_type_string, data_type_value,
                     enum_index_mode_string, enum_index_mode_value,
                     addr_type_string, addr_type_value):
-    p = Parser(module[0].format(s.format(int=int_string,
+    with Parser(module[0].format(s.format(int=int_string,
                                          data_type=data_type_string,
                                          enum_index_mode=enum_index_mode_string,
-                                         addr_type=addr_type_string)))
-    fnc_values = get_node_from_ast(p.ast, module[1])
-    assert fnc_values.position == int_value
-    assert fnc_values.data_type == data_type_value
-    assert fnc_values.index_mode == enum_index_mode_value
-    assert fnc_values.addr_type == addr_type_value
+                                         addr_type=addr_type_string))) as p:
+        fnc_values = get_node_from_ast(p.ast, module[1])
+        assert fnc_values.Position.Value == int_value
+        assert fnc_values.DataType.Value == data_type_value
+        assert fnc_values.IndexMode == enum_index_mode_value
+        assert fnc_values.AddressType.Value == addr_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'format'], id='MOD_PAR'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'format'], id='AXIS_DESCR'),
-    pytest.param(['measurement', 0, 'format'], id='MEASUREMENT'),
-    pytest.param(['axis_pts', 0, 'format'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'FORMAT'], id='MOD_PAR'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'FORMAT'], id='AXIS_DESCR'),
+    pytest.param(['MEASUREMENT', 0, 'FORMAT'], id='MEASUREMENT'),
+    pytest.param(['AXIS_PTS', 0, 'FORMAT'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('FORMAT {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_format(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    format_ = get_node_from_ast(p.ast, module[1])
-    assert format_ == v
+    with Parser(module[0].format(e.format(s))) as p:
+        format = get_node_from_ast(p.ast, module[1])
+        assert format.FormatString.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['compu_method', 0, 'formula'], id='COMPU_METHOD')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['COMPU_METHOD', 0, 'FORMULA'], id='COMPU_METHOD')], indirect=True)
 @pytest.mark.parametrize('e', ['/begin FORMULA {} /end FORMULA'])
 @pytest.mark.parametrize('s, v', strings)
 def test_formula(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    formula = get_node_from_ast(p.ast, module[1])
-    assert formula.f == v
-    assert formula.formula_inv is None
+    with Parser(module[0].format(e.format(s))) as p:
+        formula = get_node_from_ast(p.ast, module[1])
+        assert formula.FX.Value == v
+        assert formula.FORMULA_INV.is_none
 
 
-@pytest.mark.parametrize('compu_method', [pytest.param(['formula', 'formula_inv'], id='COMPU_METHOD')], indirect=True)
+@pytest.mark.parametrize('compu_method', [pytest.param(['FORMULA', 'FORMULA_INV'], id='COMPU_METHOD')], indirect=True)
 @pytest.mark.parametrize('e', ['FORMULA_INV {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_formula_inv(compu_method, e, s, v):
-    p = Parser(compu_method[0].format(e.format(s)))
-    formula_inv = get_node_from_ast(p.ast, compu_method[1])
-    assert formula_inv == v
+    with Parser(compu_method[0].format(e.format(s))) as p:
+        formula_inv = get_node_from_ast(p.ast, compu_method[1])
+        assert formula_inv.GX.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1718,34 +1721,34 @@ def test_frame(s,
                string_string, string_value,
                int_string, int_value,
                long_string, long_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         int=int_string,
         long=long_string,
         frame_measurement=empty_string,
-        if_data=empty_string))))
-    frame = p.ast.project.module[0].frame
-    assert frame.name == ident_value
-    assert frame.long_identifier == string_value
-    assert frame.scaling_unit == int_value
-    assert frame.rate == long_value
-    assert frame.frame_measurement is None
+        if_data=empty_string)))) as p:
+        frame = p.ast.PROJECT.MODULE[0].FRAME
+        assert frame.Name.Value == ident_value
+        assert frame.LongIdentifier.Value == string_value
+        assert frame.ScalingUnit.Value == int_value
+        assert frame.Rate.Value == long_value
+        assert frame.FRAME_MEASUREMENT.is_none
 
 
-@pytest.mark.parametrize('module', [pytest.param(['frame', 'frame_measurement'], id='FRAME')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['FRAME', 'FRAME_MEASUREMENT'], id='FRAME')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('FRAME_MEASUREMENT', 0, id='no identifier'),
     pytest.param('FRAME_MEASUREMENT {ident}', 1, id='one identifier'),
     pytest.param('FRAME_MEASUREMENT {ident} {ident}', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_frame_measurement(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    frame_measurement = get_node_from_ast(p.ast, module[1])
-    assert type(frame_measurement.identifier) is list
-    assert len(frame_measurement.identifier) == count
-    for identifier in frame_measurement.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        frame_measurement = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(frame_measurement.Identifier)
+        assert len(frame_measurement.Identifier) == count
+        for identifier in frame_measurement.Identifier:
+            assert identifier.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1762,7 +1765,7 @@ def test_frame_measurement(module, e, count, s, v):
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_function(s, ident_string, ident_value, string_string, string_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         annotation=empty_string,
@@ -1772,46 +1775,45 @@ def test_function(s, ident_string, ident_value, string_string, string_value):
         out_measurement=empty_string,
         loc_measurement=empty_string,
         sub_function=empty_string,
-        function_version=empty_string))))
-    function = p.ast.project.module[0].function[0]
-    assert function.name == ident_value
-    assert function.long_identifier == string_value
-    assert type(function.annotation) is list
-    assert function.def_characteristic is None
-    assert function.ref_characteristic is None
-    assert function.in_measurement is None
-    assert function.out_measurement is None
-    assert function.loc_measurement is None
-    assert function.sub_function is None
-    assert function.function_version is None
+        function_version=empty_string)))) as p:
+        function = p.ast.PROJECT.MODULE[0].FUNCTION[0]
+        assert function.Name.Value == ident_value
+        assert function.LongIdentifier.Value == string_value
+        assert is_iterable(function.ANNOTATION)
+        assert function.DEF_CHARACTERISTIC.is_none
+        assert function.REF_CHARACTERISTIC.is_none
+        assert function.IN_MEASUREMENT.is_none
+        assert function.OUT_MEASUREMENT.is_none
+        assert function.LOC_MEASUREMENT.is_none
+        assert function.SUB_FUNCTION.is_none
+        assert function.FUNCTION_VERSION.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['axis_pts', 0, 'function_list'], id='AXIS_PTS'),
-    pytest.param(['characteristic', 0, 'function_list'], id='CHARACTERISTIC'),
-    pytest.param(['measurement', 0, 'function_list'], id='MEASUREMENT'),
-    pytest.param(['group', 0, 'function_list'], id='GROUP')], indirect=True)
+    pytest.param(['AXIS_PTS', 0, 'FUNCTION_LIST'], id='AXIS_PTS'),
+    pytest.param(['CHARACTERISTIC', 0, 'FUNCTION_LIST'], id='CHARACTERISTIC'),
+    pytest.param(['MEASUREMENT', 0, 'FUNCTION_LIST'], id='MEASUREMENT'),
+    pytest.param(['GROUP', 0, 'FUNCTION_LIST'], id='GROUP')], indirect=True)
 @pytest.mark.parametrize('e, count', [
-    pytest.param('/begin FUNCTION_LIST /end FUNCTION_LIST', None,
-                 id='no name', marks=pytest.mark.xfail(raises=A2lFormatException, strict=True)),
+    pytest.param('/begin FUNCTION_LIST /end FUNCTION_LIST', 0, id='no name'),
     pytest.param('/begin FUNCTION_LIST {ident} /end FUNCTION_LIST', 1, id='one name'),
     pytest.param('/begin FUNCTION_LIST {ident} {ident} /end FUNCTION_LIST', 2, id='two name')])
 @pytest.mark.parametrize('s, v', idents)
 def test_function_list(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    function_list = get_node_from_ast(p.ast, module[1])
-    assert len(function_list.name) == count
-    for name in function_list.name:
-        assert name == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        function_list = get_node_from_ast(p.ast, module[1])
+        assert len(function_list.Name) == count
+        for name in function_list.Name:
+            assert name.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['function', 0, 'function_version'], id='FUNCTION')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['FUNCTION', 0, 'FUNCTION_VERSION'], id='FUNCTION')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('FUNCTION_VERSION {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_function_version(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    function_version = get_node_from_ast(p.ast, module[1])
-    assert function_version == v
+    with Parser(module[0].format(e.format(s))) as p:
+        function_version = get_node_from_ast(p.ast, module[1])
+        assert function_version.VersionIdentifier.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -1826,7 +1828,7 @@ def test_function_version(module, e, s, v):
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_group(s, ident_string, ident_value, string_string, string_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         annotation=empty_string,
@@ -1834,42 +1836,42 @@ def test_group(s, ident_string, ident_value, string_string, string_value):
         ref_characteristic=empty_string,
         ref_measurement=empty_string,
         function_list=empty_string,
-        sub_group=empty_string))))
-    group = p.ast.project.module[0].group[0]
-    assert group.group_name == ident_value
-    assert group.group_long_identifier == string_value
-    assert type(group.annotation) is list
-    assert group.root is None
-    assert group.ref_characteristic is None
-    assert group.ref_measurement is None
-    assert group.function_list is None
-    assert group.sub_group is None
+        sub_group=empty_string)))) as p:
+        group = p.ast.PROJECT.MODULE[0].GROUP[0]
+        assert group.GroupName.Value == ident_value
+        assert group.GroupLongIdentifier.Value == string_value
+        assert is_iterable(group.ANNOTATION)
+        assert group.ROOT.is_none
+        assert group.REF_CHARACTERISTIC.is_none
+        assert group.REF_MEASUREMENT.is_none
+        assert group.FUNCTION_LIST.is_none
+        assert group.SUB_GROUP.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'guard_rails'], id='CHARACTERISTIC'),
-    pytest.param(['axis_pts', 0, 'guard_rails'], id='AXIS_PTS')], indirect=True)
-@pytest.mark.parametrize('e', [pytest.param('GUARD_RAILS')])
-def test_guard_rails(module, e):
-    p = Parser(module[0].format(e))
-    guard_rails = get_node_from_ast(p.ast, module[1])
-    assert guard_rails == e
+    pytest.param(['CHARACTERISTIC', 0, 'GUARD_RAILS'], id='CHARACTERISTIC'),
+    pytest.param(['AXIS_PTS', 0, 'GUARD_RAILS'], id='AXIS_PTS')], indirect=True)
+@pytest.mark.parametrize('e, a', [pytest.param('GUARD_RAILS', True), pytest.param('', False)])
+def test_guard_rails(module, e, a):
+    with Parser(module[0].format(e)) as p:
+        guard_rails = get_node_from_ast(p.ast, module[1])
+        assert guard_rails.is_none is not a
 
 
 # TODO: check if fully tested.
 @pytest.mark.parametrize('e', ['/begin HEADER {string} {version} {project_no} /end HEADER'])
 @pytest.mark.parametrize('s, v', strings)
 def test_header(e, s, v):
-    p = Parser(project_string_minimal.format(e.format(string=s,
+    with Parser(project_string_minimal.format(e.format(string=s,
                                                       version=empty_string,
-                                                      project_no=empty_string)))
-    assert p.ast.project.header.comment == v
-    assert p.ast.project.header.version is None
-    assert p.ast.project.header.project_no is None
+                                                      project_no=empty_string))) as p:
+        assert p.ast.PROJECT.HEADER.Comment.Value == v
+        assert p.ast.PROJECT.HEADER.VERSION.is_none
+        assert p.ast.PROJECT.HEADER.PROJECT_NO.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'identification'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'IDENTIFICATION'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['IDENTIFICATION {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
@@ -1877,101 +1879,102 @@ def test_identification(module,
                         e,
                         int_string, int_value,
                         data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    identification = get_node_from_ast(p.ast, module[1])
-    assert identification.position == int_value
-    assert identification.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        identification = get_node_from_ast(p.ast, module[1])
+        assert identification.Position.Value == int_value
+        assert identification.DataType.Value == data_type_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['function', 0, 'in_measurement'], id='FUNCTION')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['FUNCTION', 0, 'IN_MEASUREMENT'], id='FUNCTION')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin IN_MEASUREMENT /end IN_MEASUREMENT', 0, id='no identifier'),
     pytest.param('/begin IN_MEASUREMENT {ident} /end IN_MEASUREMENT', 1, id='one identifier'),
     pytest.param('/begin IN_MEASUREMENT {ident} {ident} /end IN_MEASUREMENT', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_in_measurement(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    in_measurement = get_node_from_ast(p.ast, module[1])
-    assert type(in_measurement.identifier) is list
-    assert len(in_measurement.identifier) == count
-    for identifier in in_measurement.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        in_measurement = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(in_measurement.Identifier)
+        assert len(in_measurement.Identifier) == count
+        for identifier in in_measurement.Identifier:
+            assert identifier.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['measurement', 0, 'bit_operation', 'left_shift'], id='MEASUREMENT')], indirect=True)
+    pytest.param(['MEASUREMENT', 0, 'BIT_OPERATION', 'LEFT_SHIFT'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e', ['LEFT_SHIFT {}'])
 @pytest.mark.parametrize('s, v', longs)
 def test_left_shift(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    left_shift = get_node_from_ast(p.ast, module[1])
-    assert left_shift == v
+    with Parser(module[0].format(e.format(s))) as p:
+        left_shift = get_node_from_ast(p.ast, module[1])
+        assert left_shift.BitCount.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['function', 0, 'loc_measurement'], id='FUNCTION'), ], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['FUNCTION', 0, 'LOC_MEASUREMENT'], id='FUNCTION'), ], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin LOC_MEASUREMENT /end LOC_MEASUREMENT', 0, id='no identifier'),
     pytest.param('/begin LOC_MEASUREMENT {ident} /end LOC_MEASUREMENT', 1, id='one identifier'),
     pytest.param('/begin LOC_MEASUREMENT {ident} {ident} /end LOC_MEASUREMENT', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_loc_measurement(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    loc_measurement = get_node_from_ast(p.ast, module[1])
-    assert type(loc_measurement.identifier) is list
-    assert len(loc_measurement.identifier) == count
-    for identifier in loc_measurement.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        loc_measurement = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(loc_measurement.Identifier)
+        assert len(loc_measurement.Identifier) == count
+        for identifier in loc_measurement.Identifier:
+            assert identifier.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'map_list'], id='CHARACTERISTIC')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'MAP_LIST'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin MAP_LIST /end MAP_LIST', 0, id='no ident'),
     pytest.param('/begin MAP_LIST {ident} /end MAP_LIST', 1, id='one ident'),
     pytest.param('/begin MAP_LIST {ident} {ident} /end MAP_LIST', 2, id='two ident')])
 @pytest.mark.parametrize('s, v', idents)
 def test_map_list(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    map_list = get_node_from_ast(p.ast, module[1])
-    assert len(map_list.name) == count
-    for name in map_list.name:
-        assert name == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        map_list = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(map_list.Name)
+        assert len(map_list.Name) == count
+        for name in map_list.Name:
+            assert name.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['measurement', 0, 'matrix_dim'], id='MEASUREMENT'),
-    pytest.param(['characteristic', 0, 'matrix_dim'], id='CHARACTERISTIC')], indirect=True)
+    pytest.param(['MEASUREMENT', 0, 'MATRIX_DIM'], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'MATRIX_DIM'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e', ['MATRIX_DIM {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_matrix_dim(module, e, s, v):
-    p = Parser(module[0].format(e.format(int=s)))
-    matrix_dim = get_node_from_ast(p.ast, module[1])
-    assert matrix_dim.x == v
-    assert matrix_dim.y == v
-    assert matrix_dim.z == v
+    with Parser(module[0].format(e.format(int=s))) as p:
+        matrix_dim = get_node_from_ast(p.ast, module[1])
+        assert matrix_dim.XDim.Value == v
+        assert matrix_dim.YDim.Value == v
+        assert matrix_dim.ZDim.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'max_grad'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'MAX_GRAD'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('MAX_GRAD {}')])
 @pytest.mark.parametrize('s, v', floats)
 def test_max_grad(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    max_grad = get_node_from_ast(p.ast, module[1])
-    assert max_grad == v
+    with Parser(module[0].format(e.format(s))) as p:
+        max_grad = get_node_from_ast(p.ast, module[1])
+        assert max_grad.MaxGradient.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'max_refresh'], id='CHARACTERISTIC'),
-    pytest.param(['measurement', 0, 'max_refresh'], id='MEASUREMENT')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'MAX_REFRESH'], id='CHARACTERISTIC'),
+    pytest.param(['MEASUREMENT', 0, 'MAX_REFRESH'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('s', max_refresh_strings)
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('long_string, long_value', longs)
 def test_max_refresh(module, s, int_string, int_value, long_string, long_value):
-    p = Parser(module[0].format(s.format(int=int_string, long=long_string)))
-    max_refresh = get_node_from_ast(p.ast, module[1])
-    assert max_refresh.scaling_unit == int_value
-    assert max_refresh.rate == long_value
+    with Parser(module[0].format(s.format(int=int_string, long=long_string))) as p:
+        max_refresh = get_node_from_ast(p.ast, module[1])
+        assert max_refresh.ScalingUnit.Value == int_value
+        assert max_refresh.Rate.Value == long_value
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2005,7 +2008,7 @@ def test_measurement(s,
                      data_type_string, data_type_value,
                      int_string, int_value,
                      float_string, float_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         data_type=data_type_string,
@@ -2027,35 +2030,35 @@ def test_measurement(s,
         ref_memory_segment=empty_string,
         annotation=empty_string,
         matrix_dim=empty_string,
-        ecu_address_extension=empty_string))))
-    measurement = p.ast.project.module[0].measurement[0]
-    assert measurement.name == ident_value
-    assert measurement.long_identifier == string_value
-    assert measurement.data_type == data_type_value
-    assert measurement.conversion == ident_value
-    assert measurement.resolution == int_value
-    assert measurement.accuracy == float_value
-    assert measurement.lower_limit == float_value
-    assert measurement.upper_limit == float_value
-    assert measurement.display_identifier is None
-    assert measurement.read_write is None
-    assert measurement.format is None
-    assert measurement.array_size is None
-    assert measurement.bit_mask is None
-    assert measurement.bit_operation is None
-    assert measurement.byte_order is None
-    assert measurement.max_refresh is None
-    assert measurement.virtual is None
-    assert measurement.error_mask is None
-    assert measurement.function_list is None
-    assert measurement.ecu_address is None
-    assert measurement.ref_memory_segment is None
-    assert type(measurement.annotation) is list
-    assert measurement.matrix_dim is None
-    assert measurement.ecu_address_extension is None
+        ecu_address_extension=empty_string)))) as p:
+        measurement = p.ast.PROJECT.MODULE[0].MEASUREMENT[0]
+        assert measurement.Name.Value == ident_value
+        assert measurement.LongIdentifier.Value == string_value
+        assert measurement.DataType.Value == data_type_value
+        assert measurement.Conversion.Value == ident_value
+        assert measurement.Resolution.Value == int_value
+        assert measurement.Accuracy.Value == float_value
+        assert measurement.LowerLimit.Value == float_value
+        assert measurement.UpperLimit.Value == float_value
+        assert measurement.DISPLAY_IDENTIFIER.is_none
+        assert measurement.READ_WRITE.is_none
+        assert measurement.FORMAT.is_none
+        assert measurement.ARRAY_SIZE.is_none
+        assert measurement.BIT_MASK.is_none
+        assert measurement.BIT_OPERATION.is_none
+        assert measurement.BYTE_ORDER.is_none
+        assert measurement.MAX_REFRESH.is_none
+        assert measurement.VIRTUAL.is_none
+        assert measurement.ERROR_MASK.is_none
+        assert measurement.FUNCTION_LIST.is_none
+        assert measurement.ECU_ADDRESS.is_none
+        assert measurement.REF_MEMORY_SEGMENT.is_none
+        assert is_iterable(measurement.ANNOTATION)
+        assert measurement.MATRIX_DIM.is_none
+        assert measurement.ECU_ADDRESS_EXTENSION.is_none
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'memory_layout', 0], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'MEMORY_LAYOUT', 0], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('s', memory_layout_strings)
 @pytest.mark.parametrize('enum_prg_type_string, enum_prg_type_value', enum_prg_type_memory_layout_strings)
 @pytest.mark.parametrize('long_string, long_value', longs)
@@ -2065,18 +2068,18 @@ def test_memory_layout(module,
                        enum_prg_type_string, enum_prg_type_value,
                        long_string, long_value,
                        offset_string, offset_value):
-    p = Parser(module[0].format(s.format(enum_prg_type=enum_prg_type_string,
+    with Parser(module[0].format(s.format(enum_prg_type=enum_prg_type_string,
                                          long=long_string,
                                          offset=offset_string,
-                                         if_data=empty_string)))
-    memory_layout = get_node_from_ast(p.ast, module[1])
-    assert memory_layout.prg_type == enum_prg_type_value
-    assert memory_layout.address == long_value
-    assert memory_layout.size == long_value
-    assert memory_layout.offset == offset_value
+                                         if_data=empty_string))) as p:
+        memory_layout = get_node_from_ast(p.ast, module[1])
+        assert memory_layout.PrgType == enum_prg_type_value
+        assert memory_layout.Address.Value == long_value
+        assert memory_layout.Size.Value == long_value
+        assert [o.Value for o in memory_layout.Offset] == offset_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'memory_segment', 0], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'MEMORY_SEGMENT', 0], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('s', ['''
     /begin MEMORY_SEGMENT {ident} {string} {enum_prg_type} {enum_memory_type} {enum_attribute} {long} {long} {offset}
     {if_data}
@@ -2097,23 +2100,23 @@ def test_memory_segment(module,
                         enum_attribute_string, enum_attribute_value,
                         long_string, long_value,
                         offset_string, offset_value):
-    p = Parser(module[0].format(s.format(ident=ident_string,
+    with Parser(module[0].format(s.format(ident=ident_string,
                                          string=string_string,
                                          enum_prg_type=enum_prg_type_string,
                                          enum_memory_type=enum_memory_type_string,
                                          enum_attribute=enum_attribute_string,
                                          long=long_string,
                                          offset=offset_string,
-                                         if_data=empty_string)))
-    memory_segment = get_node_from_ast(p.ast, module[1])
-    assert memory_segment.name == ident_value
-    assert memory_segment.long_identifier == string_value
-    assert memory_segment.prg_type == enum_prg_type_value
-    assert memory_segment.memory_type == enum_memory_type_value
-    assert memory_segment.attribute == enum_attribute_value
-    assert memory_segment.address == long_value
-    assert memory_segment.size == long_value
-    assert memory_segment.offset == offset_value
+                                         if_data=empty_string))) as p:
+        memory_segment = get_node_from_ast(p.ast, module[1])
+        assert memory_segment.Name.Value == ident_value
+        assert memory_segment.LongIdentifier.Value == string_value
+        assert memory_segment.PrgType == enum_prg_type_value
+        assert memory_segment.MemoryType == enum_memory_type_value
+        assert memory_segment.Attribute == enum_attribute_value
+        assert memory_segment.Address.Value == long_value
+        assert memory_segment.Size.Value == long_value
+        assert [o.Value for o in memory_segment.Offset] == offset_value
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2140,7 +2143,7 @@ def test_memory_segment(module,
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_module(s, ident_string, ident_value, string_string, string_value):
-    p = Parser(project_string_minimal.format(s.format(ident=ident_string,
+    with Parser(project_string_minimal.format(s.format(ident=ident_string,
                                                       string=string_string,
                                                       a2ml=empty_string,
                                                       mod_par=empty_string,
@@ -2159,28 +2162,28 @@ def test_module(s, ident_string, ident_value, string_string, string_value):
                                                       variant_coding=empty_string,
                                                       frame=empty_string,
                                                       user_rights=empty_string,
-                                                      unit=empty_string)))
-    module = p.ast.project.module[0]
-    assert module.name == ident_value
-    assert module.long_identifier == string_value
-    assert module.a2ml is None
-    assert module.mod_par is None
-    assert module.mod_common is None
-    # assert type(module.if_data) is list
-    assert type(module.characteristic) is list
-    assert type(module.axis_pts) is list
-    assert type(module.measurement) is list
-    assert type(module.compu_method) is list
-    assert type(module.compu_tab) is list
-    assert type(module.compu_vtab) is list
-    assert type(module.compu_vtab_range) is list
-    assert type(module.function) is list
-    assert type(module.group) is list
-    assert type(module.record_layout) is list
-    assert module.variant_coding is None
-    assert module.frame is None
-    assert type(module.user_rights) is list
-    assert type(module.unit) is list
+                                                      unit=empty_string))) as p:
+        module = p.ast.PROJECT.MODULE[0]
+        assert module.Name.Value == ident_value
+        assert module.LongIdentifier.Value == string_value
+        assert module.A2ML.is_none
+        assert module.MOD_PAR.is_none
+        assert module.MOD_COMMON.is_none
+        assert is_iterable(module.IF_DATA)
+        assert is_iterable(module.CHARACTERISTIC)
+        assert is_iterable(module.AXIS_PTS)
+        assert is_iterable(module.MEASUREMENT)
+        assert is_iterable(module.COMPU_METHOD)
+        assert is_iterable(module.COMPU_TAB)
+        assert is_iterable(module.COMPU_VTAB)
+        assert is_iterable(module.COMPU_VTAB_RANGE)
+        assert is_iterable(module.FUNCTION)
+        assert is_iterable(module.GROUP)
+        assert is_iterable(module.RECORD_LAYOUT)
+        assert module.VARIANT_CODING.is_none
+        assert module.FRAME.is_none
+        assert is_iterable(module.USER_RIGHTS)
+        assert is_iterable(module.UNIT)
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2197,7 +2200,7 @@ def test_module(s, ident_string, ident_value, string_string, string_value):
     /end MOD_COMMON'''])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_mod_common(s, string_string, string_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         string=string_string,
         s_rec_layout=empty_string,
         deposit=empty_string,
@@ -2207,18 +2210,18 @@ def test_mod_common(s, string_string, string_value):
         alignment_word=empty_string,
         alignment_long=empty_string,
         alignment_float32_ieee=empty_string,
-        alignment_float64_ieee=empty_string))))
-    mod_common = p.ast.project.module[0].mod_common
-    assert mod_common.comment == string_value
-    assert mod_common.s_rec_layout is None
-    assert mod_common.deposit is None
-    assert mod_common.byte_order is None
-    assert mod_common.data_size is None
-    assert mod_common.alignment_byte is None
-    assert mod_common.alignment_word is None
-    assert mod_common.alignment_long is None
-    assert mod_common.alignment_float32_ieee is None
-    assert mod_common.alignment_float64_ieee is None
+        alignment_float64_ieee=empty_string)))) as p:
+        mod_common = p.ast.PROJECT.MODULE[0].MOD_COMMON
+        assert mod_common.Comment.Value == string_value
+        assert mod_common.S_REC_LAYOUT.is_none
+        assert mod_common.DEPOSIT.is_none
+        assert mod_common.BYTE_ORDER.is_none
+        assert mod_common.DATA_SIZE.is_none
+        assert mod_common.ALIGNMENT_BYTE.is_none
+        assert mod_common.ALIGNMENT_WORD.is_none
+        assert mod_common.ALIGNMENT_LONG.is_none
+        assert mod_common.ALIGNMENT_FLOAT32_IEEE.is_none
+        assert mod_common.ALIGNMENT_FLOAT64_IEEE.is_none
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2243,7 +2246,7 @@ def test_mod_common(s, string_string, string_value):
     /end MOD_PAR'''])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_mod_par(s, string_string, string_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         string=string_string,
         version=empty_string,
         addr_epk=empty_string,
@@ -2260,183 +2263,183 @@ def test_mod_par(s, string_string, string_value):
         calibration_method=empty_string,
         memory_layout=empty_string,
         memory_segment=empty_string,
-        system_constant=empty_string))))
-    mod_par = p.ast.project.module[0].mod_par
-    assert mod_par.comment == string_value
-    assert mod_par.version is None
-    assert type(mod_par.addr_epk) is list
-    assert mod_par.epk is None
-    assert mod_par.supplier is None
-    assert mod_par.customer is None
-    assert mod_par.customer_no is None
-    assert mod_par.user is None
-    assert mod_par.phone_no is None
-    assert mod_par.ecu is None
-    assert mod_par.cpu_type is None
-    assert mod_par.no_of_interfaces is None
-    assert mod_par.ecu_calibration_offset is None
-    assert type(mod_par.calibration_method) is list
-    assert type(mod_par.memory_layout) is list
-    assert type(mod_par.memory_segment) is list
-    assert type(mod_par.system_constant) is list
+        system_constant=empty_string)))) as p:
+        mod_par = p.ast.PROJECT.MODULE[0].MOD_PAR
+        assert mod_par.Comment.Value == string_value
+        assert mod_par.VERSION.is_none
+        assert is_iterable(mod_par.ADDR_EPK)
+        assert mod_par.EPK.is_none
+        assert mod_par.SUPPLIER.is_none
+        assert mod_par.CUSTOMER.is_none
+        assert mod_par.CUSTOMER_NO.is_none
+        assert mod_par.USER.is_none
+        assert mod_par.PHONE_NO.is_none
+        assert mod_par.ECU.is_none
+        assert mod_par.CPU_TYPE.is_none
+        assert mod_par.NO_OF_INTERFACES.is_none
+        assert mod_par.ECU_CALIBRATION_OFFSET.is_none
+        assert is_iterable(mod_par.CALIBRATION_METHOD)
+        assert is_iterable(mod_par.MEMORY_LAYOUT)
+        assert is_iterable(mod_par.MEMORY_SEGMENT)
+        assert is_iterable(mod_par.SYSTEM_CONSTANT)
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'monotony'], id='AXIS_DESCR')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'MONOTONY'], id='AXIS_DESCR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('MONOTONY {}')])
 @pytest.mark.parametrize('s, v', enum_monotony)
 def test_monotony(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    monotony = get_node_from_ast(p.ast, module[1])
-    assert monotony == v
+    with Parser(module[0].format(e.format(s))) as p:
+        monotony = get_node_from_ast(p.ast, module[1])
+        assert monotony.Monotony == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'no_axis_pts_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'NO_AXIS_PTS_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['NO_AXIS_PTS_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_axis_pts_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    no_axis_pts_x = get_node_from_ast(p.ast, module[1])
-    assert no_axis_pts_x.position == int_value
-    assert no_axis_pts_x.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        no_axis_pts_x = get_node_from_ast(p.ast, module[1])
+        assert no_axis_pts_x.Position.Value == int_value
+        assert no_axis_pts_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'no_axis_pts_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'NO_AXIS_PTS_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['NO_AXIS_PTS_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_axis_pts_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    no_axis_pts_y = get_node_from_ast(p.ast, module[1])
-    assert no_axis_pts_y.position == int_value
-    assert no_axis_pts_y.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        no_axis_pts_y = get_node_from_ast(p.ast, module[1])
+        assert no_axis_pts_y.Position.Value == int_value
+        assert no_axis_pts_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'no_axis_pts_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'NO_AXIS_PTS_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['NO_AXIS_PTS_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_axis_pts_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    no_axis_pts_z = get_node_from_ast(p.ast, module[1])
-    assert no_axis_pts_z.position == int_value
-    assert no_axis_pts_z.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        no_axis_pts_z = get_node_from_ast(p.ast, module[1])
+        assert no_axis_pts_z.Position.Value == int_value
+        assert no_axis_pts_z.DataType.Value == data_type_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'no_of_interfaces'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'NO_OF_INTERFACES'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('NO_OF_INTERFACES {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_no_of_interfaces(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    no_of_interfaces = get_node_from_ast(p.ast, module[1])
-    assert no_of_interfaces == v
+    with Parser(module[0].format(e.format(s))) as p:
+        no_of_interfaces = get_node_from_ast(p.ast, module[1])
+        assert no_of_interfaces.Num.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'no_rescale_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'NO_RESCALE_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['NO_RESCALE_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_rescale_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    no_rescale_x = get_node_from_ast(p.ast, module[1])
-    assert no_rescale_x.position == int_value
-    assert no_rescale_x.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        no_rescale_x = get_node_from_ast(p.ast, module[1])
+        assert no_rescale_x.Position.Value == int_value
+        assert no_rescale_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'no_rescale_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'NO_RESCALE_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['NO_RESCALE_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_rescale_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    no_rescale_y = get_node_from_ast(p.ast, module[1])
-    assert no_rescale_y.position == int_value
-    assert no_rescale_y.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        no_rescale_y = get_node_from_ast(p.ast, module[1])
+        assert no_rescale_y.Position.Value == int_value
+        assert no_rescale_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'no_rescale_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'NO_RESCALE_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['NO_RESCALE_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_rescale_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    no_rescale_z = get_node_from_ast(p.ast, module[1])
-    assert no_rescale_z.position == int_value
-    assert no_rescale_z.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        no_rescale_z = get_node_from_ast(p.ast, module[1])
+        assert no_rescale_z.Position.Value == int_value
+        assert no_rescale_z.DataType.Value == data_type_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['characteristic', 0, 'number'], id='CHARACTERISTIC')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['CHARACTERISTIC', 0, 'NUMBER'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('NUMBER {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_number(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    number = get_node_from_ast(p.ast, module[1])
-    assert number == v
+    with Parser(module[0].format(e.format(s))) as p:
+        number = get_node_from_ast(p.ast, module[1])
+        assert number.Number.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'offset_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'OFFSET_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['OFFSET_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_offset_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    offset_x = get_node_from_ast(p.ast, module[1])
-    assert offset_x.position == int_value
-    assert offset_x.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        offset_x = get_node_from_ast(p.ast, module[1])
+        assert offset_x.Position.Value == int_value
+        assert offset_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'offset_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'OFFSET_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['OFFSET_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_offset_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    offset_y = get_node_from_ast(p.ast, module[1])
-    assert offset_y.position == int_value
-    assert offset_y.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        offset_y = get_node_from_ast(p.ast, module[1])
+        assert offset_y.Position.Value == int_value
+        assert offset_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'offset_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'OFFSET_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['OFFSET_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_offset_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    offset_z = get_node_from_ast(p.ast, module[1])
-    assert offset_z.position == int_value
-    assert offset_z.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        offset_z = get_node_from_ast(p.ast, module[1])
+        assert offset_z.Position.Value == int_value
+        assert offset_z.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['function', 0, 'out_measurement'], id='FUNCTION'), ], indirect=True)
+    pytest.param(['FUNCTION', 0, 'OUT_MEASUREMENT'], id='FUNCTION'), ], indirect=True)
 @pytest.mark.parametrize('s, identifier_count', out_measurement_strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_out_measurement(module, s, identifier_count, ident_string, ident_value):
-    p = Parser(module[0].format(s.format(ident=ident_string)))
-    out_measurement = get_node_from_ast(p.ast, module[1])
-    assert type(out_measurement.identifier) is list
-    assert len(out_measurement.identifier) == identifier_count
-    for identifier in out_measurement.identifier:
-        assert identifier == ident_value
+    with Parser(module[0].format(s.format(ident=ident_string))) as p:
+        out_measurement = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(out_measurement.Identifier)
+        assert len(out_measurement.Identifier) == identifier_count
+        for identifier in out_measurement.Identifier:
+            assert identifier.Value == ident_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'phone_no'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'PHONE_NO'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('PHONE_NO {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_phone_no(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    phone_no = get_node_from_ast(p.ast, module[1])
-    assert phone_no == v
+    with Parser(module[0].format(e.format(s))) as p:
+        phone_no = get_node_from_ast(p.ast, module[1])
+        assert phone_no.TelNum.Value == v
 
 
 @pytest.mark.parametrize('s', project_strings)
@@ -2444,8 +2447,7 @@ def test_phone_no(module, e, s, v):
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('header_string', [
     pytest.param(0, id='no HEADER'),
-    pytest.param(1, id='one HEADER'),
-    pytest.param(2, id='two HEADER', marks=pytest.mark.xfail(raises=A2lFormatException, reason='not implemented'))
+    pytest.param(1, id='one HEADER')
 ], indirect=True)
 @pytest.mark.parametrize('module_string', [
     pytest.param(0, id='no MODULE'),
@@ -2453,41 +2455,41 @@ def test_phone_no(module, e, s, v):
     pytest.param(2, id='two MODULE')
 ], indirect=True)
 def test_project(s, ident_string, ident_value, string_string, string_value, header_string, module_string):
-    p = Parser(s.format(ident=ident_string,
+    with Parser(s.format(ident=ident_string,
                         string=string_string,
                         header=header_string,
-                        module=module_string))
-    assert p.ast.project.name == ident_value
-    assert p.ast.project.long_identifier == string_value
+                        module=module_string)) as p:
+        assert p.ast.PROJECT.Name.Value == ident_value
+        assert p.ast.PROJECT.LongIdentifier.Value == string_value
 
 
-@pytest.mark.parametrize('project', [pytest.param(['header', 'project_no'], id='HEADER')], indirect=True)
+@pytest.mark.parametrize('project', [pytest.param(['HEADER', 'PROJECT_NO'], id='HEADER')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('PROJECT_NO {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_project_no(project, e, s, v):
-    p = Parser(project[0].format(e.format(s)))
-    project_no = get_node_from_ast(p.ast, project[1])
-    assert project_no == v
+    with Parser(project[0].format(e.format(s))) as p:
+        project_no = get_node_from_ast(p.ast, project[1])
+        assert project_no.ProjectNumber.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'read_only'], id='CHARACTERISTIC'),
-    pytest.param(['axis_pts', 0, 'read_only'], id='AXIS_PTS'),
-    pytest.param(['characteristic', 0, 'axis_descr', 0, 'read_only'], id='AXIS_DESCR'),
-    pytest.param(['user_rights', 0, 'read_only'], id='USER_RIGHTS')], indirect=True)
-@pytest.mark.parametrize('e', [pytest.param('READ_ONLY')])
-def test_read_only(module, e):
-    p = Parser(module[0].format(e))
-    read_only = get_node_from_ast(p.ast, module[1])
-    assert read_only == e
+    pytest.param(['CHARACTERISTIC', 0, 'READ_ONLY'], id='CHARACTERISTIC'),
+    pytest.param(['AXIS_PTS', 0, 'READ_ONLY'], id='AXIS_PTS'),
+    pytest.param(['CHARACTERISTIC', 0, 'AXIS_DESCR', 0, 'READ_ONLY'], id='AXIS_DESCR'),
+    pytest.param(['USER_RIGHTS', 0, 'READ_ONLY'], id='USER_RIGHTS')], indirect=True)
+@pytest.mark.parametrize('e, a', [pytest.param('READ_ONLY', True), pytest.param('', False)])
+def test_read_only(module, e, a):
+    with Parser(module[0].format(e)) as p:
+        read_only = get_node_from_ast(p.ast, module[1])
+        assert read_only.is_none is not a
 
 
-@pytest.mark.parametrize('module', [pytest.param(['measurement', 0, 'read_write'], id='MEASUREMENT')], indirect=True)
-@pytest.mark.parametrize('e', [pytest.param('READ_WRITE')])
-def test_read_write(module, e):
-    p = Parser(module[0].format(e))
-    read_write = get_node_from_ast(p.ast, module[1])
-    assert read_write == e
+@pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'READ_WRITE'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('e, a', [pytest.param('READ_WRITE', True), pytest.param('', False)])
+def test_read_write(module, e, a):
+    with Parser(module[0].format(e)) as p:
+        read_write = get_node_from_ast(p.ast, module[1])
+        assert read_write.is_none is not a
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2535,7 +2537,7 @@ def test_read_write(module, e):
     /end RECORD_LAYOUT'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_record_layout(s, ident_string, ident_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         fnc_values=empty_string,
         identification=empty_string,
@@ -2575,119 +2577,119 @@ def test_record_layout(s, ident_string, ident_value):
         alignment_long=empty_string,
         alignment_float32_ieee=empty_string,
         alignment_float64_ieee=empty_string,
-        reserved=empty_string))))
-    record_layout = p.ast.project.module[0].record_layout[0]
-    assert record_layout.name == ident_value
-    assert record_layout.fnc_values is None
-    assert record_layout.identification is None
-    assert record_layout.axis_pts_x is None
-    assert record_layout.axis_pts_y is None
-    assert record_layout.axis_pts_z is None
-    assert record_layout.axis_rescale_x is None
-    assert record_layout.axis_rescale_y is None
-    assert record_layout.axis_rescale_z is None
-    assert record_layout.no_axis_pts_x is None
-    assert record_layout.no_axis_pts_y is None
-    assert record_layout.no_axis_pts_z is None
-    assert record_layout.no_rescale_x is None
-    assert record_layout.no_rescale_y is None
-    assert record_layout.no_rescale_z is None
-    assert record_layout.fix_no_axis_pts_x is None
-    assert record_layout.fix_no_axis_pts_y is None
-    assert record_layout.fix_no_axis_pts_z is None
-    assert record_layout.src_addr_x is None
-    assert record_layout.src_addr_y is None
-    assert record_layout.src_addr_z is None
-    assert record_layout.rip_addr_w is None
-    assert record_layout.rip_addr_x is None
-    assert record_layout.rip_addr_y is None
-    assert record_layout.rip_addr_z is None
-    assert record_layout.shift_op_x is None
-    assert record_layout.shift_op_y is None
-    assert record_layout.shift_op_z is None
-    assert record_layout.offset_x is None
-    assert record_layout.offset_y is None
-    assert record_layout.offset_z is None
-    assert record_layout.dist_op_x is None
-    assert record_layout.dist_op_y is None
-    assert record_layout.dist_op_z is None
-    assert record_layout.alignment_byte is None
-    assert record_layout.alignment_word is None
-    assert record_layout.alignment_long is None
-    assert record_layout.alignment_float32_ieee is None
-    assert record_layout.alignment_float64_ieee is None
-    assert type(record_layout.reserved) is list
+        reserved=empty_string)))) as p:
+        record_layout = p.ast.PROJECT.MODULE[0].RECORD_LAYOUT[0]
+        assert record_layout.Name.Value == ident_value
+        assert record_layout.FNC_VALUES.is_none
+        assert record_layout.IDENTIFICATION.is_none
+        assert record_layout.AXIS_PTS_X.is_none
+        assert record_layout.AXIS_PTS_Y.is_none
+        assert record_layout.AXIS_PTS_Z.is_none
+        assert record_layout.AXIS_RESCALE_X.is_none
+        assert record_layout.AXIS_RESCALE_Y.is_none
+        assert record_layout.AXIS_RESCALE_Z.is_none
+        assert record_layout.NO_AXIS_PTS_X.is_none
+        assert record_layout.NO_AXIS_PTS_Y.is_none
+        assert record_layout.NO_AXIS_PTS_Z.is_none
+        assert record_layout.NO_RESCALE_X.is_none
+        assert record_layout.NO_RESCALE_Y.is_none
+        assert record_layout.NO_RESCALE_Z.is_none
+        assert record_layout.FIX_NO_AXIS_PTS_X.is_none
+        assert record_layout.FIX_NO_AXIS_PTS_Y.is_none
+        assert record_layout.FIX_NO_AXIS_PTS_Z.is_none
+        assert record_layout.SRC_ADDR_X.is_none
+        assert record_layout.SRC_ADDR_Y.is_none
+        assert record_layout.SRC_ADDR_Z.is_none
+        assert record_layout.RIP_ADDR_W.is_none
+        assert record_layout.RIP_ADDR_X.is_none
+        assert record_layout.RIP_ADDR_Y.is_none
+        assert record_layout.RIP_ADDR_Z.is_none
+        assert record_layout.SHIFT_OP_X.is_none
+        assert record_layout.SHIFT_OP_Y.is_none
+        assert record_layout.SHIFT_OP_Z.is_none
+        assert record_layout.OFFSET_X.is_none
+        assert record_layout.OFFSET_Y.is_none
+        assert record_layout.OFFSET_Z.is_none
+        assert record_layout.DIST_OP_X.is_none
+        assert record_layout.DIST_OP_Y.is_none
+        assert record_layout.DIST_OP_Z.is_none
+        assert record_layout.ALIGNMENT_BYTE.is_none
+        assert record_layout.ALIGNMENT_WORD.is_none
+        assert record_layout.ALIGNMENT_LONG.is_none
+        assert record_layout.ALIGNMENT_FLOAT32_IEEE.is_none
+        assert record_layout.ALIGNMENT_FLOAT64_IEEE.is_none
+        assert is_iterable(record_layout.RESERVED)
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['function', 0, 'ref_characteristic'], id='FUNCTION'),
-    pytest.param(['group', 0, 'ref_characteristic'], id='GROUP'),
+    pytest.param(['FUNCTION', 0, 'REF_CHARACTERISTIC'], id='FUNCTION'),
+    pytest.param(['GROUP', 0, 'REF_CHARACTERISTIC'], id='GROUP'),
 ], indirect=True)
 @pytest.mark.parametrize('s, identifier_count', ref_characteristic_strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_ref_characteristic(module, s, identifier_count, ident_string, ident_value):
-    p = Parser(module[0].format(s.format(ident=ident_string)))
-    ref_characteristic = get_node_from_ast(p.ast, module[1])
-    assert type(ref_characteristic.identifier) is list
-    assert len(ref_characteristic.identifier) == identifier_count
-    for identifier in ref_characteristic.identifier:
-        assert identifier == ident_value
+    with Parser(module[0].format(s.format(ident=ident_string))) as p:
+        ref_characteristic = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(ref_characteristic.Identifier)
+        assert len(ref_characteristic.Identifier) == identifier_count
+        for identifier in ref_characteristic.Identifier:
+            assert identifier.Value == ident_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['user_rights', 0, 'ref_group', 0], id='USER_RIGHTS')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['USER_RIGHTS', 0, 'REF_GROUP', 0], id='USER_RIGHTS')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin REF_GROUP /end REF_GROUP', 0, id='no identifier'),
     pytest.param('/begin REF_GROUP {ident} /end REF_GROUP', 1, id='one identifier'),
     pytest.param('/begin REF_GROUP {ident} {ident} /end REF_GROUP', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_ref_group(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    ref_group = get_node_from_ast(p.ast, module[1])
-    assert type(ref_group.identifier) is list
-    assert len(ref_group.identifier) == count
-    for identifier in ref_group.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        ref_group = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(ref_group.Identifier)
+        assert len(ref_group.Identifier) == count
+        for identifier in ref_group.Identifier:
+            assert identifier.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['group', 0, 'ref_measurement'], id='GROUP'),
+    pytest.param(['GROUP', 0, 'REF_MEASUREMENT'], id='GROUP'),
 ], indirect=True)
 @pytest.mark.parametrize('s, identifier_count', ref_measurement_strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_ref_measurement(module, s, identifier_count, ident_string, ident_value):
-    p = Parser(module[0].format(s.format(ident=ident_string)))
-    ref_measurement = get_node_from_ast(p.ast, module[1])
-    assert type(ref_measurement.identifier) is list
-    assert len(ref_measurement.identifier) == identifier_count
-    for identifier in ref_measurement.identifier:
-        assert identifier == ident_value
+    with Parser(module[0].format(s.format(ident=ident_string))) as p:
+        ref_measurement = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(ref_measurement.Identifier)
+        assert len(ref_measurement.Identifier) == identifier_count
+        for identifier in ref_measurement.Identifier:
+            assert identifier.Value == ident_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'ref_memory_segment'], id='CHARACTERISTIC'),
-    pytest.param(['measurement', 0, 'ref_memory_segment'], id='MEASUREMENT'),
-    pytest.param(['axis_pts', 0, 'ref_memory_segment'], id='AXIS_PTS')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'REF_MEMORY_SEGMENT'], id='CHARACTERISTIC'),
+    pytest.param(['MEASUREMENT', 0, 'REF_MEMORY_SEGMENT'], id='MEASUREMENT'),
+    pytest.param(['AXIS_PTS', 0, 'REF_MEMORY_SEGMENT'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('REF_MEMORY_SEGMENT {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_ref_memory_segment(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    ref_memory_segment = get_node_from_ast(p.ast, module[1])
-    assert ref_memory_segment == v
+    with Parser(module[0].format(e.format(s))) as p:
+        ref_memory_segment = get_node_from_ast(p.ast, module[1])
+        assert ref_memory_segment.Name.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['compu_method', 0, 'ref_unit'], id='COMPU_METHOD'),
-    pytest.param(['unit', 0, 'ref_unit'], id='UNIT')], indirect=True)
+    pytest.param(['COMPU_METHOD', 0, 'REF_UNIT'], id='COMPU_METHOD'),
+    pytest.param(['UNIT', 0, 'REF_UNIT'], id='UNIT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('REF_UNIT {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_ref_unit(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    ref_unit = get_node_from_ast(p.ast, module[1])
-    assert ref_unit == v
+    with Parser(module[0].format(e.format(s))) as p:
+        ref_unit = get_node_from_ast(p.ast, module[1])
+        assert ref_unit.Unit.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'reserved'], id='RECORD_LAYOUT')
+    pytest.param(['RECORD_LAYOUT', 0, 'RESERVED'], id='RECORD_LAYOUT')
 ], indirect=True)
 @pytest.mark.parametrize('s, reserved_count', reserved_strings)
 @pytest.mark.parametrize('int_string, int_value', ints)
@@ -2696,225 +2698,224 @@ def test_reserved(module,
                   s, reserved_count,
                   int_string, int_value,
                   data_size_string, data_size_value):
-    p = Parser(module[0].format(s.format(int=int_string,
-                                         data_size=data_size_string)))
-    reserved = get_node_from_ast(p.ast, module[1])
-    assert type(reserved) is list
-    assert len(reserved) == reserved_count
-    for e in reserved:
-        assert e.position == int_value
-        assert e.data_size == data_size_value
+    with Parser(module[0].format(s.format(int=int_string, data_size=data_size_string))) as p:
+        reserved = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(reserved)
+        assert len(reserved) == reserved_count
+        for e in reserved:
+            assert e.Position.Value == int_value
+            assert e.DataSize == data_size_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['measurement', 0, 'bit_operation', 'right_shift'], id='MEASUREMENT')], indirect=True)
+    pytest.param(['MEASUREMENT', 0, 'BIT_OPERATION', 'RIGHT_SHIFT'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e', ['RIGHT_SHIFT {}'])
 @pytest.mark.parametrize('s, v', longs)
 def test_right_shift(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    right_shift = get_node_from_ast(p.ast, module[1])
-    assert right_shift == v
+    with Parser(module[0].format(e.format(s))) as p:
+        right_shift = get_node_from_ast(p.ast, module[1])
+        assert right_shift.BitCount.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'rip_addr_w'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'RIP_ADDR_W'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['RIP_ADDR_W {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_w(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    rip_addr_w = get_node_from_ast(p.ast, module[1])
-    assert rip_addr_w.position == int_value
-    assert rip_addr_w.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        rip_addr_w = get_node_from_ast(p.ast, module[1])
+        assert rip_addr_w.Position.Value == int_value
+        assert rip_addr_w.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'rip_addr_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'RIP_ADDR_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['RIP_ADDR_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    rip_addr_x = get_node_from_ast(p.ast, module[1])
-    assert rip_addr_x.position == int_value
-    assert rip_addr_x.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        rip_addr_x = get_node_from_ast(p.ast, module[1])
+        assert rip_addr_x.Position.Value == int_value
+        assert rip_addr_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'rip_addr_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'RIP_ADDR_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['RIP_ADDR_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    rip_addr_y = get_node_from_ast(p.ast, module[1])
-    assert rip_addr_y.position == int_value
-    assert rip_addr_y.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        rip_addr_y = get_node_from_ast(p.ast, module[1])
+        assert rip_addr_y.Position.Value == int_value
+        assert rip_addr_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'rip_addr_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'RIP_ADDR_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('s', ['RIP_ADDR_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(s.format(int=int_string, data_type=data_type_string)))
-    rip_addr_z = get_node_from_ast(p.ast, module[1])
-    assert rip_addr_z.position == int_value
-    assert rip_addr_z.data_type == data_type_value
+    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
+        rip_addr_z = get_node_from_ast(p.ast, module[1])
+        assert rip_addr_z.Position.Value == int_value
+        assert rip_addr_z.DataType.Value == data_type_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['group', 0, 'root'], id='GROUP')], indirect=True)
-@pytest.mark.parametrize('e', [pytest.param('ROOT')])
-def test_root(module, e):
-    p = Parser(module[0].format(e))
-    root = get_node_from_ast(p.ast, module[1])
-    assert root == e
+@pytest.mark.parametrize('module', [pytest.param(['GROUP', 0, 'ROOT'], id='GROUP')], indirect=True)
+@pytest.mark.parametrize('e, a', [pytest.param('ROOT', True), pytest.param('', False)])
+def test_root(module, e, a):
+    with Parser(module[0].format(e)) as p:
+        root = get_node_from_ast(p.ast, module[1])
+        assert root.is_none is not a
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_common', 's_rec_layout'], id='MOD_COMMON')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_COMMON', 'S_REC_LAYOUT'], id='MOD_COMMON')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('S_REC_LAYOUT {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_s_rec_layout(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    s_rec_layout = get_node_from_ast(p.ast, module[1])
-    assert s_rec_layout == v
+    with Parser(module[0].format(e.format(s))) as p:
+        s_rec_layout = get_node_from_ast(p.ast, module[1])
+        assert s_rec_layout.Name.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'shift_op_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'SHIFT_OP_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['SHIFT_OP_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_shift_op_x(module, e, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    shift_op_x = get_node_from_ast(p.ast, module[1])
-    assert shift_op_x.position == int_value
-    assert shift_op_x.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        shift_op_x = get_node_from_ast(p.ast, module[1])
+        assert shift_op_x.Position.Value == int_value
+        assert shift_op_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'shift_op_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'SHIFT_OP_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['SHIFT_OP_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_shift_op_y(module, e, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    shift_op_y = get_node_from_ast(p.ast, module[1])
-    assert shift_op_y.position == int_value
-    assert shift_op_y.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        shift_op_y = get_node_from_ast(p.ast, module[1])
+        assert shift_op_y.Position.Value == int_value
+        assert shift_op_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'shift_op_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'SHIFT_OP_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['SHIFT_OP_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_shift_op_z(module, e, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    shift_op_z = get_node_from_ast(p.ast, module[1])
-    assert shift_op_z.position == int_value
-    assert shift_op_z.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        shift_op_z = get_node_from_ast(p.ast, module[1])
+        assert shift_op_z.Position.Value == int_value
+        assert shift_op_z.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['unit', 0, 'si_exponents'], id='UNIT')], indirect=True)
+    pytest.param(['UNIT', 0, 'SI_EXPONENTS'], id='UNIT')], indirect=True)
 @pytest.mark.parametrize('e', ['SI_EXPONENTS {int} {int} {int} {int} {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_si_exponents(module, e, s, v):
-    p = Parser(module[0].format(e.format(int=s)))
-    si_exponents = get_node_from_ast(p.ast, module[1])
-    assert si_exponents.length == v
-    assert si_exponents.mass == v
-    assert si_exponents.time == v
-    assert si_exponents.electric_current == v
-    assert si_exponents.temperature == v
-    assert si_exponents.amount_of_substance == v
-    assert si_exponents.luminous_intensity == v
+    with Parser(module[0].format(e.format(int=s))) as p:
+        si_exponents = get_node_from_ast(p.ast, module[1])
+        assert si_exponents.Length.Value == v
+        assert si_exponents.Mass.Value == v
+        assert si_exponents.Time.Value == v
+        assert si_exponents.ElectricCurrent.Value == v
+        assert si_exponents.Temperature.Value == v
+        assert si_exponents.AmountOfSubstance.Value == v
+        assert si_exponents.LuminousIntensity.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['measurement', 0, 'bit_operation', 'sign_extend'], id='MEASUREMENT')], indirect=True)
-@pytest.mark.parametrize('e', ['SIGN_EXTEND'])
-def test_sign_extend(module, e):
-    p = Parser(module[0].format(e))
-    sign_extend = get_node_from_ast(p.ast, module[1])
-    assert sign_extend == e
+    pytest.param(['MEASUREMENT', 0, 'BIT_OPERATION', 'SIGN_EXTEND'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('e, a', [pytest.param('SIGN_EXTEND', True), pytest.param('', False)])
+def test_sign_extend(module, e, a):
+    with Parser(module[0].format(e)) as p:
+        sign_extend = get_node_from_ast(p.ast, module[1])
+        assert sign_extend.is_none is not a
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'src_addr_x'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'SRC_ADDR_X'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['SRC_ADDR_X {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_src_addr_x(module, e, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    src_addr_x = get_node_from_ast(p.ast, module[1])
-    assert src_addr_x.position == int_value
-    assert src_addr_x.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        src_addr_x = get_node_from_ast(p.ast, module[1])
+        assert src_addr_x.Position.Value == int_value
+        assert src_addr_x.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'src_addr_y'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'SRC_ADDR_Y'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['SRC_ADDR_Y {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_src_addr_y(module, e, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    src_addr_y = get_node_from_ast(p.ast, module[1])
-    assert src_addr_y.position == int_value
-    assert src_addr_y.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        src_addr_y = get_node_from_ast(p.ast, module[1])
+        assert src_addr_y.Position.Value == int_value
+        assert src_addr_y.DataType.Value == data_type_value
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['record_layout', 0, 'src_addr_z'], id='RECORD_LAYOUT')], indirect=True)
+    pytest.param(['RECORD_LAYOUT', 0, 'SRC_ADDR_Z'], id='RECORD_LAYOUT')], indirect=True)
 @pytest.mark.parametrize('e', ['SRC_ADDR_Z {int} {data_type}'])
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_src_addr_z(module, e, int_string, int_value, data_type_string, data_type_value):
-    p = Parser(module[0].format(e.format(int=int_string, data_type=data_type_string)))
-    src_addr_z = get_node_from_ast(p.ast, module[1])
-    assert src_addr_z.position == int_value
-    assert src_addr_z.data_type == data_type_value
+    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
+        src_addr_z = get_node_from_ast(p.ast, module[1])
+        assert src_addr_z.Position.Value == int_value
+        assert src_addr_z.DataType.Value == data_type_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['function', 0, 'sub_function'], id='FUNCTION'), ], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['FUNCTION', 0, 'SUB_FUNCTION'], id='FUNCTION'), ], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin SUB_FUNCTION /end SUB_FUNCTION', 0, id='no identifier'),
     pytest.param('/begin SUB_FUNCTION {ident} /end SUB_FUNCTION', 1, id='one identifier'),
     pytest.param('/begin SUB_FUNCTION {ident} {ident} /end SUB_FUNCTION', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_sub_function(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    sub_function = get_node_from_ast(p.ast, module[1])
-    assert type(sub_function.identifier) is list
-    assert len(sub_function.identifier) == count
-    for identifier in sub_function.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        sub_function = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(sub_function.Identifier)
+        assert len(sub_function.Identifier) == count
+        for identifier in sub_function.Identifier:
+            assert identifier.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['group', 0, 'sub_group'], id='GROUP')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['GROUP', 0, 'SUB_GROUP'], id='GROUP')], indirect=True)
 @pytest.mark.parametrize('e, count', [
     pytest.param('/begin SUB_GROUP /end SUB_GROUP', 0, id='no identifier'),
     pytest.param('/begin SUB_GROUP {ident} /end SUB_GROUP', 1, id='one identifier'),
     pytest.param('/begin SUB_GROUP {ident} {ident} /end SUB_GROUP', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_sub_group(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    sub_group = get_node_from_ast(p.ast, module[1])
-    assert type(sub_group.identifier) is list
-    assert len(sub_group.identifier) == count
-    for identifier in sub_group.identifier:
-        assert identifier == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        sub_group = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(sub_group.Identifier)
+        assert len(sub_group.Identifier) == count
+        for identifier in sub_group.Identifier:
+            assert identifier.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'supplier'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'SUPPLIER'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('SUPPLIER {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_supplier(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    supplier = get_node_from_ast(p.ast, module[1])
-    assert supplier == v
+    with Parser(module[0].format(e.format(s))) as p:
+        supplier = get_node_from_ast(p.ast, module[1])
+        assert supplier.Manufacturer.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2930,40 +2931,40 @@ def test_unit(s,
               ident_string, ident_value,
               string_string, string_value,
               enum_type_string, enum_type_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         string=string_string,
         type=enum_type_string,
         si_exponents=empty_string,
         ref_unit=empty_string,
-        unit_conversion=empty_string))))
-    unit = p.ast.project.module[0].unit[0]
-    assert unit.name == ident_value
-    assert unit.long_identifier == string_value
-    assert unit.display == string_value
-    assert unit.type == enum_type_value
-    assert unit.si_exponents is None
-    assert unit.ref_unit is None
-    assert unit.unit_conversion is None
+        unit_conversion=empty_string)))) as p:
+        unit = p.ast.PROJECT.MODULE[0].UNIT[0]
+        assert unit.Name.Value == ident_value
+        assert unit.LongIdentifier.Value == string_value
+        assert unit.Display.Value == string_value
+        assert unit.Type == enum_type_value
+        assert unit.SI_EXPONENTS.is_none
+        assert unit.REF_UNIT.is_none
+        assert unit.UNIT_CONVERSION.is_none
 
 
-@pytest.mark.parametrize('module', [pytest.param(['unit', 0, 'unit_conversion'], id='UNIT')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['UNIT', 0, 'UNIT_CONVERSION'], id='UNIT')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('UNIT_CONVERSION {float} {float}')])
 @pytest.mark.parametrize('s, v', floats)
 def test_unit_conversion(module, e, s, v):
-    p = Parser(module[0].format(e.format(float=s)))
-    unit_conversion = get_node_from_ast(p.ast, module[1])
-    assert unit_conversion.gradient == v
-    assert unit_conversion.offset == v
+    with Parser(module[0].format(e.format(float=s))) as p:
+        unit_conversion = get_node_from_ast(p.ast, module[1])
+        assert unit_conversion.Gradient.Value == v
+        assert unit_conversion.Offset.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'user'], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'USER'], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('USER {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_user(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    user = get_node_from_ast(p.ast, module[1])
-    assert user == v
+    with Parser(module[0].format(e.format(s))) as p:
+        user = get_node_from_ast(p.ast, module[1])
+        assert user.UserName.Value == v
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2973,31 +2974,31 @@ def test_user(module, e, s, v):
     /end USER_RIGHTS'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_user_rights(s, ident_string, ident_value):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         ident=ident_string,
         ref_group=empty_string,
-        read_only=empty_string))))
-    user_rights = p.ast.project.module[0].user_rights[0]
-    assert user_rights.user_level_id == ident_value
-    assert type(user_rights.ref_group) is list
-    assert user_rights.read_only is None
+        read_only=empty_string)))) as p:
+        user_rights = p.ast.PROJECT.MODULE[0].USER_RIGHTS[0]
+        assert user_rights.UserLevelId.Value == ident_value
+        assert is_iterable(user_rights.REF_GROUP)
+        assert user_rights.READ_ONLY.is_none
 
 
 @pytest.mark.parametrize('variant_coding', [
-    pytest.param(['var_characteristic', 0, 'var_address'], id='VARIANT_CODING')], indirect=True)
+    pytest.param(['VAR_CHARACTERISTIC', 0, 'VAR_ADDRESS'], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('s, v', [
     pytest.param('', [], id='no address'),
     pytest.param('0', [0], id='one address'),
     pytest.param('0 0', [0, 0], id='two address')])
 def test_var_address(variant_coding, s, v):
-    p = Parser(variant_coding[0].format(s))
-    var_address = get_node_from_ast(p.ast, variant_coding[1])
-    assert type(var_address.address) is list
-    assert var_address.address == v
+    with Parser(variant_coding[0].format(s)) as p:
+        var_address = get_node_from_ast(p.ast, variant_coding[1])
+        assert is_iterable(var_address.Address)
+        assert [v.Value for v in var_address.Address] == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['variant_coding', 'var_characteristic', 0], id='VARIANT_CODING')], indirect=True)
+    pytest.param(['VARIANT_CODING', 'VAR_CHARACTERISTIC', 0], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('s', [
     '/begin VAR_CHARACTERISTIC {ident} {criterion_name} {var_address} /end VAR_CHARACTERISTIC'])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
@@ -3006,18 +3007,18 @@ def test_var_address(variant_coding, s, v):
     pytest.param('_', ['_'], id='one criterion_name'),
     pytest.param('_ _', ['_', '_'], id='no criterion_name')])
 def test_var_characteristic(module, s, ident_string, ident_value, criterion_name_string, criterion_name_value):
-    p = Parser(module[0].format(s.format(ident=ident_string,
+    with Parser(module[0].format(s.format(ident=ident_string,
                                          criterion_name=criterion_name_string,
-                                         var_address=empty_string)))
-    var_characteristic = get_node_from_ast(p.ast, module[1])
-    assert var_characteristic.name == ident_value
-    assert type(var_characteristic.criterion_name) is list
-    assert var_characteristic.criterion_name == criterion_name_value
-    assert var_characteristic.var_address is None
+                                         var_address=empty_string))) as p:
+        var_characteristic = get_node_from_ast(p.ast, module[1])
+        assert var_characteristic.Name.Value == ident_value
+        assert is_iterable(var_characteristic.CriterionName)
+        assert [n.Value for n in var_characteristic.CriterionName] == criterion_name_value
+        assert var_characteristic.VAR_ADDRESS.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['variant_coding', 'var_criterion', 0], id='VARIANT_CODING'), ], indirect=True)
+    pytest.param(['VARIANT_CODING', 'VAR_CRITERION', 0], id='VARIANT_CODING'), ], indirect=True)
 @pytest.mark.parametrize('s', ['''
     /begin VAR_CRITERION
     {ident}
@@ -3033,70 +3034,71 @@ def test_var_characteristic(module, s, ident_string, ident_value, criterion_name
     pytest.param('_', ['_'], id='one value'),
     pytest.param('_ _', ['_', '_'], id='two value')])
 def test_var_criterion(module, s, ident_string, ident_value, string_string, string_value, value_string, value_value):
-    p = Parser(module[0].format(s.format(ident=ident_string,
+    with Parser(module[0].format(s.format(ident=ident_string,
                                          string=string_string,
                                          value=value_string,
                                          var_measurement=empty_string,
-                                         var_selection_characteristic=empty_string)))
-    var_criterion = get_node_from_ast(p.ast, module[1])
-    assert var_criterion.name == ident_value
-    assert var_criterion.long_identifier == string_value
-    assert type(var_criterion.value) is list
-    assert var_criterion.value == value_value
-    assert var_criterion.var_measurement is None
-    assert var_criterion.var_selection_characteristic is None
+                                         var_selection_characteristic=empty_string))) as p:
+        var_criterion = get_node_from_ast(p.ast, module[1])
+        assert var_criterion.Name.Value == ident_value
+        assert var_criterion.LongIdentifier.Value == string_value
+        assert is_iterable(var_criterion.Value)
+        assert [v.Value for v in var_criterion.Value] == value_value
+        assert var_criterion.VAR_MEASUREMENT.is_none
+        assert var_criterion.VAR_SELECTION_CHARACTERISTIC.is_none
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['variant_coding', 'var_forbidden_comb', 0], id='VARIANT_CODING')], indirect=True)
+    pytest.param(['VARIANT_CODING', 'VAR_FORBIDDEN_COMB', 0], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('e', ['/begin VAR_FORBIDDEN_COMB {} /end VAR_FORBIDDEN_COMB'])
 @pytest.mark.parametrize('s, v', [
     pytest.param('', [], id='no criterion'),
     pytest.param('_ _', [('_', '_')], id='one criterion'),
     pytest.param('_ _ _ _', [('_', '_'), ('_', '_')], id='two criterion')])
 def test_var_forbidden_comb(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    var_forbidden_comb = get_node_from_ast(p.ast, module[1])
-    assert type(var_forbidden_comb.criterion) is list
-    assert var_forbidden_comb.criterion == v
+    with Parser(module[0].format(e.format(s))) as p:
+        var_forbidden_comb = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(var_forbidden_comb.CriterionNameCriterionValue)
+        assert [(e.CriterionName.Value,
+                 e.CriterionValue.Value) for e in var_forbidden_comb.CriterionNameCriterionValue] == v
 
 
 @pytest.mark.parametrize('variant_coding', [
-    pytest.param(['var_criterion', 0, 'var_measurement'], id='VARIANT_CODING')], indirect=True)
+    pytest.param(['VAR_CRITERION', 0, 'VAR_MEASUREMENT'], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('s, v', [pytest.param('VAR_MEASUREMENT _', '_', id='VAR_MEASUREMENT')])
 def test_var_measurement(variant_coding, s, v):
-    p = Parser(variant_coding[0].format(s))
-    var_measurement = get_node_from_ast(p.ast, variant_coding[1])
-    assert var_measurement == v
+    with Parser(variant_coding[0].format(s)) as p:
+        var_measurement = get_node_from_ast(p.ast, variant_coding[1])
+        assert var_measurement.Name.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['variant_coding', 'var_naming'], id='VARIANT_CODING')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['VARIANT_CODING', 'VAR_NAMING'], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('e', ['VAR_NAMING {}'])
 @pytest.mark.parametrize('s, v', enum_var_naming_tag)
 def test_var_naming(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    var_naming = get_node_from_ast(p.ast, module[1])
-    assert var_naming == v
+    with Parser(module[0].format(e.format(s))) as p:
+        var_naming = get_node_from_ast(p.ast, module[1])
+        assert var_naming.Tag == v
 
 
 @pytest.mark.parametrize('variant_coding', [
-    pytest.param(['var_criterion', 0, 'var_selection_characteristic'], id='VARIANT_CODING')], indirect=True)
+    pytest.param(['VAR_CRITERION', 0, 'VAR_SELECTION_CHARACTERISTIC'], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('e', ['VAR_SELECTION_CHARACTERISTIC {}'])
 @pytest.mark.parametrize('s, v', idents)
 def test_var_selection_characteristic(variant_coding, e, s, v):
-    p = Parser(variant_coding[0].format(e.format(s)))
-    var_selection_characteristic = get_node_from_ast(p.ast, variant_coding[1])
-    assert var_selection_characteristic == v
+    with Parser(variant_coding[0].format(e.format(s))) as p:
+        var_selection_characteristic = get_node_from_ast(p.ast, variant_coding[1])
+        assert var_selection_characteristic.Name.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['variant_coding', 'var_separator'], id='VARIANT_CODING')], indirect=True)
+    pytest.param(['VARIANT_CODING', 'VAR_SEPARATOR'], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('e', ['VAR_SEPARATOR {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_var_separator(module, e, s, v):
-    p = Parser(module[0].format(e.format(s)))
-    var_separator = get_node_from_ast(p.ast, module[1])
-    assert var_separator == v
+    with Parser(module[0].format(e.format(s))) as p:
+        var_separator = get_node_from_ast(p.ast, module[1])
+        assert var_separator.Separator.Value == v
 
 
 @pytest.mark.parametrize('s', [
@@ -3108,50 +3110,48 @@ def test_var_separator(module, e, s, v):
     {var_characteristic}
     /end VARIANT_CODING'''])
 def test_variant_coding(s):
-    p = Parser(project_string_minimal.format(module_string_minimal.format(s.format(
+    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
         var_separator=empty_string,
         var_naming=empty_string,
         var_criterion=empty_string,
         var_forbidden_comb=empty_string,
-        var_characteristic=empty_string))))
-    variant_coding = p.ast.project.module[0].variant_coding
-    assert variant_coding.var_separator is None
-    assert variant_coding.var_naming is None
-    assert type(variant_coding.var_criterion) is list
-    assert type(variant_coding.var_forbidden_comb) is list
-    assert type(variant_coding.var_characteristic) is list
+        var_characteristic=empty_string)))) as p:
+        variant_coding = p.ast.PROJECT.MODULE[0].VARIANT_CODING
+        assert variant_coding.VAR_SEPARATOR.is_none
+        assert variant_coding.VAR_NAMING.is_none
+        assert is_iterable(variant_coding.VAR_CRITERION)
+        assert is_iterable(variant_coding.VAR_FORBIDDEN_COMB)
+        assert is_iterable(variant_coding.VAR_CHARACTERISTIC)
 
 
-@pytest.mark.parametrize('project', [pytest.param(['header', 'version'], id='HEADER')], indirect=True)
+@pytest.mark.parametrize('project', [pytest.param(['HEADER', 'VERSION'], id='HEADER')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('VERSION {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_version(project, e, s, v):
-    p = Parser(project[0].format(e.format(s)))
-    version = get_node_from_ast(p.ast, project[1])
-    assert version == v
+    with Parser(project[0].format(e.format(s))) as p:
+        version = get_node_from_ast(p.ast, project[1])
+        assert version.VersionIdentifier.Value == v
 
 
-@pytest.mark.parametrize('module', [pytest.param(['measurement', 0, 'virtual'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'VIRTUAL'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e, count', [
-    pytest.param('/begin VIRTUAL /end VIRTUAL', 0, id='no measuring_channel',
-                 marks=pytest.mark.xfail(raises=A2lFormatException, strict=True)),
+    pytest.param('/begin VIRTUAL /end VIRTUAL', 0, id='no measuring_channel'),
     pytest.param('/begin VIRTUAL {ident} /end VIRTUAL', 1, id='one measuring_channel'),
     pytest.param('/begin VIRTUAL {ident} {ident} /end VIRTUAL', 2, id='two measuring_channel')])
 @pytest.mark.parametrize('s, v', idents)
 def test_virtual(module, e, count, s, v):
-    p = Parser(module[0].format(e.format(ident=s)))
-    virtual = get_node_from_ast(p.ast, module[1])
-    assert type(virtual.measuring_channel) is list
-    assert len(virtual.measuring_channel) == count
-    for measuring_channel in virtual.measuring_channel:
-        assert measuring_channel == v
+    with Parser(module[0].format(e.format(ident=s))) as p:
+        virtual = get_node_from_ast(p.ast, module[1])
+        assert is_iterable(virtual.MeasuringChannel)
+        assert len(virtual.MeasuringChannel) == count
+        for measuring_channel in virtual.MeasuringChannel:
+            assert measuring_channel.Value == v
 
 
 @pytest.mark.parametrize('module', [
-    pytest.param(['characteristic', 0, 'virtual_characteristic'], id='CHARACTERISTIC')], indirect=True)
+    pytest.param(['CHARACTERISTIC', 0, 'VIRTUAL_CHARACTERISTIC'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e, count', [
-    pytest.param('/begin VIRTUAL_CHARACTERISTIC {string} /end VIRTUAL_CHARACTERISTIC', 0, id='no characteristic',
-                 marks=pytest.mark.xfail(raises=A2lFormatException, strict=True)),
+    pytest.param('/begin VIRTUAL_CHARACTERISTIC {string} /end VIRTUAL_CHARACTERISTIC', 0, id='no characteristic'),
     pytest.param('/begin VIRTUAL_CHARACTERISTIC {string} {ident} /end VIRTUAL_CHARACTERISTIC', 1,
                  id='one characteristic'),
     pytest.param('/begin VIRTUAL_CHARACTERISTIC {string} {ident} {ident} /end VIRTUAL_CHARACTERISTIC', 2,
@@ -3159,83 +3159,28 @@ def test_virtual(module, e, count, s, v):
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_virtual_characteristic(module, e, count, string_string, string_value, ident_string, ident_value):
-    p = Parser(module[0].format(e.format(string=string_string, ident=ident_string)))
-    virtual_characteristic = get_node_from_ast(p.ast, module[1])
-    assert virtual_characteristic.formula == string_value
-    assert len(virtual_characteristic.characteristic) == count
-    for characteristic in virtual_characteristic.characteristic:
-        assert characteristic == ident_value
+    with Parser(module[0].format(e.format(string=string_string, ident=ident_string))) as p:
+        virtual_characteristic = get_node_from_ast(p.ast, module[1])
+        assert virtual_characteristic.Formula.Value == string_value
+        assert is_iterable(virtual_characteristic.Characteristic)
+        assert len(virtual_characteristic.Characteristic) == count
+        for characteristic in virtual_characteristic.Characteristic:
+            assert characteristic.Value == ident_value
 
 
-@pytest.mark.parametrize('module', [pytest.param(['mod_par', 'system_constant', 0], id='MOD_PAR')], indirect=True)
+@pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'SYSTEM_CONSTANT', 0], id='MOD_PAR')], indirect=True)
 @pytest.mark.parametrize('e', ['SYSTEM_CONSTANT {string} {string}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_system_constant(module, e, s, v):
-    p = Parser(module[0].format(e.format(string=s)))
-    system_constant = get_node_from_ast(p.ast, module[1])
-    assert system_constant.name == v
-    assert system_constant.value == v
-
-
-def test_get_node():
-    a2l_string = """
-        /begin PROJECT project_name "project long identifier"
-            /begin MODULE first_module_name "first module long identifier"
-                /begin CHARACTERISTIC
-                    characteristic_name 
-                    "characteristic long identifier" 
-                    VALUE 
-                    0 
-                    DAMOS_SST 
-                    0 
-                    characteristic_conversion
-                    0 
-                    0
-                /end CHARACTERISTIC
-                /begin CHARACTERISTIC
-                    characteristic_name 
-                    "characteristic long identifier" 
-                    VALUE 
-                    0 
-                    DAMOS_SST 
-                    0 
-                    characteristic_conversion
-                    0 
-                    0
-                /end CHARACTERISTIC
-            /end MODULE
-        /end PROJECT"""
-    a2l = Parser(a2l_string)
-    assert len(a2l.nodes('PROJECT')) == 1
-    assert len(a2l.nodes('MODULE')) == 1
-    assert len(a2l.nodes('CHARACTERISTIC')) == 2
-    assert len(a2l.nodes('MEASUREMENT')) == 0
+    with Parser(module[0].format(e.format(string=s))) as p:
+        system_constant = get_node_from_ast(p.ast, module[1])
+        assert system_constant.Name.Value == v
+        assert system_constant.Value.Value == v
 
 
 def test_get_properties():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
         /end PROJECT"""
-    a2l = Parser(a2l_string)
-    assert set(a2l.ast.project.properties) == {'name', 'module', 'header', 'long_identifier'}
-
-
-def test_type():
-    a2l_string = """
-        /begin PROJECT project_name "project long identifier"
-            /begin MODULE first_module_name "first module long identifier"
-                /begin CHARACTERISTIC
-                    characteristic_name 
-                    "characteristic long identifier" 
-                    VALUE 
-                    0 
-                    DAMOS_SST 
-                    0 
-                    characteristic_conversion
-                    0 
-                    0
-                /end CHARACTERISTIC
-            /end MODULE
-        /end PROJECT"""
-    a2l = Parser(a2l_string)
-    assert a2l.ast.project.module[0].characteristic[0].node == 'CHARACTERISTIC'
+    with Parser(a2l_string) as p:
+        assert set(p.ast.PROJECT.properties) == {'Name', 'MODULE', 'HEADER', 'LongIdentifier'}

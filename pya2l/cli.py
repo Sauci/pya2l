@@ -6,20 +6,20 @@
 """
 
 import argparse
-from json import dump
+import sys
 
-from pya2l.parser.grammar import A2lParser as Parser
+from pya2l.parser import A2lParser as Parser
 
 JSON_CMD = 'to_json'
 
 
 def main():
     parser = argparse.ArgumentParser(prog='pya2l', description='python command line utility for a2l-formatted files.')
+    parser.add_argument('input_file', nargs=1, help='full path to a2l input file')
 
     subparsers = parser.add_subparsers(dest='sub_command', help='supported commands')
 
     json = subparsers.add_parser(JSON_CMD, help='converts an a2l file to json')
-    json.add_argument('input_file', nargs=1, help='full path to a2l input file')
     json.add_argument('-o', nargs=1, help='full path to json output file')
 
     args = parser.parse_args()
@@ -30,8 +30,11 @@ def main():
     a2l = Parser(data)
 
     if args.sub_command == JSON_CMD:
-        with open(args.o[0] if args.o is not None else args.input_file[0] + '.json', 'wb') as fp:
-            dump(a2l.ast.json, fp, indent=4, sort_keys=True, ensure_ascii=False)
+        if args.o:
+            with open(args.o[0], 'wb') as fp:
+                fp.write(a2l.ast.json(indent=4, sort_keys=True).encode())
+        else:
+            sys.stdout.write(a2l.ast.json(indent=4, sort_keys=True))
 
 
 if __name__ == '__main__':
