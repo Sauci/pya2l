@@ -11,8 +11,8 @@ import typing
 import google.protobuf.message
 from google.protobuf.json_format import MessageToJson
 
-from protobuf.API_pb2 import *
-from protobuf.API_pb2_grpc import *
+from pya2l.protobuf.API_pb2 import *
+from pya2l.protobuf.API_pb2_grpc import *
 
 
 class A2lParser(object):
