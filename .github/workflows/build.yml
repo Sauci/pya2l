@@ -49,10 +49,6 @@ jobs:
         run: |
           pytest --cov-report html --cov pya2l --verbose
           codecov
-      - uses: actions/upload-artifact@v3
-        with:
-          name: python_${{ matrix.python-version }}.coverage
-          path: .coverage
   build-distribution:
     runs-on: ubuntu-22.04
     needs:
