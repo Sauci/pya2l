@@ -38,7 +38,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install grpcio-tools pytest pytest-cases
+          pip install codecov grpcio-tools pytest pytest-cases pytest-cov
           wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.3/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
       - uses: actions/download-artifact@v3
@@ -47,7 +47,11 @@ jobs:
           path: pya2l/protobuf
       - name: Test with pytest
         run: |
-          pytest
+          pytest --cov-report html --cov pya2l --verbose
+      - uses: actions/upload-artifact@v3
+        with:
+          name: python_${{ matrix.python-version }}.coverage
+          path: .coverage
   build-distribution:
     runs-on: ubuntu-22.04
     needs:
