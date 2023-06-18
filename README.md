@@ -45,14 +45,17 @@ a2l_string = """/begin PROJECT project_name "example project"
 /end PROJECT
 """
 
-with Parser(a2l_string) as p:
+with Parser() as p:
+    # get the AST.
+    ast = p.tree_from_a2l(a2l_string)
+
     # get a list of available properties for a specific node.
-    assert set(p.ast.PROJECT.properties) == {'Name', 'LongIdentifier', 'HEADER', 'MODULE'}
+    assert set(ast.PROJECT.properties) == {'Name', 'LongIdentifier', 'HEADER', 'MODULE'}
 
     # access nodes explicitly.
-    assert p.ast.PROJECT.MODULE[0].CHARACTERISTIC[0].Name.Value == 'example_of_characteristic'
-    assert p.ast.PROJECT.MODULE[0].CHARACTERISTIC[0].LowerLimit.Value == -4.5
-    assert p.ast.PROJECT.MODULE[0].CHARACTERISTIC[0].UpperLimit.Value == 12.0
+    assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].Name.Value == 'example_of_characteristic'
+    assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].LowerLimit.Value == -4.5
+    assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].UpperLimit.Value == 12.0
 
 a2l_string = """/begin PROJECT project_name "example project"
     /begin MODULE first_module "first module long identifier"
@@ -60,37 +63,27 @@ a2l_string = """/begin PROJECT project_name "example project"
 /end PROJECT
 """
 
-with Parser(a2l_string) as p:
+with Parser() as p:
+    # get the AST.
+    ast = p.tree_from_a2l(a2l_string)
+
     # convert node to json-formatted string.
-    assert p.ast.json(indent=2, sort_keys=False) == """{
-  "PROJECT": {
-    "Name": {
-      "Value": "project_name"
+    assert p.json_from_tree(ast, indent=2) == """{
+  "PROJECT":  {
+    "Name":  {
+      "Value":  "project_name"
     },
-    "LongIdentifier": {
-      "Value": "example project"
+    "LongIdentifier":  {
+      "Value":  "example project"
     },
-    "MODULE": [
+    "MODULE":  [
       {
-        "Name": {
-          "Value": "first_module"
+        "Name":  {
+          "Value":  "first_module"
         },
-        "LongIdentifier": {
-          "Value": "first module long identifier"
-        },
-        "IF_DATA": [],
-        "CHARACTERISTIC": [],
-        "AXIS_PTS": [],
-        "MEASUREMENT": [],
-        "COMPU_METHOD": [],
-        "COMPU_TAB": [],
-        "COMPU_VTAB": [],
-        "COMPU_VTAB_RANGE": [],
-        "FUNCTION": [],
-        "GROUP": [],
-        "RECORD_LAYOUT": [],
-        "USER_RIGHTS": [],
-        "UNIT": []
+        "LongIdentifier":  {
+          "Value":  "first module long identifier"
+        }
       }
     ]
   }

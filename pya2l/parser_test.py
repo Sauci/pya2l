@@ -9,12 +9,14 @@ import pytest
 
 from .parser import A2lParser as Parser
 
+
 def is_iterable(e):
     try:
         iter(e)
         return True
     except TypeError:
         return False
+
 
 idents = (
     pytest.param('name', 'name', id='valid ident'),
@@ -85,16 +87,13 @@ enum_memory_type_strings = (
     pytest.param('REGISTER', 'REGISTER', id='REGISTER'),
     pytest.param('FLASH', 'FLASH', id='FLASH'))
 
-
 enum_unit_type_strings = (
     pytest.param('EXTENDED_SI', 'EXTENDED_SI', id='EXTENDED_SI'),
     pytest.param('DERIVED', 'DERIVED', id='DERIVED'))
 
-
 enum_attribute_memory_segment_strings = (
     pytest.param('INTERN', 'INTERN', id='INTERN'),
     pytest.param('EXTERN', 'EXTERN', id='EXTERN'))
-
 
 enum_attribute_axis_descr_string_strings = (
     pytest.param('STD_AXIS', 'STD_AXIS', id='STD_AXIS'),
@@ -547,9 +546,10 @@ def test_a2l():
 @pytest.mark.parametrize('e', ['A2ML_VERSION {int} {int} /begin PROJECT _ "" /end PROJECT'])
 @pytest.mark.parametrize('s, v', ints)
 def test_a2ml_version(e, s, v):
-    with Parser(e.format(int=s)) as p:
-        assert p.ast.A2ML_VERSION.VersionNo.Value == v
-        assert p.ast.A2ML_VERSION.UpgradeNo.Value == v
+    with Parser() as p:
+        ast = p.tree_from_a2l(e.format(int=s))
+        assert ast.A2ML_VERSION.VersionNo.Value == v
+        assert ast.A2ML_VERSION.UpgradeNo.Value == v
 
 
 @pytest.mark.parametrize('project', [
@@ -557,8 +557,8 @@ def test_a2ml_version(e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ADDR_EPK {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_addr_epk(project, e, s, v):
-    with Parser(project[0].format(e.format(s))) as p:
-        addr_epk = get_node_from_ast(p.ast, project[1])
+    with Parser() as p:
+        addr_epk = get_node_from_ast(p.tree_from_a2l(project[0].format(e.format(s))), project[1])
         assert addr_epk.Address.Value == v
 
 
@@ -568,8 +568,8 @@ def test_addr_epk(project, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_BYTE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_byte(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        alignment_byte = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        alignment_byte = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert alignment_byte.AlignmentBorder.Value == v
 
 
@@ -579,8 +579,8 @@ def test_alignment_byte(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_FLOAT32_IEEE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_float32_ieee(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        alignment_float32_ieee = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        alignment_float32_ieee = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert alignment_float32_ieee.AlignmentBorder.Value == v
 
 
@@ -590,8 +590,8 @@ def test_alignment_float32_ieee(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_FLOAT64_IEEE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_float64_ieee(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        alignment_float64_ieee = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        alignment_float64_ieee = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert alignment_float64_ieee.AlignmentBorder.Value == v
 
 
@@ -601,8 +601,8 @@ def test_alignment_float64_ieee(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_LONG {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_long(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        alignment_long = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        alignment_long = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert alignment_long.AlignmentBorder.Value == v
 
 
@@ -612,8 +612,8 @@ def test_alignment_long(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ALIGNMENT_WORD {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_alignment_word(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        alignment_word = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        alignment_word = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert alignment_word.AlignmentBorder.Value == v
 
 
@@ -625,8 +625,8 @@ def test_alignment_word(module, e, s, v):
     pytest.param(['FUNCTION', 0, 'ANNOTATION', 0], id='FUNCTION'),
     pytest.param(['GROUP', 0, 'ANNOTATION', 0], id='GROUP')], indirect=True)
 def test_annotation(module):
-    with Parser(module[0].format('')) as p:
-        annotation = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        annotation = get_node_from_ast(p.tree_from_a2l(module[0].format('')), module[1])
         assert annotation.ANNOTATION_LABEL.is_none
         assert annotation.ANNOTATION_ORIGIN.is_none
         assert annotation.ANNOTATION_TEXT.is_none
@@ -643,8 +643,8 @@ def test_annotation(module):
 @pytest.mark.parametrize('e', ['ANNOTATION_LABEL {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_annotation_label(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        annotation_label = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        annotation_label = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert annotation_label.Label.Value == v
 
 
@@ -659,8 +659,8 @@ def test_annotation_label(module, e, s, v):
 @pytest.mark.parametrize('e', ['ANNOTATION_ORIGIN {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_annotation_origin(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        annotation_origin = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        annotation_origin = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert annotation_origin.Origin.Value == v
 
 
@@ -677,8 +677,8 @@ def test_annotation_origin(module, e, s, v):
     pytest.param('''/begin ANNOTATION_TEXT {s} {s} /end ANNOTATION_TEXT''', 2, id='two text')])
 @pytest.mark.parametrize('s, v', strings)
 def test_annotation_text(module, e, count, s, v):
-    with Parser(module[0].format(e.format(s=s))) as p:
-        annotation_text = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        annotation_text = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s=s))), module[1])
         assert is_iterable(annotation_text.AnnotationText)
         assert len(annotation_text.AnnotationText) == count
         for text in annotation_text.AnnotationText:
@@ -689,17 +689,19 @@ def test_annotation_text(module, e, count, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ARRAY_SIZE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_array_size(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        array_size = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        array_size = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert array_size.Number.Value == v
 
 
-@pytest.mark.parametrize('s', ['ASAP2_VERSION {int} {int} /begin PROJECT _ "" /end PROJECT']) #  TODO: create a root fixture containing PROJECT, ASAP2_VERSION and A2ML_VERSION
+@pytest.mark.parametrize('s', [
+    'ASAP2_VERSION {int} {int} /begin PROJECT _ "" /end PROJECT'])  # TODO: create a root fixture containing PROJECT, ASAP2_VERSION and A2ML_VERSION
 @pytest.mark.parametrize('int_string, int_value', ints)
 def test_asap2_version(s, int_string, int_value):
-    with Parser(s.format(int=int_string)) as p:
-        assert p.ast.ASAP2_VERSION.VersionNo.Value == int_value
-        assert p.ast.ASAP2_VERSION.UpgradeNo.Value == int_value
+    with Parser() as p:
+        ast = p.tree_from_a2l(s.format(int=int_string))
+        assert ast.ASAP2_VERSION.VersionNo.Value == int_value
+        assert ast.ASAP2_VERSION.UpgradeNo.Value == int_value
 
 
 @pytest.mark.parametrize('module', [pytest.param(['CHARACTERISTIC', 0], id='CHARACTERISTIC')], indirect=True)
@@ -734,25 +736,25 @@ def test_axis_descr(module,
                     ident_string, ident_value,
                     int_string, int_value,
                     float_string, float_value):
-    with Parser(module[0].format(s.format(
-        enum_attribute=enum_attribute_string,
-        ident=ident_string,
-        int=int_string,
-        float=float_string,
-        read_only=empty_string,
-        format=empty_string,
-        axis_pts_ref=empty_string,
-        max_grad=empty_string,
-        monotony=empty_string,
-        byte_order=empty_string,
-        fix_axis_par=empty_string,
-        fix_axis_par_dist=empty_string,
-        fix_axis_par_list=empty_string,
-        deposit=empty_string,
-        annotation=empty_string,
-        extended_limits=empty_string,
-        curve_axis_ref=empty_string))) as p:
-        axis_descr = get_node_from_ast(p.ast, module[1] + ['AXIS_DESCR', 0])
+    with Parser() as p:
+        axis_descr = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(
+            enum_attribute=enum_attribute_string,
+            ident=ident_string,
+            int=int_string,
+            float=float_string,
+            read_only=empty_string,
+            format=empty_string,
+            axis_pts_ref=empty_string,
+            max_grad=empty_string,
+            monotony=empty_string,
+            byte_order=empty_string,
+            fix_axis_par=empty_string,
+            fix_axis_par_dist=empty_string,
+            fix_axis_par_list=empty_string,
+            deposit=empty_string,
+            annotation=empty_string,
+            extended_limits=empty_string,
+            curve_axis_ref=empty_string))), module[1] + ['AXIS_DESCR', 0])
         assert axis_descr.Attribute == enum_attribute_value
         assert axis_descr.InputQuantity.Value == ident_value
         assert axis_descr.Conversion.Value == ident_value
@@ -811,26 +813,26 @@ def test_axis_pts(s,
                   long_string, long_value,
                   float_string, float_value,
                   int_string, int_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        long=long_string,
-        float=float_string,
-        int=int_string,
-        display_identifier=empty_string,
-        read_only=empty_string,
-        format=empty_string,
-        deposit=empty_string,
-        byte_order=empty_string,
-        function_list=empty_string,
-        ref_memory_segment=empty_string,
-        guard_rails=empty_string,
-        if_data=empty_string,
-        annotation=empty_string,
-        extended_limits=empty_string,
-        calibration_access=empty_string,
-        ecu_address_extension=empty_string)))) as p:
-        axis_pts = p.ast.PROJECT.MODULE[0].AXIS_PTS[0]
+    with Parser() as p:
+        axis_pts = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            long=long_string,
+            float=float_string,
+            int=int_string,
+            display_identifier=empty_string,
+            read_only=empty_string,
+            format=empty_string,
+            deposit=empty_string,
+            byte_order=empty_string,
+            function_list=empty_string,
+            ref_memory_segment=empty_string,
+            guard_rails=empty_string,
+            if_data=empty_string,
+            annotation=empty_string,
+            extended_limits=empty_string,
+            calibration_access=empty_string,
+            ecu_address_extension=empty_string)))).PROJECT.MODULE[0].AXIS_PTS[0]
         assert axis_pts.Name.Value == ident_value
         assert axis_pts.LongIdentifier.Value == string_value
         assert axis_pts.Address.Value == long_value
@@ -860,8 +862,8 @@ def test_axis_pts(s,
 @pytest.mark.parametrize('e', [pytest.param('AXIS_PTS_REF {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_axis_pts_ref(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        axis_pts_ref = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_pts_ref = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert axis_pts_ref.AxisPoints.Value == v
 
 
@@ -878,11 +880,12 @@ def test_axis_pts_x(module,
                     data_type_string, data_type_value,
                     index_order_string, index_order_value,
                     addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         index_order=index_order_string,
-                                         addr_type=addr_type_string))) as p:
-        axis_pts_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_pts_x = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                 data_type=data_type_string,
+                                                                                 index_order=index_order_string,
+                                                                                 addr_type=addr_type_string))),
+                                       module[1])
         assert axis_pts_x.Position.Value == int_value
         assert axis_pts_x.DataType.Value == data_type_value
         assert axis_pts_x.IndexIncr.Value == index_order_value
@@ -902,11 +905,12 @@ def test_axis_pts_y(module,
                     data_type_string, data_type_value,
                     index_order_string, index_order_value,
                     addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         index_order=index_order_string,
-                                         addr_type=addr_type_string))) as p:
-        axis_pts_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_pts_y = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                 data_type=data_type_string,
+                                                                                 index_order=index_order_string,
+                                                                                 addr_type=addr_type_string))),
+                                       module[1])
         assert axis_pts_y.Position.Value == int_value
         assert axis_pts_y.DataType.Value == data_type_value
         assert axis_pts_y.IndexIncr.Value == index_order_value
@@ -926,11 +930,12 @@ def test_axis_pts_z(module,
                     data_type_string, data_type_value,
                     index_order_string, index_order_value,
                     addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         index_order=index_order_string,
-                                         addr_type=addr_type_string))) as p:
-        axis_pts_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_pts_z = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                 data_type=data_type_string,
+                                                                                 index_order=index_order_string,
+                                                                                 addr_type=addr_type_string))),
+                                       module[1])
         assert axis_pts_z.Position.Value == int_value
         assert axis_pts_z.DataType.Value == data_type_value
         assert axis_pts_z.IndexIncr.Value == index_order_value
@@ -950,11 +955,12 @@ def test_axis_rescale_x(module,
                         data_type_string, data_type_value,
                         index_incr_string, index_incr_value,
                         addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         index_order=index_incr_string,
-                                         addr_type=addr_type_string))) as p:
-        axis_rescale_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_rescale_x = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                     data_type=data_type_string,
+                                                                                     index_order=index_incr_string,
+                                                                                     addr_type=addr_type_string))),
+                                           module[1])
         assert axis_rescale_x.Position.Value == int_value
         assert axis_rescale_x.DataType.Value == data_type_value
         assert axis_rescale_x.MaxNumberOfRescalePairs.Value == int_value
@@ -975,11 +981,12 @@ def test_axis_rescale_y(module,
                         data_type_string, data_type_value,
                         index_incr_string, index_incr_value,
                         addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         index_order=index_incr_string,
-                                         addr_type=addr_type_string))) as p:
-        axis_rescale_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_rescale_y = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                     data_type=data_type_string,
+                                                                                     index_order=index_incr_string,
+                                                                                     addr_type=addr_type_string))),
+                                           module[1])
         assert axis_rescale_y.Position.Value == int_value
         assert axis_rescale_y.DataType.Value == data_type_value
         assert axis_rescale_y.MaxNumberOfRescalePairs.Value == int_value
@@ -1000,11 +1007,12 @@ def test_axis_rescale_z(module,
                         data_type_string, data_type_value,
                         index_incr_string, index_incr_value,
                         addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         index_order=index_incr_string,
-                                         addr_type=addr_type_string))) as p:
-        axis_rescale_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        axis_rescale_z = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                     data_type=data_type_string,
+                                                                                     index_order=index_incr_string,
+                                                                                     addr_type=addr_type_string))),
+                                           module[1])
         assert axis_rescale_z.Position.Value == int_value
         assert axis_rescale_z.DataType.Value == data_type_value
         assert axis_rescale_z.MaxNumberOfRescalePairs.Value == int_value
@@ -1018,15 +1026,15 @@ def test_axis_rescale_z(module,
 @pytest.mark.parametrize('e', [pytest.param('BIT_MASK {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_bit_mask(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        bit_mask = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        bit_mask = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert bit_mask.Mask.Value == v
 
 
 @pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'BIT_OPERATION'], id='MEASUREMENT')], indirect=True)
 def test_bit_operation(module):
-    with Parser(module[0].format('')) as p:
-        bit_operation = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        bit_operation = get_node_from_ast(p.tree_from_a2l(module[0].format('')), module[1])
         assert bit_operation.LEFT_SHIFT.is_none
         assert bit_operation.RIGHT_SHIFT.is_none
         assert bit_operation.SIGN_EXTEND.is_none
@@ -1041,8 +1049,8 @@ def test_bit_operation(module):
 @pytest.mark.parametrize('e', [pytest.param('BYTE_ORDER {}')])
 @pytest.mark.parametrize('s, v', enum_byte_order)
 def test_byte_order(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        byte_order = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        byte_order = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert byte_order.ByteOrder == v
 
 
@@ -1052,8 +1060,8 @@ def test_byte_order(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('CALIBRATION_ACCESS {}')])
 @pytest.mark.parametrize('s, v', enum_calibration_access)
 def test_calibration_access(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        calibration_access = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        calibration_access = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert calibration_access.Type == v
 
 
@@ -1065,8 +1073,9 @@ def test_calibration_access(module, e, s, v):
     pytest.param('{long} {long}', 2, id='two handle')])
 @pytest.mark.parametrize('s, v', longs)
 def test_calibration_handle(calibration_method, e, count, s, v):
-    with Parser(calibration_method[0].format(e.format(long=s))) as p:
-        calibration_handle = get_node_from_ast(p.ast, calibration_method[1])
+    with Parser() as p:
+        calibration_handle = get_node_from_ast(p.tree_from_a2l(calibration_method[0].format(e.format(long=s))),
+                                               calibration_method[1])
         assert is_iterable(calibration_handle.Handle)
         assert len(calibration_handle.Handle) == count
         for handle in calibration_handle.Handle:
@@ -1078,8 +1087,9 @@ def test_calibration_handle(calibration_method, e, count, s, v):
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('long_string, long_value', longs)
 def test_calibration_method(module, s, string_string, string_value, long_string, long_value):
-    with Parser(module[0].format(s.format(string=string_string, long=long_string))) as p:
-        calibration_method = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        calibration_method = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(string=string_string, long=long_string))), module[1])
         assert calibration_method.Method.Value == string_value
         assert calibration_method.Version.Value == long_value
         assert is_iterable(calibration_method.CALIBRATION_HANDLE)
@@ -1120,34 +1130,34 @@ def test_characteristic(s,
                         enum_type_string, enum_type_value,
                         long_string, long_value,
                         float_string, float_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        enum_type=enum_type_string,
-        long=long_string,
-        float=float_string,
-        display_identifier=empty_string,
-        format=empty_string,
-        byte_order=empty_string,
-        bit_mask=empty_string,
-        function_list=empty_string,
-        number=empty_string,
-        extended_limits=empty_string,
-        read_only=empty_string,
-        guard_rails=empty_string,
-        map_list=empty_string,
-        max_refresh=empty_string,
-        dependent_characteristic=empty_string,
-        virtual_characteristic=empty_string,
-        ref_memory_segment=empty_string,
-        annotation=empty_string,
-        comparison_quantity=empty_string,
-        if_data=empty_string,
-        axis_descr=empty_string,
-        calibration_access=empty_string,
-        matrix_dim=empty_string,
-        ecu_address_extension=empty_string)))) as p:
-        characteristic = p.ast.PROJECT.MODULE[0].CHARACTERISTIC[0]
+    with Parser() as p:
+        characteristic = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            enum_type=enum_type_string,
+            long=long_string,
+            float=float_string,
+            display_identifier=empty_string,
+            format=empty_string,
+            byte_order=empty_string,
+            bit_mask=empty_string,
+            function_list=empty_string,
+            number=empty_string,
+            extended_limits=empty_string,
+            read_only=empty_string,
+            guard_rails=empty_string,
+            map_list=empty_string,
+            max_refresh=empty_string,
+            dependent_characteristic=empty_string,
+            virtual_characteristic=empty_string,
+            ref_memory_segment=empty_string,
+            annotation=empty_string,
+            comparison_quantity=empty_string,
+            if_data=empty_string,
+            axis_descr=empty_string,
+            calibration_access=empty_string,
+            matrix_dim=empty_string,
+            ecu_address_extension=empty_string)))).PROJECT.MODULE[0].CHARACTERISTIC[0]
         assert characteristic.Name.Value == ident_value
         assert characteristic.LongIdentifier.Value == string_value
         assert characteristic.Type == enum_type_value
@@ -1183,8 +1193,8 @@ def test_characteristic(s,
 @pytest.mark.parametrize('s', ['COEFFS {float} {float} {float} {float} {float} {float}'])
 @pytest.mark.parametrize('float_string, float_value', floats)
 def test_coeffs(module, s, float_string, float_value):
-    with Parser(module[0].format(s.format(float=float_string))) as p:
-        coeffs = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        coeffs = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(float=float_string))), module[1])
         assert coeffs.A.Value == float_value
         assert coeffs.B.Value == float_value
         assert coeffs.C.Value == float_value
@@ -1198,8 +1208,8 @@ def test_coeffs(module, s, float_string, float_value):
 @pytest.mark.parametrize('e', [pytest.param('COMPARISON_QUANTITY {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_comparison_quantity(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        comparison_quantity = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        comparison_quantity = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert comparison_quantity.Name.Value == v
 
 
@@ -1217,15 +1227,15 @@ def test_compu_method(s,
                       ident_string, ident_value,
                       string_string, string_value,
                       conversion_type_string, conversion_type_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        enum_conversion_type=conversion_type_string,
-        formula=empty_string,
-        coeffs=empty_string,
-        compu_tab_ref=empty_string,
-        ref_unit=empty_string)))) as p:
-        compu_method = p.ast.PROJECT.MODULE[0].COMPU_METHOD[0]
+    with Parser() as p:
+        compu_method = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            enum_conversion_type=conversion_type_string,
+            formula=empty_string,
+            coeffs=empty_string,
+            compu_tab_ref=empty_string,
+            ref_unit=empty_string)))).PROJECT.MODULE[0].COMPU_METHOD[0]
         assert compu_method.Name.Value == ident_value
         assert compu_method.LongIdentifier.Value == string_value
         assert compu_method.ConversionType == conversion_type_value
@@ -1255,14 +1265,14 @@ def test_compu_tab(s,
                    conversion_type_string, conversion_type_value,
                    int_string, int_value,
                    in_val_out_val_string, in_val_out_val_value, in_val_out_val_count):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        enum_conversion_type=conversion_type_string,
-        int=int_string,
-        default_value=empty_string,
-        in_val_out_val=in_val_out_val_string)))) as p:
-        compu_tab = p.ast.PROJECT.MODULE[0].COMPU_TAB[0]
+    with Parser() as p:
+        compu_tab = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            enum_conversion_type=conversion_type_string,
+            int=int_string,
+            default_value=empty_string,
+            in_val_out_val=in_val_out_val_string)))).PROJECT.MODULE[0].COMPU_TAB[0]
         assert compu_tab.Name.Value == ident_value
         assert compu_tab.LongIdentifier.Value == string_value
         assert compu_tab.ConversionType == conversion_type_value
@@ -1277,8 +1287,8 @@ def test_compu_tab(s,
 @pytest.mark.parametrize('e', [pytest.param('COMPU_TAB_REF {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_compu_tab_ref(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        compu_tab_ref = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        compu_tab_ref = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert compu_tab_ref.ConversionTable.Value == v
 
 
@@ -1300,14 +1310,14 @@ def test_compu_vtab(s,
                     conversion_type_string, conversion_type_value,
                     int_string, int_value,
                     in_val_out_val_string, in_val_out_val_value, in_val_out_val_count):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        enum_conversion_type=conversion_type_string,
-        int=int_string,
-        default_value=empty_string,
-        in_val_out_val=in_val_out_val_string)))) as p:
-        compu_vtab = p.ast.PROJECT.MODULE[0].COMPU_VTAB[0]
+    with Parser() as p:
+        compu_vtab = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            enum_conversion_type=conversion_type_string,
+            int=int_string,
+            default_value=empty_string,
+            in_val_out_val=in_val_out_val_string)))).PROJECT.MODULE[0].COMPU_VTAB[0]
         assert compu_vtab.Name.Value == ident_value
         assert compu_vtab.LongIdentifier.Value == string_value
         assert compu_vtab.ConversionType == conversion_type_value
@@ -1333,18 +1343,18 @@ def test_compu_vtab_range(s,
                           string_string, string_value,
                           int_string, int_value,
                           in_val_out_val_string, in_val_out_val_value, in_val_out_val_count):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        int=int_string,
-        default_value=empty_string,
-        in_val_out_val=in_val_out_val_string)))) as p:
-        compu_vtab_range = p.ast.PROJECT.MODULE[0].COMPU_VTAB_RANGE[0]
+    with Parser() as p:
+        compu_vtab_range = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            int=int_string,
+            default_value=empty_string,
+            in_val_out_val=in_val_out_val_string)))).PROJECT.MODULE[0].COMPU_VTAB_RANGE[0]
         assert compu_vtab_range.Name.Value == ident_value
         assert compu_vtab_range.LongIdentifier.Value == string_value
         assert compu_vtab_range.NumberOfValuesTriples.Value == int_value
         assert is_iterable(compu_vtab_range.InValMinInValMaxOutVal)
-        assert [(e.InValMin.Value, e.InValMax.Value, e.OutVal.Value) for e in compu_vtab_range.InValMinInValMaxOutVal]\
+        assert [(e.InValMin.Value, e.InValMax.Value, e.OutVal.Value) for e in compu_vtab_range.InValMinInValMaxOutVal] \
                == in_val_out_val_value
         assert compu_vtab_range.DEFAULT_VALUE.is_none
 
@@ -1353,8 +1363,8 @@ def test_compu_vtab_range(s,
 @pytest.mark.parametrize('s', [pytest.param('CPU_TYPE {}')])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_cpu_type(module, s, string_string, string_value):
-    with Parser(module[0].format(s.format(string_string))) as p:
-        cpu_type = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        cpu_type = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(string_string))), module[1])
         assert cpu_type.Cpu.Value == string_value
 
 
@@ -1363,8 +1373,8 @@ def test_cpu_type(module, s, string_string, string_value):
 @pytest.mark.parametrize('e', [pytest.param('CURVE_AXIS_REF {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_curve_axis_ref(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        curve_axis_ref = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        curve_axis_ref = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert curve_axis_ref.CurveAxis.Value == v
 
 
@@ -1372,8 +1382,8 @@ def test_curve_axis_ref(module, e, s, v):
 @pytest.mark.parametrize('s', [pytest.param('CUSTOMER {}')])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_customer(module, s, string_string, string_value):
-    with Parser(module[0].format(s.format(string_string))) as p:
-        customer = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        customer = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(string_string))), module[1])
         assert customer.Customer.Value == string_value
 
 
@@ -1381,8 +1391,8 @@ def test_customer(module, s, string_string, string_value):
 @pytest.mark.parametrize('s', [pytest.param('CUSTOMER_NO {}')])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_customer_no(module, s, string_string, string_value):
-    with Parser(module[0].format(s.format(string_string))) as p:
-        customer_no = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        customer_no = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(string_string))), module[1])
         assert customer_no.Number.Value == string_value
 
 
@@ -1390,8 +1400,8 @@ def test_customer_no(module, s, string_string, string_value):
 @pytest.mark.parametrize('e', [pytest.param('DATA_SIZE {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_data_size(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        data_size = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        data_size = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert data_size.Size.Value == v
 
 
@@ -1402,8 +1412,8 @@ def test_data_size(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('DEFAULT_VALUE {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_default_value(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        default_value = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        default_value = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert default_value.DisplayString.Value == v
 
 
@@ -1414,8 +1424,8 @@ def test_default_value(module, e, s, v):
     pytest.param('/begin DEF_CHARACTERISTIC {ident} {ident} /end DEF_CHARACTERISTIC', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_def_characteristic(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        def_characteristic = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        def_characteristic = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(def_characteristic.Identifier)
         assert len(def_characteristic.Identifier) == count
         for identifier in def_characteristic.Identifier:
@@ -1434,8 +1444,9 @@ def test_def_characteristic(module, e, count, s, v):
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_dependent_characteristic(module, e, count, string_string, string_value, ident_string, ident_value):
-    with Parser(module[0].format(e.format(string=string_string, ident=ident_string))) as p:
-        dependent_characteristic = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        dependent_characteristic = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(string=string_string, ident=ident_string))), module[1])
         assert dependent_characteristic.Formula.Value == string_value
         assert is_iterable(dependent_characteristic.Characteristic)
         assert len(dependent_characteristic.Characteristic) == count
@@ -1450,8 +1461,8 @@ def test_dependent_characteristic(module, e, count, string_string, string_value,
 @pytest.mark.parametrize('e', [pytest.param('DEPOSIT {}')])
 @pytest.mark.parametrize('s, v', enum_mode_deposit)
 def test_deposit(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        deposit = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        deposit = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert deposit.Mode == v
 
 
@@ -1462,8 +1473,8 @@ def test_deposit(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('DISPLAY_IDENTIFIER {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_display_identifier(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        display_identifier = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        display_identifier = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert display_identifier.DisplayName.Value == v
 
 
@@ -1476,8 +1487,9 @@ def test_dist_op_x(module,
                    s,
                    int_string, int_value,
                    data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        dist_op_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        dist_op_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert dist_op_x.Position.Value == int_value
         assert dist_op_x.DataType.Value == data_type_value
 
@@ -1491,8 +1503,9 @@ def test_dist_op_y(module,
                    s,
                    int_string, int_value,
                    data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        dist_op_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        dist_op_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert dist_op_y.Position.Value == int_value
         assert dist_op_y.DataType.Value == data_type_value
 
@@ -1506,8 +1519,9 @@ def test_dist_op_z(module,
                    s,
                    int_string, int_value,
                    data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        dist_op_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        dist_op_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert dist_op_z.Position.Value == int_value
         assert dist_op_z.DataType.Value == data_type_value
 
@@ -1516,8 +1530,8 @@ def test_dist_op_z(module,
 @pytest.mark.parametrize('e', [pytest.param('ECU {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_ecu(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        ecu = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ecu = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert ecu.ControlUnit.Value == v
 
 
@@ -1525,8 +1539,8 @@ def test_ecu(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ECU_ADDRESS {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_ecu_address(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        ecu_address = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ecu_address = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert ecu_address.Address.Value == v
 
 
@@ -1537,8 +1551,8 @@ def test_ecu_address(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ECU_ADDRESS_EXTENSION {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_ecu_address_extension(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        ecu_address_extension = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ecu_address_extension = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert ecu_address_extension.Extension.Value == v
 
 
@@ -1546,8 +1560,8 @@ def test_ecu_address_extension(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ECU_CALIBRATION_OFFSET {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_ecu_calibration_offset(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        ecu_calibration_offset = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ecu_calibration_offset = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert ecu_calibration_offset.Offset.Value == v
 
 
@@ -1555,8 +1569,8 @@ def test_ecu_calibration_offset(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('EPK {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_epk(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        epk = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        epk = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert epk.Identifier.Value == v
 
 
@@ -1564,8 +1578,8 @@ def test_epk(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('ERROR_MASK {}')])
 @pytest.mark.parametrize('s, v', longs)
 def test_error_mask(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        error_mask = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        error_mask = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert error_mask.Mask.Value == v
 
 
@@ -1575,8 +1589,8 @@ def test_error_mask(module, e, s, v):
 @pytest.mark.parametrize('e', ['EXTENDED_LIMITS {float} {float}'])
 @pytest.mark.parametrize('s, v', floats)
 def test_extended_limits(module, e, s, v):
-    with Parser(module[0].format(e.format(float=s))) as p:
-        extended_limits = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        extended_limits = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(float=s))), module[1])
         assert extended_limits.LowerLimit.Value == v
         assert extended_limits.UpperLimit.Value == v
 
@@ -1586,8 +1600,8 @@ def test_extended_limits(module, e, s, v):
 @pytest.mark.parametrize('e', ['FIX_AXIS_PAR {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_axis_par(module, e, s, v):
-    with Parser(module[0].format(e.format(int=s))) as p:
-        fix_axis_par = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fix_axis_par = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(int=s))), module[1])
         assert fix_axis_par.Offset.Value == v
         assert fix_axis_par.Shift.Value == v
         assert fix_axis_par.Numberapo.Value == v
@@ -1598,8 +1612,8 @@ def test_fix_axis_par(module, e, s, v):
 @pytest.mark.parametrize('e', ['FIX_AXIS_PAR_DIST {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_axis_par_dist(module, e, s, v):
-    with Parser(module[0].format(e.format(int=s))) as p:
-        fix_axis_par_dist = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fix_axis_par_dist = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(int=s))), module[1])
         assert fix_axis_par_dist.Offset.Value == v
         assert fix_axis_par_dist.Distance.Value == v
         assert fix_axis_par_dist.Numberapo.Value == v
@@ -1613,8 +1627,8 @@ def test_fix_axis_par_dist(module, e, s, v):
     pytest.param('/begin FIX_AXIS_PAR_LIST {float} {float} /end FIX_AXIS_PAR_LIST', 2, id='two axis_pts_value')])
 @pytest.mark.parametrize('s, v', floats)
 def test_fix_axis_par_list(module, e, count, s, v):
-    with Parser(module[0].format(e.format(float=s))) as p:
-        fix_axis_par_list = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fix_axis_par_list = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(float=s))), module[1])
         assert is_iterable(fix_axis_par_list.AxisPtsValue)
         assert len(fix_axis_par_list.AxisPtsValue) == count
         for axis_pts_value in fix_axis_par_list.AxisPtsValue:
@@ -1626,8 +1640,8 @@ def test_fix_axis_par_list(module, e, count, s, v):
 @pytest.mark.parametrize('e', ['FIX_NO_AXIS_PTS_X {}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_no_axis_pts_x(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        fix_no_axis_pts_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fix_no_axis_pts_x = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert fix_no_axis_pts_x.NumberOfAxisPoints.Value == v
 
 
@@ -1636,8 +1650,8 @@ def test_fix_no_axis_pts_x(module, e, s, v):
 @pytest.mark.parametrize('e', ['FIX_NO_AXIS_PTS_Y {}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_no_axis_pts_y(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        fix_no_axis_pts_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fix_no_axis_pts_y = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert fix_no_axis_pts_y.NumberOfAxisPoints.Value == v
 
 
@@ -1646,8 +1660,8 @@ def test_fix_no_axis_pts_y(module, e, s, v):
 @pytest.mark.parametrize('e', ['FIX_NO_AXIS_PTS_Z {}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_fix_no_axis_pts_z(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        fix_no_axis_pts_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fix_no_axis_pts_z = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert fix_no_axis_pts_z.NumberOfAxisPoints.Value == v
 
 
@@ -1664,11 +1678,12 @@ def test_fnc_values(module,
                     data_type_string, data_type_value,
                     enum_index_mode_string, enum_index_mode_value,
                     addr_type_string, addr_type_value):
-    with Parser(module[0].format(s.format(int=int_string,
-                                         data_type=data_type_string,
-                                         enum_index_mode=enum_index_mode_string,
-                                         addr_type=addr_type_string))) as p:
-        fnc_values = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        fnc_values = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string,
+                                                                                 data_type=data_type_string,
+                                                                                 enum_index_mode=enum_index_mode_string,
+                                                                                 addr_type=addr_type_string))),
+                                       module[1])
         assert fnc_values.Position.Value == int_value
         assert fnc_values.DataType.Value == data_type_value
         assert fnc_values.IndexMode == enum_index_mode_value
@@ -1683,8 +1698,8 @@ def test_fnc_values(module,
 @pytest.mark.parametrize('e', [pytest.param('FORMAT {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_format(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        format = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        format = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert format.FormatString.Value == v
 
 
@@ -1692,8 +1707,8 @@ def test_format(module, e, s, v):
 @pytest.mark.parametrize('e', ['/begin FORMULA {} /end FORMULA'])
 @pytest.mark.parametrize('s, v', strings)
 def test_formula(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        formula = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        formula = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert formula.FX.Value == v
         assert formula.FORMULA_INV.is_none
 
@@ -1702,8 +1717,8 @@ def test_formula(module, e, s, v):
 @pytest.mark.parametrize('e', ['FORMULA_INV {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_formula_inv(compu_method, e, s, v):
-    with Parser(compu_method[0].format(e.format(s))) as p:
-        formula_inv = get_node_from_ast(p.ast, compu_method[1])
+    with Parser() as p:
+        formula_inv = get_node_from_ast(p.tree_from_a2l(compu_method[0].format(e.format(s))), compu_method[1])
         assert formula_inv.GX.Value == v
 
 
@@ -1721,14 +1736,14 @@ def test_frame(s,
                string_string, string_value,
                int_string, int_value,
                long_string, long_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        int=int_string,
-        long=long_string,
-        frame_measurement=empty_string,
-        if_data=empty_string)))) as p:
-        frame = p.ast.PROJECT.MODULE[0].FRAME
+    with Parser() as p:
+        frame = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            int=int_string,
+            long=long_string,
+            frame_measurement=empty_string,
+            if_data=empty_string)))).PROJECT.MODULE[0].FRAME
         assert frame.Name.Value == ident_value
         assert frame.LongIdentifier.Value == string_value
         assert frame.ScalingUnit.Value == int_value
@@ -1743,8 +1758,8 @@ def test_frame(s,
     pytest.param('FRAME_MEASUREMENT {ident} {ident}', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_frame_measurement(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        frame_measurement = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        frame_measurement = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(frame_measurement.Identifier)
         assert len(frame_measurement.Identifier) == count
         for identifier in frame_measurement.Identifier:
@@ -1765,18 +1780,18 @@ def test_frame_measurement(module, e, count, s, v):
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_function(s, ident_string, ident_value, string_string, string_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        annotation=empty_string,
-        def_characteristic=empty_string,
-        ref_characteristic=empty_string,
-        in_measurement=empty_string,
-        out_measurement=empty_string,
-        loc_measurement=empty_string,
-        sub_function=empty_string,
-        function_version=empty_string)))) as p:
-        function = p.ast.PROJECT.MODULE[0].FUNCTION[0]
+    with Parser() as p:
+        function = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            annotation=empty_string,
+            def_characteristic=empty_string,
+            ref_characteristic=empty_string,
+            in_measurement=empty_string,
+            out_measurement=empty_string,
+            loc_measurement=empty_string,
+            sub_function=empty_string,
+            function_version=empty_string)))).PROJECT.MODULE[0].FUNCTION[0]
         assert function.Name.Value == ident_value
         assert function.LongIdentifier.Value == string_value
         assert is_iterable(function.ANNOTATION)
@@ -1800,8 +1815,8 @@ def test_function(s, ident_string, ident_value, string_string, string_value):
     pytest.param('/begin FUNCTION_LIST {ident} {ident} /end FUNCTION_LIST', 2, id='two name')])
 @pytest.mark.parametrize('s, v', idents)
 def test_function_list(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        function_list = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        function_list = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert len(function_list.Name) == count
         for name in function_list.Name:
             assert name.Value == v
@@ -1811,8 +1826,8 @@ def test_function_list(module, e, count, s, v):
 @pytest.mark.parametrize('e', [pytest.param('FUNCTION_VERSION {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_function_version(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        function_version = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        function_version = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert function_version.VersionIdentifier.Value == v
 
 
@@ -1828,16 +1843,16 @@ def test_function_version(module, e, s, v):
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_group(s, ident_string, ident_value, string_string, string_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        annotation=empty_string,
-        root=empty_string,
-        ref_characteristic=empty_string,
-        ref_measurement=empty_string,
-        function_list=empty_string,
-        sub_group=empty_string)))) as p:
-        group = p.ast.PROJECT.MODULE[0].GROUP[0]
+    with Parser() as p:
+        group = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            annotation=empty_string,
+            root=empty_string,
+            ref_characteristic=empty_string,
+            ref_measurement=empty_string,
+            function_list=empty_string,
+            sub_group=empty_string)))).PROJECT.MODULE[0].GROUP[0]
         assert group.GroupName.Value == ident_value
         assert group.GroupLongIdentifier.Value == string_value
         assert is_iterable(group.ANNOTATION)
@@ -1853,8 +1868,8 @@ def test_group(s, ident_string, ident_value, string_string, string_value):
     pytest.param(['AXIS_PTS', 0, 'GUARD_RAILS'], id='AXIS_PTS')], indirect=True)
 @pytest.mark.parametrize('e, a', [pytest.param('GUARD_RAILS', True), pytest.param('', False)])
 def test_guard_rails(module, e, a):
-    with Parser(module[0].format(e)) as p:
-        guard_rails = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        guard_rails = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
         assert guard_rails.is_none is not a
 
 
@@ -1862,12 +1877,13 @@ def test_guard_rails(module, e, a):
 @pytest.mark.parametrize('e', ['/begin HEADER {string} {version} {project_no} /end HEADER'])
 @pytest.mark.parametrize('s, v', strings)
 def test_header(e, s, v):
-    with Parser(project_string_minimal.format(e.format(string=s,
-                                                      version=empty_string,
-                                                      project_no=empty_string))) as p:
-        assert p.ast.PROJECT.HEADER.Comment.Value == v
-        assert p.ast.PROJECT.HEADER.VERSION.is_none
-        assert p.ast.PROJECT.HEADER.PROJECT_NO.is_none
+    with Parser() as p:
+        ast = p.tree_from_a2l(project_string_minimal.format(e.format(string=s,
+                                                                     version=empty_string,
+                                                                     project_no=empty_string)))
+        assert ast.PROJECT.HEADER.Comment.Value == v
+        assert ast.PROJECT.HEADER.VERSION.is_none
+        assert ast.PROJECT.HEADER.PROJECT_NO.is_none
 
 
 @pytest.mark.parametrize('module', [
@@ -1879,8 +1895,9 @@ def test_identification(module,
                         e,
                         int_string, int_value,
                         data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        identification = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        identification = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert identification.Position.Value == int_value
         assert identification.DataType.Value == data_type_value
 
@@ -1892,8 +1909,8 @@ def test_identification(module,
     pytest.param('/begin IN_MEASUREMENT {ident} {ident} /end IN_MEASUREMENT', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_in_measurement(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        in_measurement = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        in_measurement = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(in_measurement.Identifier)
         assert len(in_measurement.Identifier) == count
         for identifier in in_measurement.Identifier:
@@ -1905,8 +1922,8 @@ def test_in_measurement(module, e, count, s, v):
 @pytest.mark.parametrize('e', ['LEFT_SHIFT {}'])
 @pytest.mark.parametrize('s, v', longs)
 def test_left_shift(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        left_shift = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        left_shift = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert left_shift.BitCount.Value == v
 
 
@@ -1917,8 +1934,8 @@ def test_left_shift(module, e, s, v):
     pytest.param('/begin LOC_MEASUREMENT {ident} {ident} /end LOC_MEASUREMENT', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_loc_measurement(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        loc_measurement = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        loc_measurement = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(loc_measurement.Identifier)
         assert len(loc_measurement.Identifier) == count
         for identifier in loc_measurement.Identifier:
@@ -1933,8 +1950,8 @@ def test_loc_measurement(module, e, count, s, v):
     pytest.param('/begin MAP_LIST {ident} {ident} /end MAP_LIST', 2, id='two ident')])
 @pytest.mark.parametrize('s, v', idents)
 def test_map_list(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        map_list = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        map_list = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(map_list.Name)
         assert len(map_list.Name) == count
         for name in map_list.Name:
@@ -1947,8 +1964,8 @@ def test_map_list(module, e, count, s, v):
 @pytest.mark.parametrize('e', ['MATRIX_DIM {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_matrix_dim(module, e, s, v):
-    with Parser(module[0].format(e.format(int=s))) as p:
-        matrix_dim = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        matrix_dim = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(int=s))), module[1])
         assert matrix_dim.XDim.Value == v
         assert matrix_dim.YDim.Value == v
         assert matrix_dim.ZDim.Value == v
@@ -1959,8 +1976,8 @@ def test_matrix_dim(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('MAX_GRAD {}')])
 @pytest.mark.parametrize('s, v', floats)
 def test_max_grad(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        max_grad = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        max_grad = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert max_grad.MaxGradient.Value == v
 
 
@@ -1971,8 +1988,9 @@ def test_max_grad(module, e, s, v):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('long_string, long_value', longs)
 def test_max_refresh(module, s, int_string, int_value, long_string, long_value):
-    with Parser(module[0].format(s.format(int=int_string, long=long_string))) as p:
-        max_refresh = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        max_refresh = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(int=int_string, long=long_string))),
+                                        module[1])
         assert max_refresh.ScalingUnit.Value == int_value
         assert max_refresh.Rate.Value == long_value
 
@@ -2008,30 +2026,30 @@ def test_measurement(s,
                      data_type_string, data_type_value,
                      int_string, int_value,
                      float_string, float_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        data_type=data_type_string,
-        int=int_string,
-        float=float_string,
-        display_identifier=empty_string,
-        read_write=empty_string,
-        format=empty_string,
-        array_size=empty_string,
-        bit_mask=empty_string,
-        bit_operation=empty_string,
-        byte_order=empty_string,
-        max_refresh=empty_string,
-        virtual=empty_string,
-        error_mask=empty_string,
-        function_list=empty_string,
-        if_data=empty_string,
-        ecu_address=empty_string,
-        ref_memory_segment=empty_string,
-        annotation=empty_string,
-        matrix_dim=empty_string,
-        ecu_address_extension=empty_string)))) as p:
-        measurement = p.ast.PROJECT.MODULE[0].MEASUREMENT[0]
+    with Parser() as p:
+        measurement = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            data_type=data_type_string,
+            int=int_string,
+            float=float_string,
+            display_identifier=empty_string,
+            read_write=empty_string,
+            format=empty_string,
+            array_size=empty_string,
+            bit_mask=empty_string,
+            bit_operation=empty_string,
+            byte_order=empty_string,
+            max_refresh=empty_string,
+            virtual=empty_string,
+            error_mask=empty_string,
+            function_list=empty_string,
+            if_data=empty_string,
+            ecu_address=empty_string,
+            ref_memory_segment=empty_string,
+            annotation=empty_string,
+            matrix_dim=empty_string,
+            ecu_address_extension=empty_string)))).PROJECT.MODULE[0].MEASUREMENT[0]
         assert measurement.Name.Value == ident_value
         assert measurement.LongIdentifier.Value == string_value
         assert measurement.DataType.Value == data_type_value
@@ -2068,11 +2086,11 @@ def test_memory_layout(module,
                        enum_prg_type_string, enum_prg_type_value,
                        long_string, long_value,
                        offset_string, offset_value):
-    with Parser(module[0].format(s.format(enum_prg_type=enum_prg_type_string,
-                                         long=long_string,
-                                         offset=offset_string,
-                                         if_data=empty_string))) as p:
-        memory_layout = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        memory_layout = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(enum_prg_type=enum_prg_type_string,
+                                                                                    long=long_string,
+                                                                                    offset=offset_string,
+                                                                                    if_data=empty_string))), module[1])
         assert memory_layout.PrgType == enum_prg_type_value
         assert memory_layout.Address.Value == long_value
         assert memory_layout.Size.Value == long_value
@@ -2100,15 +2118,15 @@ def test_memory_segment(module,
                         enum_attribute_string, enum_attribute_value,
                         long_string, long_value,
                         offset_string, offset_value):
-    with Parser(module[0].format(s.format(ident=ident_string,
-                                         string=string_string,
-                                         enum_prg_type=enum_prg_type_string,
-                                         enum_memory_type=enum_memory_type_string,
-                                         enum_attribute=enum_attribute_string,
-                                         long=long_string,
-                                         offset=offset_string,
-                                         if_data=empty_string))) as p:
-        memory_segment = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        memory_segment = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(ident=ident_string,
+                                                                                     string=string_string,
+                                                                                     enum_prg_type=enum_prg_type_string,
+                                                                                     enum_memory_type=enum_memory_type_string,
+                                                                                     enum_attribute=enum_attribute_string,
+                                                                                     long=long_string,
+                                                                                     offset=offset_string,
+                                                                                     if_data=empty_string))), module[1])
         assert memory_segment.Name.Value == ident_value
         assert memory_segment.LongIdentifier.Value == string_value
         assert memory_segment.PrgType == enum_prg_type_value
@@ -2143,27 +2161,27 @@ def test_memory_segment(module,
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_module(s, ident_string, ident_value, string_string, string_value):
-    with Parser(project_string_minimal.format(s.format(ident=ident_string,
-                                                      string=string_string,
-                                                      a2ml=empty_string,
-                                                      mod_par=empty_string,
-                                                      mod_common=empty_string,
-                                                      if_data=empty_string,
-                                                      characteristic=empty_string,
-                                                      axis_pts=empty_string,
-                                                      measurement=empty_string,
-                                                      compu_method=empty_string,
-                                                      compu_tab=empty_string,
-                                                      compu_vtab=empty_string,
-                                                      compu_vtab_range=empty_string,
-                                                      function=empty_string,
-                                                      group=empty_string,
-                                                      record_layout=empty_string,
-                                                      variant_coding=empty_string,
-                                                      frame=empty_string,
-                                                      user_rights=empty_string,
-                                                      unit=empty_string))) as p:
-        module = p.ast.PROJECT.MODULE[0]
+    with Parser() as p:
+        module = p.tree_from_a2l(project_string_minimal.format(s.format(ident=ident_string,
+                                                                        string=string_string,
+                                                                        a2ml=empty_string,
+                                                                        mod_par=empty_string,
+                                                                        mod_common=empty_string,
+                                                                        if_data=empty_string,
+                                                                        characteristic=empty_string,
+                                                                        axis_pts=empty_string,
+                                                                        measurement=empty_string,
+                                                                        compu_method=empty_string,
+                                                                        compu_tab=empty_string,
+                                                                        compu_vtab=empty_string,
+                                                                        compu_vtab_range=empty_string,
+                                                                        function=empty_string,
+                                                                        group=empty_string,
+                                                                        record_layout=empty_string,
+                                                                        variant_coding=empty_string,
+                                                                        frame=empty_string,
+                                                                        user_rights=empty_string,
+                                                                        unit=empty_string))).PROJECT.MODULE[0]
         assert module.Name.Value == ident_value
         assert module.LongIdentifier.Value == string_value
         assert module.A2ML.is_none
@@ -2200,18 +2218,18 @@ def test_module(s, ident_string, ident_value, string_string, string_value):
     /end MOD_COMMON'''])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_mod_common(s, string_string, string_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        string=string_string,
-        s_rec_layout=empty_string,
-        deposit=empty_string,
-        byte_order=empty_string,
-        data_size=empty_string,
-        alignment_byte=empty_string,
-        alignment_word=empty_string,
-        alignment_long=empty_string,
-        alignment_float32_ieee=empty_string,
-        alignment_float64_ieee=empty_string)))) as p:
-        mod_common = p.ast.PROJECT.MODULE[0].MOD_COMMON
+    with Parser() as p:
+        mod_common = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            string=string_string,
+            s_rec_layout=empty_string,
+            deposit=empty_string,
+            byte_order=empty_string,
+            data_size=empty_string,
+            alignment_byte=empty_string,
+            alignment_word=empty_string,
+            alignment_long=empty_string,
+            alignment_float32_ieee=empty_string,
+            alignment_float64_ieee=empty_string)))).PROJECT.MODULE[0].MOD_COMMON
         assert mod_common.Comment.Value == string_value
         assert mod_common.S_REC_LAYOUT.is_none
         assert mod_common.DEPOSIT.is_none
@@ -2246,25 +2264,25 @@ def test_mod_common(s, string_string, string_value):
     /end MOD_PAR'''])
 @pytest.mark.parametrize('string_string, string_value', strings)
 def test_mod_par(s, string_string, string_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        string=string_string,
-        version=empty_string,
-        addr_epk=empty_string,
-        epk=empty_string,
-        supplier=empty_string,
-        customer=empty_string,
-        customer_no=empty_string,
-        user=empty_string,
-        phone_no=empty_string,
-        ecu=empty_string,
-        cpu_type=empty_string,
-        no_of_interfaces=empty_string,
-        ecu_calibration_offset=empty_string,
-        calibration_method=empty_string,
-        memory_layout=empty_string,
-        memory_segment=empty_string,
-        system_constant=empty_string)))) as p:
-        mod_par = p.ast.PROJECT.MODULE[0].MOD_PAR
+    with Parser() as p:
+        mod_par = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            string=string_string,
+            version=empty_string,
+            addr_epk=empty_string,
+            epk=empty_string,
+            supplier=empty_string,
+            customer=empty_string,
+            customer_no=empty_string,
+            user=empty_string,
+            phone_no=empty_string,
+            ecu=empty_string,
+            cpu_type=empty_string,
+            no_of_interfaces=empty_string,
+            ecu_calibration_offset=empty_string,
+            calibration_method=empty_string,
+            memory_layout=empty_string,
+            memory_segment=empty_string,
+            system_constant=empty_string)))).PROJECT.MODULE[0].MOD_PAR
         assert mod_par.Comment.Value == string_value
         assert mod_par.VERSION.is_none
         assert is_iterable(mod_par.ADDR_EPK)
@@ -2289,8 +2307,8 @@ def test_mod_par(s, string_string, string_value):
 @pytest.mark.parametrize('e', [pytest.param('MONOTONY {}')])
 @pytest.mark.parametrize('s, v', enum_monotony)
 def test_monotony(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        monotony = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        monotony = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert monotony.Monotony == v
 
 
@@ -2300,8 +2318,9 @@ def test_monotony(module, e, s, v):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_axis_pts_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        no_axis_pts_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_axis_pts_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert no_axis_pts_x.Position.Value == int_value
         assert no_axis_pts_x.DataType.Value == data_type_value
 
@@ -2312,8 +2331,9 @@ def test_no_axis_pts_x(module, s, int_string, int_value, data_type_string, data_
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_axis_pts_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        no_axis_pts_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_axis_pts_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert no_axis_pts_y.Position.Value == int_value
         assert no_axis_pts_y.DataType.Value == data_type_value
 
@@ -2324,8 +2344,9 @@ def test_no_axis_pts_y(module, s, int_string, int_value, data_type_string, data_
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_axis_pts_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        no_axis_pts_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_axis_pts_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert no_axis_pts_z.Position.Value == int_value
         assert no_axis_pts_z.DataType.Value == data_type_value
 
@@ -2334,8 +2355,8 @@ def test_no_axis_pts_z(module, s, int_string, int_value, data_type_string, data_
 @pytest.mark.parametrize('e', [pytest.param('NO_OF_INTERFACES {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_no_of_interfaces(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        no_of_interfaces = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_of_interfaces = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert no_of_interfaces.Num.Value == v
 
 
@@ -2345,8 +2366,9 @@ def test_no_of_interfaces(module, e, s, v):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_rescale_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        no_rescale_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_rescale_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert no_rescale_x.Position.Value == int_value
         assert no_rescale_x.DataType.Value == data_type_value
 
@@ -2357,8 +2379,9 @@ def test_no_rescale_x(module, s, int_string, int_value, data_type_string, data_t
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_rescale_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        no_rescale_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_rescale_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert no_rescale_y.Position.Value == int_value
         assert no_rescale_y.DataType.Value == data_type_value
 
@@ -2369,8 +2392,9 @@ def test_no_rescale_y(module, s, int_string, int_value, data_type_string, data_t
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_no_rescale_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        no_rescale_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        no_rescale_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert no_rescale_z.Position.Value == int_value
         assert no_rescale_z.DataType.Value == data_type_value
 
@@ -2379,8 +2403,8 @@ def test_no_rescale_z(module, s, int_string, int_value, data_type_string, data_t
 @pytest.mark.parametrize('e', [pytest.param('NUMBER {}')])
 @pytest.mark.parametrize('s, v', ints)
 def test_number(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        number = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        number = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert number.Number.Value == v
 
 
@@ -2390,8 +2414,9 @@ def test_number(module, e, s, v):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_offset_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        offset_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        offset_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert offset_x.Position.Value == int_value
         assert offset_x.DataType.Value == data_type_value
 
@@ -2402,8 +2427,9 @@ def test_offset_x(module, s, int_string, int_value, data_type_string, data_type_
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_offset_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        offset_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        offset_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert offset_y.Position.Value == int_value
         assert offset_y.DataType.Value == data_type_value
 
@@ -2414,8 +2440,9 @@ def test_offset_y(module, s, int_string, int_value, data_type_string, data_type_
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_offset_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        offset_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        offset_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert offset_z.Position.Value == int_value
         assert offset_z.DataType.Value == data_type_value
 
@@ -2425,8 +2452,8 @@ def test_offset_z(module, s, int_string, int_value, data_type_string, data_type_
 @pytest.mark.parametrize('s, identifier_count', out_measurement_strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_out_measurement(module, s, identifier_count, ident_string, ident_value):
-    with Parser(module[0].format(s.format(ident=ident_string))) as p:
-        out_measurement = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        out_measurement = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(ident=ident_string))), module[1])
         assert is_iterable(out_measurement.Identifier)
         assert len(out_measurement.Identifier) == identifier_count
         for identifier in out_measurement.Identifier:
@@ -2437,8 +2464,8 @@ def test_out_measurement(module, s, identifier_count, ident_string, ident_value)
 @pytest.mark.parametrize('e', [pytest.param('PHONE_NO {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_phone_no(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        phone_no = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        phone_no = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert phone_no.TelNum.Value == v
 
 
@@ -2455,20 +2482,21 @@ def test_phone_no(module, e, s, v):
     pytest.param(2, id='two MODULE')
 ], indirect=True)
 def test_project(s, ident_string, ident_value, string_string, string_value, header_string, module_string):
-    with Parser(s.format(ident=ident_string,
-                        string=string_string,
-                        header=header_string,
-                        module=module_string)) as p:
-        assert p.ast.PROJECT.Name.Value == ident_value
-        assert p.ast.PROJECT.LongIdentifier.Value == string_value
+    with Parser() as p:
+        ast = p.tree_from_a2l(s.format(ident=ident_string,
+                                       string=string_string,
+                                       header=header_string,
+                                       module=module_string))
+        assert ast.PROJECT.Name.Value == ident_value
+        assert ast.PROJECT.LongIdentifier.Value == string_value
 
 
 @pytest.mark.parametrize('project', [pytest.param(['HEADER', 'PROJECT_NO'], id='HEADER')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('PROJECT_NO {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_project_no(project, e, s, v):
-    with Parser(project[0].format(e.format(s))) as p:
-        project_no = get_node_from_ast(p.ast, project[1])
+    with Parser() as p:
+        project_no = get_node_from_ast(p.tree_from_a2l(project[0].format(e.format(s))), project[1])
         assert project_no.ProjectNumber.Value == v
 
 
@@ -2479,16 +2507,16 @@ def test_project_no(project, e, s, v):
     pytest.param(['USER_RIGHTS', 0, 'READ_ONLY'], id='USER_RIGHTS')], indirect=True)
 @pytest.mark.parametrize('e, a', [pytest.param('READ_ONLY', True), pytest.param('', False)])
 def test_read_only(module, e, a):
-    with Parser(module[0].format(e)) as p:
-        read_only = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        read_only = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
         assert read_only.is_none is not a
 
 
 @pytest.mark.parametrize('module', [pytest.param(['MEASUREMENT', 0, 'READ_WRITE'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e, a', [pytest.param('READ_WRITE', True), pytest.param('', False)])
 def test_read_write(module, e, a):
-    with Parser(module[0].format(e)) as p:
-        read_write = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        read_write = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
         assert read_write.is_none is not a
 
 
@@ -2537,48 +2565,48 @@ def test_read_write(module, e, a):
     /end RECORD_LAYOUT'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_record_layout(s, ident_string, ident_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        fnc_values=empty_string,
-        identification=empty_string,
-        axis_pts_x=empty_string,
-        axis_pts_y=empty_string,
-        axis_pts_z=empty_string,
-        axis_rescale_x=empty_string,
-        axis_rescale_y=empty_string,
-        axis_rescale_z=empty_string,
-        no_axis_pts_x=empty_string,
-        no_axis_pts_y=empty_string,
-        no_axis_pts_z=empty_string,
-        no_rescale_x=empty_string,
-        no_rescale_y=empty_string,
-        no_rescale_z=empty_string,
-        fix_no_axis_pts_x=empty_string,
-        fix_no_axis_pts_y=empty_string,
-        fix_no_axis_pts_z=empty_string,
-        src_addr_x=empty_string,
-        src_addr_y=empty_string,
-        src_addr_z=empty_string,
-        rip_addr_x=empty_string,
-        rip_addr_y=empty_string,
-        rip_addr_z=empty_string,
-        rip_addr_w=empty_string,
-        shift_op_x=empty_string,
-        shift_op_y=empty_string,
-        shift_op_z=empty_string,
-        offset_x=empty_string,
-        offset_y=empty_string,
-        offset_z=empty_string,
-        dist_op_x=empty_string,
-        dist_op_y=empty_string,
-        dist_op_z=empty_string,
-        alignment_byte=empty_string,
-        alignment_word=empty_string,
-        alignment_long=empty_string,
-        alignment_float32_ieee=empty_string,
-        alignment_float64_ieee=empty_string,
-        reserved=empty_string)))) as p:
-        record_layout = p.ast.PROJECT.MODULE[0].RECORD_LAYOUT[0]
+    with Parser() as p:
+        record_layout = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            fnc_values=empty_string,
+            identification=empty_string,
+            axis_pts_x=empty_string,
+            axis_pts_y=empty_string,
+            axis_pts_z=empty_string,
+            axis_rescale_x=empty_string,
+            axis_rescale_y=empty_string,
+            axis_rescale_z=empty_string,
+            no_axis_pts_x=empty_string,
+            no_axis_pts_y=empty_string,
+            no_axis_pts_z=empty_string,
+            no_rescale_x=empty_string,
+            no_rescale_y=empty_string,
+            no_rescale_z=empty_string,
+            fix_no_axis_pts_x=empty_string,
+            fix_no_axis_pts_y=empty_string,
+            fix_no_axis_pts_z=empty_string,
+            src_addr_x=empty_string,
+            src_addr_y=empty_string,
+            src_addr_z=empty_string,
+            rip_addr_x=empty_string,
+            rip_addr_y=empty_string,
+            rip_addr_z=empty_string,
+            rip_addr_w=empty_string,
+            shift_op_x=empty_string,
+            shift_op_y=empty_string,
+            shift_op_z=empty_string,
+            offset_x=empty_string,
+            offset_y=empty_string,
+            offset_z=empty_string,
+            dist_op_x=empty_string,
+            dist_op_y=empty_string,
+            dist_op_z=empty_string,
+            alignment_byte=empty_string,
+            alignment_word=empty_string,
+            alignment_long=empty_string,
+            alignment_float32_ieee=empty_string,
+            alignment_float64_ieee=empty_string,
+            reserved=empty_string)))).PROJECT.MODULE[0].RECORD_LAYOUT[0]
         assert record_layout.Name.Value == ident_value
         assert record_layout.FNC_VALUES.is_none
         assert record_layout.IDENTIFICATION.is_none
@@ -2628,8 +2656,9 @@ def test_record_layout(s, ident_string, ident_value):
 @pytest.mark.parametrize('s, identifier_count', ref_characteristic_strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_ref_characteristic(module, s, identifier_count, ident_string, ident_value):
-    with Parser(module[0].format(s.format(ident=ident_string))) as p:
-        ref_characteristic = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ref_characteristic = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(ident=ident_string))),
+                                               module[1])
         assert is_iterable(ref_characteristic.Identifier)
         assert len(ref_characteristic.Identifier) == identifier_count
         for identifier in ref_characteristic.Identifier:
@@ -2643,8 +2672,8 @@ def test_ref_characteristic(module, s, identifier_count, ident_string, ident_val
     pytest.param('/begin REF_GROUP {ident} {ident} /end REF_GROUP', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_ref_group(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        ref_group = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ref_group = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(ref_group.Identifier)
         assert len(ref_group.Identifier) == count
         for identifier in ref_group.Identifier:
@@ -2657,8 +2686,8 @@ def test_ref_group(module, e, count, s, v):
 @pytest.mark.parametrize('s, identifier_count', ref_measurement_strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_ref_measurement(module, s, identifier_count, ident_string, ident_value):
-    with Parser(module[0].format(s.format(ident=ident_string))) as p:
-        ref_measurement = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ref_measurement = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(ident=ident_string))), module[1])
         assert is_iterable(ref_measurement.Identifier)
         assert len(ref_measurement.Identifier) == identifier_count
         for identifier in ref_measurement.Identifier:
@@ -2672,8 +2701,8 @@ def test_ref_measurement(module, s, identifier_count, ident_string, ident_value)
 @pytest.mark.parametrize('e', [pytest.param('REF_MEMORY_SEGMENT {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_ref_memory_segment(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        ref_memory_segment = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ref_memory_segment = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert ref_memory_segment.Name.Value == v
 
 
@@ -2683,8 +2712,8 @@ def test_ref_memory_segment(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('REF_UNIT {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_ref_unit(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        ref_unit = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        ref_unit = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert ref_unit.Unit.Value == v
 
 
@@ -2698,8 +2727,9 @@ def test_reserved(module,
                   s, reserved_count,
                   int_string, int_value,
                   data_size_string, data_size_value):
-    with Parser(module[0].format(s.format(int=int_string, data_size=data_size_string))) as p:
-        reserved = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        reserved = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_size=data_size_string))), module[1])
         assert is_iterable(reserved)
         assert len(reserved) == reserved_count
         for e in reserved:
@@ -2712,8 +2742,8 @@ def test_reserved(module,
 @pytest.mark.parametrize('e', ['RIGHT_SHIFT {}'])
 @pytest.mark.parametrize('s, v', longs)
 def test_right_shift(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        right_shift = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        right_shift = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert right_shift.BitCount.Value == v
 
 
@@ -2723,8 +2753,9 @@ def test_right_shift(module, e, s, v):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_w(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        rip_addr_w = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        rip_addr_w = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert rip_addr_w.Position.Value == int_value
         assert rip_addr_w.DataType.Value == data_type_value
 
@@ -2735,8 +2766,9 @@ def test_rip_addr_w(module, s, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_x(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        rip_addr_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        rip_addr_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert rip_addr_x.Position.Value == int_value
         assert rip_addr_x.DataType.Value == data_type_value
 
@@ -2747,8 +2779,9 @@ def test_rip_addr_x(module, s, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_y(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        rip_addr_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        rip_addr_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert rip_addr_y.Position.Value == int_value
         assert rip_addr_y.DataType.Value == data_type_value
 
@@ -2759,8 +2792,9 @@ def test_rip_addr_y(module, s, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_rip_addr_z(module, s, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(s.format(int=int_string, data_type=data_type_string))) as p:
-        rip_addr_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        rip_addr_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(s.format(int=int_string, data_type=data_type_string))), module[1])
         assert rip_addr_z.Position.Value == int_value
         assert rip_addr_z.DataType.Value == data_type_value
 
@@ -2768,8 +2802,8 @@ def test_rip_addr_z(module, s, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('module', [pytest.param(['GROUP', 0, 'ROOT'], id='GROUP')], indirect=True)
 @pytest.mark.parametrize('e, a', [pytest.param('ROOT', True), pytest.param('', False)])
 def test_root(module, e, a):
-    with Parser(module[0].format(e)) as p:
-        root = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        root = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
         assert root.is_none is not a
 
 
@@ -2777,8 +2811,8 @@ def test_root(module, e, a):
 @pytest.mark.parametrize('e', [pytest.param('S_REC_LAYOUT {}')])
 @pytest.mark.parametrize('s, v', idents)
 def test_s_rec_layout(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        s_rec_layout = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        s_rec_layout = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert s_rec_layout.Name.Value == v
 
 
@@ -2788,8 +2822,9 @@ def test_s_rec_layout(module, e, s, v):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_shift_op_x(module, e, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        shift_op_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        shift_op_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert shift_op_x.Position.Value == int_value
         assert shift_op_x.DataType.Value == data_type_value
 
@@ -2800,8 +2835,9 @@ def test_shift_op_x(module, e, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_shift_op_y(module, e, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        shift_op_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        shift_op_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert shift_op_y.Position.Value == int_value
         assert shift_op_y.DataType.Value == data_type_value
 
@@ -2812,8 +2848,9 @@ def test_shift_op_y(module, e, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_shift_op_z(module, e, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        shift_op_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        shift_op_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert shift_op_z.Position.Value == int_value
         assert shift_op_z.DataType.Value == data_type_value
 
@@ -2823,8 +2860,8 @@ def test_shift_op_z(module, e, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('e', ['SI_EXPONENTS {int} {int} {int} {int} {int} {int} {int}'])
 @pytest.mark.parametrize('s, v', ints)
 def test_si_exponents(module, e, s, v):
-    with Parser(module[0].format(e.format(int=s))) as p:
-        si_exponents = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        si_exponents = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(int=s))), module[1])
         assert si_exponents.Length.Value == v
         assert si_exponents.Mass.Value == v
         assert si_exponents.Time.Value == v
@@ -2838,8 +2875,8 @@ def test_si_exponents(module, e, s, v):
     pytest.param(['MEASUREMENT', 0, 'BIT_OPERATION', 'SIGN_EXTEND'], id='MEASUREMENT')], indirect=True)
 @pytest.mark.parametrize('e, a', [pytest.param('SIGN_EXTEND', True), pytest.param('', False)])
 def test_sign_extend(module, e, a):
-    with Parser(module[0].format(e)) as p:
-        sign_extend = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        sign_extend = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
         assert sign_extend.is_none is not a
 
 
@@ -2849,8 +2886,9 @@ def test_sign_extend(module, e, a):
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_src_addr_x(module, e, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        src_addr_x = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        src_addr_x = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert src_addr_x.Position.Value == int_value
         assert src_addr_x.DataType.Value == data_type_value
 
@@ -2861,8 +2899,9 @@ def test_src_addr_x(module, e, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_src_addr_y(module, e, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        src_addr_y = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        src_addr_y = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert src_addr_y.Position.Value == int_value
         assert src_addr_y.DataType.Value == data_type_value
 
@@ -2873,8 +2912,9 @@ def test_src_addr_y(module, e, int_string, int_value, data_type_string, data_typ
 @pytest.mark.parametrize('int_string, int_value', ints)
 @pytest.mark.parametrize('data_type_string, data_type_value', data_types)
 def test_src_addr_z(module, e, int_string, int_value, data_type_string, data_type_value):
-    with Parser(module[0].format(e.format(int=int_string, data_type=data_type_string))) as p:
-        src_addr_z = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        src_addr_z = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(int=int_string, data_type=data_type_string))), module[1])
         assert src_addr_z.Position.Value == int_value
         assert src_addr_z.DataType.Value == data_type_value
 
@@ -2886,8 +2926,8 @@ def test_src_addr_z(module, e, int_string, int_value, data_type_string, data_typ
     pytest.param('/begin SUB_FUNCTION {ident} {ident} /end SUB_FUNCTION', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_sub_function(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        sub_function = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        sub_function = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(sub_function.Identifier)
         assert len(sub_function.Identifier) == count
         for identifier in sub_function.Identifier:
@@ -2901,8 +2941,8 @@ def test_sub_function(module, e, count, s, v):
     pytest.param('/begin SUB_GROUP {ident} {ident} /end SUB_GROUP', 2, id='two identifier')])
 @pytest.mark.parametrize('s, v', idents)
 def test_sub_group(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        sub_group = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        sub_group = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(sub_group.Identifier)
         assert len(sub_group.Identifier) == count
         for identifier in sub_group.Identifier:
@@ -2913,8 +2953,8 @@ def test_sub_group(module, e, count, s, v):
 @pytest.mark.parametrize('e', [pytest.param('SUPPLIER {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_supplier(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        supplier = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        supplier = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert supplier.Manufacturer.Value == v
 
 
@@ -2931,14 +2971,14 @@ def test_unit(s,
               ident_string, ident_value,
               string_string, string_value,
               enum_type_string, enum_type_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        string=string_string,
-        type=enum_type_string,
-        si_exponents=empty_string,
-        ref_unit=empty_string,
-        unit_conversion=empty_string)))) as p:
-        unit = p.ast.PROJECT.MODULE[0].UNIT[0]
+    with Parser() as p:
+        unit = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            string=string_string,
+            type=enum_type_string,
+            si_exponents=empty_string,
+            ref_unit=empty_string,
+            unit_conversion=empty_string)))).PROJECT.MODULE[0].UNIT[0]
         assert unit.Name.Value == ident_value
         assert unit.LongIdentifier.Value == string_value
         assert unit.Display.Value == string_value
@@ -2952,8 +2992,8 @@ def test_unit(s,
 @pytest.mark.parametrize('e', [pytest.param('UNIT_CONVERSION {float} {float}')])
 @pytest.mark.parametrize('s, v', floats)
 def test_unit_conversion(module, e, s, v):
-    with Parser(module[0].format(e.format(float=s))) as p:
-        unit_conversion = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        unit_conversion = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(float=s))), module[1])
         assert unit_conversion.Gradient.Value == v
         assert unit_conversion.Offset.Value == v
 
@@ -2962,8 +3002,8 @@ def test_unit_conversion(module, e, s, v):
 @pytest.mark.parametrize('e', [pytest.param('USER {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_user(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        user = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        user = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert user.UserName.Value == v
 
 
@@ -2974,11 +3014,11 @@ def test_user(module, e, s, v):
     /end USER_RIGHTS'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_user_rights(s, ident_string, ident_value):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        ident=ident_string,
-        ref_group=empty_string,
-        read_only=empty_string)))) as p:
-        user_rights = p.ast.PROJECT.MODULE[0].USER_RIGHTS[0]
+    with Parser() as p:
+        user_rights = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            ident=ident_string,
+            ref_group=empty_string,
+            read_only=empty_string)))).PROJECT.MODULE[0].USER_RIGHTS[0]
         assert user_rights.UserLevelId.Value == ident_value
         assert is_iterable(user_rights.REF_GROUP)
         assert user_rights.READ_ONLY.is_none
@@ -2991,8 +3031,8 @@ def test_user_rights(s, ident_string, ident_value):
     pytest.param('0', [0], id='one address'),
     pytest.param('0 0', [0, 0], id='two address')])
 def test_var_address(variant_coding, s, v):
-    with Parser(variant_coding[0].format(s)) as p:
-        var_address = get_node_from_ast(p.ast, variant_coding[1])
+    with Parser() as p:
+        var_address = get_node_from_ast(p.tree_from_a2l(variant_coding[0].format(s)), variant_coding[1])
         assert is_iterable(var_address.Address)
         assert [v.Value for v in var_address.Address] == v
 
@@ -3007,10 +3047,11 @@ def test_var_address(variant_coding, s, v):
     pytest.param('_', ['_'], id='one criterion_name'),
     pytest.param('_ _', ['_', '_'], id='no criterion_name')])
 def test_var_characteristic(module, s, ident_string, ident_value, criterion_name_string, criterion_name_value):
-    with Parser(module[0].format(s.format(ident=ident_string,
-                                         criterion_name=criterion_name_string,
-                                         var_address=empty_string))) as p:
-        var_characteristic = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        var_characteristic = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(ident=ident_string,
+                                                                                         criterion_name=criterion_name_string,
+                                                                                         var_address=empty_string))),
+                                               module[1])
         assert var_characteristic.Name.Value == ident_value
         assert is_iterable(var_characteristic.CriterionName)
         assert [n.Value for n in var_characteristic.CriterionName] == criterion_name_value
@@ -3034,12 +3075,13 @@ def test_var_characteristic(module, s, ident_string, ident_value, criterion_name
     pytest.param('_', ['_'], id='one value'),
     pytest.param('_ _', ['_', '_'], id='two value')])
 def test_var_criterion(module, s, ident_string, ident_value, string_string, string_value, value_string, value_value):
-    with Parser(module[0].format(s.format(ident=ident_string,
-                                         string=string_string,
-                                         value=value_string,
-                                         var_measurement=empty_string,
-                                         var_selection_characteristic=empty_string))) as p:
-        var_criterion = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        var_criterion = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(ident=ident_string,
+                                                                                    string=string_string,
+                                                                                    value=value_string,
+                                                                                    var_measurement=empty_string,
+                                                                                    var_selection_characteristic=empty_string))),
+                                          module[1])
         assert var_criterion.Name.Value == ident_value
         assert var_criterion.LongIdentifier.Value == string_value
         assert is_iterable(var_criterion.Value)
@@ -3056,8 +3098,8 @@ def test_var_criterion(module, s, ident_string, ident_value, string_string, stri
     pytest.param('_ _', [('_', '_')], id='one criterion'),
     pytest.param('_ _ _ _', [('_', '_'), ('_', '_')], id='two criterion')])
 def test_var_forbidden_comb(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        var_forbidden_comb = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        var_forbidden_comb = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert is_iterable(var_forbidden_comb.CriterionNameCriterionValue)
         assert [(e.CriterionName.Value,
                  e.CriterionValue.Value) for e in var_forbidden_comb.CriterionNameCriterionValue] == v
@@ -3067,8 +3109,8 @@ def test_var_forbidden_comb(module, e, s, v):
     pytest.param(['VAR_CRITERION', 0, 'VAR_MEASUREMENT'], id='VARIANT_CODING')], indirect=True)
 @pytest.mark.parametrize('s, v', [pytest.param('VAR_MEASUREMENT _', '_', id='VAR_MEASUREMENT')])
 def test_var_measurement(variant_coding, s, v):
-    with Parser(variant_coding[0].format(s)) as p:
-        var_measurement = get_node_from_ast(p.ast, variant_coding[1])
+    with Parser() as p:
+        var_measurement = get_node_from_ast(p.tree_from_a2l(variant_coding[0].format(s)), variant_coding[1])
         assert var_measurement.Name.Value == v
 
 
@@ -3076,8 +3118,8 @@ def test_var_measurement(variant_coding, s, v):
 @pytest.mark.parametrize('e', ['VAR_NAMING {}'])
 @pytest.mark.parametrize('s, v', enum_var_naming_tag)
 def test_var_naming(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        var_naming = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        var_naming = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert var_naming.Tag == v
 
 
@@ -3086,8 +3128,9 @@ def test_var_naming(module, e, s, v):
 @pytest.mark.parametrize('e', ['VAR_SELECTION_CHARACTERISTIC {}'])
 @pytest.mark.parametrize('s, v', idents)
 def test_var_selection_characteristic(variant_coding, e, s, v):
-    with Parser(variant_coding[0].format(e.format(s))) as p:
-        var_selection_characteristic = get_node_from_ast(p.ast, variant_coding[1])
+    with Parser() as p:
+        var_selection_characteristic = get_node_from_ast(p.tree_from_a2l(variant_coding[0].format(e.format(s))),
+                                                         variant_coding[1])
         assert var_selection_characteristic.Name.Value == v
 
 
@@ -3096,8 +3139,8 @@ def test_var_selection_characteristic(variant_coding, e, s, v):
 @pytest.mark.parametrize('e', ['VAR_SEPARATOR {}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_var_separator(module, e, s, v):
-    with Parser(module[0].format(e.format(s))) as p:
-        var_separator = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        var_separator = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s))), module[1])
         assert var_separator.Separator.Value == v
 
 
@@ -3110,13 +3153,13 @@ def test_var_separator(module, e, s, v):
     {var_characteristic}
     /end VARIANT_CODING'''])
 def test_variant_coding(s):
-    with Parser(project_string_minimal.format(module_string_minimal.format(s.format(
-        var_separator=empty_string,
-        var_naming=empty_string,
-        var_criterion=empty_string,
-        var_forbidden_comb=empty_string,
-        var_characteristic=empty_string)))) as p:
-        variant_coding = p.ast.PROJECT.MODULE[0].VARIANT_CODING
+    with Parser() as p:
+        variant_coding = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
+            var_separator=empty_string,
+            var_naming=empty_string,
+            var_criterion=empty_string,
+            var_forbidden_comb=empty_string,
+            var_characteristic=empty_string)))).PROJECT.MODULE[0].VARIANT_CODING
         assert variant_coding.VAR_SEPARATOR.is_none
         assert variant_coding.VAR_NAMING.is_none
         assert is_iterable(variant_coding.VAR_CRITERION)
@@ -3128,8 +3171,8 @@ def test_variant_coding(s):
 @pytest.mark.parametrize('e', [pytest.param('VERSION {}')])
 @pytest.mark.parametrize('s, v', strings)
 def test_version(project, e, s, v):
-    with Parser(project[0].format(e.format(s))) as p:
-        version = get_node_from_ast(p.ast, project[1])
+    with Parser() as p:
+        version = get_node_from_ast(p.tree_from_a2l(project[0].format(e.format(s))), project[1])
         assert version.VersionIdentifier.Value == v
 
 
@@ -3140,8 +3183,8 @@ def test_version(project, e, s, v):
     pytest.param('/begin VIRTUAL {ident} {ident} /end VIRTUAL', 2, id='two measuring_channel')])
 @pytest.mark.parametrize('s, v', idents)
 def test_virtual(module, e, count, s, v):
-    with Parser(module[0].format(e.format(ident=s))) as p:
-        virtual = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        virtual = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(ident=s))), module[1])
         assert is_iterable(virtual.MeasuringChannel)
         assert len(virtual.MeasuringChannel) == count
         for measuring_channel in virtual.MeasuringChannel:
@@ -3159,8 +3202,9 @@ def test_virtual(module, e, count, s, v):
 @pytest.mark.parametrize('string_string, string_value', strings)
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 def test_virtual_characteristic(module, e, count, string_string, string_value, ident_string, ident_value):
-    with Parser(module[0].format(e.format(string=string_string, ident=ident_string))) as p:
-        virtual_characteristic = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        virtual_characteristic = get_node_from_ast(
+            p.tree_from_a2l(module[0].format(e.format(string=string_string, ident=ident_string))), module[1])
         assert virtual_characteristic.Formula.Value == string_value
         assert is_iterable(virtual_characteristic.Characteristic)
         assert len(virtual_characteristic.Characteristic) == count
@@ -3172,8 +3216,8 @@ def test_virtual_characteristic(module, e, count, string_string, string_value, i
 @pytest.mark.parametrize('e', ['SYSTEM_CONSTANT {string} {string}'])
 @pytest.mark.parametrize('s, v', strings)
 def test_system_constant(module, e, s, v):
-    with Parser(module[0].format(e.format(string=s))) as p:
-        system_constant = get_node_from_ast(p.ast, module[1])
+    with Parser() as p:
+        system_constant = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(string=s))), module[1])
         assert system_constant.Name.Value == v
         assert system_constant.Value.Value == v
 
@@ -3182,5 +3226,5 @@ def test_get_properties():
     a2l_string = """
         /begin PROJECT project_name "project long identifier"
         /end PROJECT"""
-    with Parser(a2l_string) as p:
-        assert set(p.ast.PROJECT.properties) == {'Name', 'MODULE', 'HEADER', 'LongIdentifier'}
+    with Parser() as p:
+        assert set(p.tree_from_a2l(a2l_string).PROJECT.properties) == {'Name', 'MODULE', 'HEADER', 'LongIdentifier'}
