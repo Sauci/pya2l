@@ -86,7 +86,7 @@ jobs:
         with:
           user: ${{secrets.PYPI_USERNAME}}
           password: ${{secrets.PYPI_PASSWORD}}
-  test-package:
+  test-pip-package:
     runs-on: ubuntu-22.04
     needs:
       - publish-package
