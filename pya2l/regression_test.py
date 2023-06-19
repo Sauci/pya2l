@@ -287,3 +287,26 @@ def test_issue_15():
     with Parser() as p:
         ast = p.tree_from_a2l(a2l_string)
         assert ast.PROJECT.MODULE[0].MOD_PAR.MEMORY_SEGMENT[0].IF_DATA[0].Name.Value == 'XCPplus'
+
+
+def test_issue_17():
+    a2l_string = """
+    /begin PROJECT project_name "example project"
+        /begin MODULE first_module "first module long identifier"
+            /begin CHARACTERISTIC SFB_R_FFO_DE.Properties.1.Qly "" VALUE 36453 _UBYTE 0 NO_COMPU_METHOD 0 255
+                /begin ANNOTATION
+                    /begin ANNOTATION_TEXT
+                        "Factor 1.0"
+                        "Offset 0"
+                    /end ANNOTATION_TEXT
+                    ANNOTATION_LABEL "CalInPatcher Additional Attributes"
+                /end ANNOTATION
+                SYMBOL_LINK "SFB_R_FFO_DE.Properties.1.Qly" 0
+            /end CHARACTERISTIC
+        /end MODULE
+    /end PROJECT"""
+
+    with Parser() as p:
+        ast = p.tree_from_a2l(a2l_string)
+        assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].Name.Value == 'SFB_R_FFO_DE.Properties.1.Qly'
+        assert 'SYMBOL_LINK' not in ast.PROJECT.MODULE[0].CHARACTERISTIC[0].properties
