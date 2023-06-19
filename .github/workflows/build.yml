@@ -101,7 +101,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pya2l
-          echo "/begin PROJECT _ "" /begin MODULE _ "" /end MODULE /end PROJECT" > test.a2l
+          echo "/begin PROJECT _ \"\" /begin MODULE _ \"\" /end MODULE /end PROJECT" > test.a2l
           pya2l test.a2l to_json
           pya2l test.a2l to_json -o test.json
 
