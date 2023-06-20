@@ -34,9 +34,12 @@ def parse_args(args):
     json_subparser = subparsers.add_parser(TO_JSON_CMD, help='converts an A2L/JSON file to JSON')
     json_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('w'),
                                 help='full path to JSON output file')
-    json_subparser.add_argument('-s', dest='sort_keys', action='store_true', help='sorts keys')
     json_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
                                 help='indentation level (in number of leading spaces)')
+    json_subparser.add_argument('-e', dest='emit_unpopulated', type=bool, default=False,
+                                help='emit unpopulated fields')
+    json_subparser.add_argument('-p', dest='allow_partial', type=bool, default=False,
+                                help='allow production of JSON output with missing required field(s)')
 
     a2l_subparser = subparsers.add_parser(TO_A2L_CMD, help='converts an A2L/JSON file to A2L')
     a2l_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('w'),
@@ -45,6 +48,8 @@ def parse_args(args):
     diff_subparser = subparsers.add_parser(DIFF_CMD, help='shows differences between two A2L/JSON files')
     diff_subparser.add_argument('right_hand_side', type=argparse.FileType('r'),
                                 help='full path to A2L/JSON right hand side input file')
+    diff_subparser.add_argument('-p', dest='allow_partial', type=bool, default=False,
+                                help='allow production of JSON output with missing required field(s)')
 
     # parser.epilog = textwrap.dedent(
     #     f"""\
@@ -58,10 +63,10 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def process_input_file(fp, parser: Parser) -> RootNodeType:
+def process_input_file(fp, parser: Parser, allow_partial: bool) -> RootNodeType:
     data = fp.read()
     if os.path.splitext(fp.name)[1].lower() == '.json':
-        result = parser.tree_from_json(data)
+        result = parser.tree_from_json(data, allow_partial=allow_partial)
     elif os.path.splitext(fp.name)[1].lower() == '.a2l':
         result = parser.tree_from_a2l(data)
     else:
@@ -82,17 +87,23 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
 
     try:
         with Parser(port=args.port, logger=log) as parser:
-            input_tree = process_input_file(args.input_file, parser)
+            input_tree = process_input_file(args.input_file, parser, args.allow_partial)
             if args.sub_command == TO_JSON_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
-                    args.output_file.write(parser.json_from_tree(input_tree, indent=args.indent))
+                    args.output_file.write(parser.json_from_tree(input_tree,
+                                                                 indent=args.indent,
+                                                                 allow_partial=args.allow_partial,
+                                                                 emit_unpopulated=args.emit_unpopulated))
                     log.info(f'finished writing to file {os.path.abspath(args.output_file.name)}')
                 else:
-                    sys.stdout.write(parser.json_from_tree(input_tree, indent=args.indent))
+                    sys.stdout.write(parser.json_from_tree(input_tree,
+                                                           indent=args.indent,
+                                                           allow_partial=args.allow_partial,
+                                                           emit_unpopulated=args.emit_unpopulated))
             elif args.sub_command == DIFF_CMD:
                 lhs_tree = input_tree
-                rhs_tree = process_input_file(args.right_hand_side, parser)
+                rhs_tree = process_input_file(args.right_hand_side, parser, args.allow_partial)
 
                 lhs_string = parser.json_from_tree(lhs_tree)
                 rhs_string = parser.json_from_tree(rhs_tree)

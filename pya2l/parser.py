@@ -5,12 +5,11 @@
 @date: 20.03.2018
 """
 import ctypes
-import json
 import logging
 import os
 import typing
 
-import google.protobuf.message
+from google.protobuf.message import Message
 
 from pya2l.protobuf.API_pb2 import *
 from pya2l.protobuf.API_pb2_grpc import *
@@ -34,9 +33,8 @@ class A2lParser(object):
         self._client = A2LStub(channel)
         if self._dll.Create(port):
             raise Exception(1)
-        setattr(google.protobuf.message.Message, 'properties',
-                property(lambda e: [str(f) for f in e.DESCRIPTOR.fields_by_name]))
-        setattr(google.protobuf.message.Message, 'is_none',
+        setattr(Message, 'properties', property(lambda e: [str(f) for f in e.DESCRIPTOR.fields_by_name]))
+        setattr(Message, 'is_none',
                 property(lambda e: not e.Present if 'Present' in e.properties else len(e.ListFields()) == 0))
 
     def __enter__(self):
@@ -64,30 +62,34 @@ class A2lParser(object):
     def tree_from_a2l(self, a2l_string: str) -> RootNodeType:
         if self._logger:
             self._logger.info('start parsing A2L')
-        response = self._client.GetTreeFromA2L(A2LRequest(a2l=a2l_string))
+        response = self._client.GetTreeFromA2L(TreeFromA2LRequest(a2l=a2l_string))
         if self._logger:
             self._logger.info('finished parsing A2L')
         if response.error != '' and self._logger:
             self._logger.warning(response.error)
         return response.tree
 
-    def tree_from_json(self, json_string: str) -> RootNodeType:
+    def tree_from_json(self, json_string: str, allow_partial: bool = False) -> RootNodeType:
         if self._logger:
             self._logger.info('start parsing JSON A2L')
-        response = self._client.GetTreeFromJSON(JSONRequest(json=json_string))
+        response = self._client.GetTreeFromJSON(TreeFromJSONRequest(json=json_string, allow_partial=allow_partial))
         if self._logger:
             self._logger.info('finished parsing JSON A2L')
         if response.error != '' and self._logger:
             self._logger.warning(response.error)
         return response.tree
 
-    def json_from_tree(self, tree, indent : int = None) -> str:
-        response = self._client.GetJSONFromTree(JSONFromTreeRequest(tree=tree, indent=indent))
-        if response.error == '':
-            return response.json
-        else:
-            if self._logger:
-                self._logger.warning(response.error)
+    def json_from_tree(self, tree,
+                       indent: int = None,
+                       allow_partial: bool = False,
+                       emit_unpopulated: bool = False) -> str:
+        response = self._client.GetJSONFromTree(JSONFromTreeRequest(tree=tree,
+                                                                    indent=indent,
+                                                                    allow_partial=allow_partial,
+                                                                    emit_unpopulated=emit_unpopulated))
+        if response.error != '' and self._logger:
+            self._logger.warning(response.error)
+        return response.json
 
     # def dump(self, indent=4, line_ending='\n', indent_char=' '):
     #     if self.ast and hasattr(self.ast, 'project'):

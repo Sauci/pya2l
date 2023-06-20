@@ -2,6 +2,7 @@ import json
 
 import platform
 import pytest
+from collections import OrderedDict
 from unittest.mock import Mock, patch, mock_open
 
 from .cli import main
@@ -34,30 +35,29 @@ def mapped_mock_open(file_contents_dict):
     return mock_opener
 
 
-@pytest.mark.parametrize('indent_arg, indent_value', [(('',), None),
-                                                      (('-i', '0'), 0),
-                                                      (('-i', '1'), 1),
-                                                      (('-i', '2'), 2), ])
-@pytest.mark.parametrize('sort_keys_arg, sort_key_value', [('-s', True), ('', False)])
+@pytest.mark.parametrize('indent_arg, indent_value', [
+    # (('',), None), see https://github.com/golang/protobuf/issues/1121
+    # (('-i', '0'), 0), see https://github.com/golang/protobuf/issues/1121
+    (('-i', '1'), 1),
+    (('-i', '2'), 2)])
 @pytest.mark.parametrize('input_file_name', ['my_input.a2l'])
 @pytest.mark.parametrize('output_file_name', ['my_output.json'])
 @pytest.mark.parametrize('input_file_content, output_file_content', [
-    ('ASAP2_VERSION 1 2 /begin PROJECT _ "" /end PROJECT', {
+    ('ASAP2_VERSION 1 2 /begin PROJECT _ "" /end PROJECT', OrderedDict({
+        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
-            'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
-            'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
+            'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
+            'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}
         },
         'PROJECT': {
-            'LongIdentifier': {},
             'Name': {
                 'Value': "_"
-            }
+            },
+            'LongIdentifier': {}
         }
-    })])
+    }))])
 def test_a2l_to_json_command(indent_arg,
                              indent_value,
-                             sort_keys_arg,
-                             sort_key_value,
                              input_file_name,
                              output_file_name,
                              input_file_content,
@@ -65,48 +65,48 @@ def test_a2l_to_json_command(indent_arg,
     with patch("builtins.open", mock_open(read_data=input_file_content)) as mock_file:
         mock_file.return_value.name = input_file_name
         main(list(filter(lambda e: e != '',
-                         ['-v', input_file_name, 'to_json', sort_keys_arg, '-o', output_file_name, *indent_arg])))
+                         ['-v', input_file_name, 'to_json', '-o', output_file_name, *indent_arg])))
         assert get_call_args(mock_file, 0) == (input_file_name, 'r', -1, None, None)
         assert get_call_args(mock_file, 1) == (output_file_name, 'w', -1, None, None)
         assert get_call_args(mock_file.return_value.write, 0) == \
-               (json.dumps(output_file_content, sort_keys=sort_key_value, indent=indent_value),)
+               (json.dumps(output_file_content, indent=indent_value),)
 
 
-@pytest.mark.parametrize('indent_arg, indent_value', [(('',), None),
-                                                      (('-i', '0'), 0),
-                                                      (('-i', '1'), 1),
-                                                      (('-i', '2'), 2), ])
-@pytest.mark.parametrize('sort_keys_arg, sort_key_value', [('-s', True), ('', False)])
+@pytest.mark.parametrize('indent_arg, indent_value', [
+    # (('',), None), see https://github.com/golang/protobuf/issues/1121
+    # (('-i', '0'), 0), see https://github.com/golang/protobuf/issues/1121
+    (('-i', '1'), 1),
+    (('-i', '2'), 2)])
 @pytest.mark.parametrize('input_file_name', ['my_input.json'])
 @pytest.mark.parametrize('output_file_name', ['my_output.json'])
 @pytest.mark.parametrize('input_file_content, output_file_content', [
-    (json.dumps({
+    (json.dumps(OrderedDict({
+        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
-            'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
-            'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
+            'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
+            'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}
         },
         'PROJECT': {
-            'LongIdentifier': {},
             'Name': {
                 'Value': "_"
-            }
+            },
+            'LongIdentifier': {}
         }
-    }), {
-         'ASAP2_VERSION': {
-             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
-             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
-         },
-         'PROJECT': {
-             'LongIdentifier': {},
-             'Name': {
-                 'Value': "_"
-             }
-         }
-     })])
+    })), OrderedDict({
+        '@type': 'type.googleapis.com/RootNodeType',
+        'ASAP2_VERSION': {
+            'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
+            'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}
+        },
+        'PROJECT': {
+            'Name': {
+                'Value': "_"
+            },
+            'LongIdentifier': {}
+        }
+    }))])
 def test_json_to_json_command(indent_arg,
                               indent_value,
-                              sort_keys_arg,
-                              sort_key_value,
                               input_file_name,
                               output_file_name,
                               input_file_content,
@@ -114,22 +114,24 @@ def test_json_to_json_command(indent_arg,
     with patch("builtins.open", mock_open(read_data=input_file_content)) as mock_file:
         mock_file.return_value.name = input_file_name
         main(list(filter(lambda e: e != '',
-                         ['-v', input_file_name, 'to_json', sort_keys_arg, '-o', output_file_name, '-i', *indent_arg])))
+                         ['-v', input_file_name, 'to_json', '-o', output_file_name, '-i', *indent_arg])))
         assert get_call_args(mock_file, 0) == (input_file_name, 'r', -1, None, None)
         assert get_call_args(mock_file, 1) == (output_file_name, 'w', -1, None, None)
         assert get_call_args(mock_file.return_value.write, 0) == \
-               (json.dumps(output_file_content, sort_keys=sort_key_value, indent=indent_value),)
+               (json.dumps(output_file_content, indent=indent_value),)
 
 
 @pytest.mark.parametrize('left_input_file_name', ['my_left_input.json'])
 @pytest.mark.parametrize('right_input_file_name', ['my_right_input.json'])
 @pytest.mark.parametrize('left_input_file_content, right_input_file_content, output_content', [
     (json.dumps({
+        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
         }
     }), json.dumps({
+        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
@@ -137,11 +139,13 @@ def test_json_to_json_command(indent_arg,
     }),
      ''),
     (json.dumps({
+        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
         }
     }), json.dumps({
+        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 16, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
