@@ -32,7 +32,7 @@ class A2lParser(object):
         channel = grpc.insecure_channel(f'localhost:{port}', options=options)
         self._client = A2LStub(channel)
         if self._dll.Create(port):
-            raise Exception(1)
+            raise Exception('server is already running')
         setattr(Message, 'properties', property(lambda e: [str(f) for f in e.DESCRIPTOR.fields_by_name]))
         setattr(Message, 'is_none',
                 property(lambda e: not e.Present if 'Present' in e.properties else len(e.ListFields()) == 0))
@@ -45,7 +45,7 @@ class A2lParser(object):
 
     def close(self):
         if self._dll.Close():
-            raise Exception(1)
+            raise Exception('server is not running')
 
     @staticmethod
     def get_if_data_by_name_and_index(node, name: str, index: typing.Union[int, None] = None):
