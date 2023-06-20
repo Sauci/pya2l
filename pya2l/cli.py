@@ -26,6 +26,8 @@ def parse_args(args):
     parser = argparse.ArgumentParser(prog='pya2l', description='Command line utility for A2L-formatted files.')
     parser.add_argument('input_file', type=argparse.FileType('r'), help='full path to A2L/JSON input file')
     parser.add_argument('-v', dest='verbose', action='store_true', help='enable verbose')
+    parser.add_argument('-p', dest='port', type=int, default=3333, nargs='?',
+                        help='TCP port used to connect to the backend')
 
     subparsers = parser.add_subparsers(dest='sub_command', help='supported commands')
 
@@ -67,7 +69,6 @@ def process_input_file(fp, parser: Parser) -> RootNodeType:
     return result
 
 
-
 def main(args: typing.List[str] = tuple(sys.argv[1:])):
     args = parse_args(args)
 
@@ -80,7 +81,7 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
         log.addHandler(stream_handler)
 
     try:
-        with Parser(port=3333, logger=log) as parser:
+        with Parser(port=args.port, logger=log) as parser:
             input_tree = process_input_file(args.input_file, parser)
             if args.sub_command == TO_JSON_CMD:
                 if args.output_file:
