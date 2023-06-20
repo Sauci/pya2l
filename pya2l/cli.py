@@ -86,8 +86,7 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
             if args.sub_command == TO_JSON_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
-                    args.output_file.write(json.dumps(json.loads(parser.json_from_tree(input_tree)),
-                                                      indent=args.indent, sort_keys=True))
+                    args.output_file.write(parser.json_from_tree(input_tree, indent=args.indent))
                     log.info(f'finished writing to file {os.path.abspath(args.output_file.name)}')
                 else:
                     sys.stdout.write(parser.json_from_tree(input_tree, indent=args.indent))
