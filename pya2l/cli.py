@@ -44,6 +44,8 @@ def parse_args(args):
     a2l_subparser = subparsers.add_parser(TO_A2L_CMD, help='converts an A2L/JSON file to A2L')
     a2l_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('w'),
                                help='full path to A2L output file')
+    a2l_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
+                               help='indentation level (in number of leading spaces)')
 
     diff_subparser = subparsers.add_parser(DIFF_CMD, help='shows differences between two A2L/JSON files')
     diff_subparser.add_argument('right_hand_side', type=argparse.FileType('r'),
@@ -95,6 +97,16 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
                                                                  indent=args.indent,
                                                                  allow_partial=args.allow_partial,
                                                                  emit_unpopulated=args.emit_unpopulated))
+                    log.info(f'finished writing to file {os.path.abspath(args.output_file.name)}')
+                else:
+                    sys.stdout.write(parser.json_from_tree(input_tree,
+                                                           indent=args.indent,
+                                                           allow_partial=args.allow_partial,
+                                                           emit_unpopulated=args.emit_unpopulated))
+            elif args.sub_command == TO_A2L_CMD:
+                if args.output_file:
+                    log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
+                    args.output_file.write(parser.a2l_from_tree(input_tree, indent=args.indent))
                     log.info(f'finished writing to file {os.path.abspath(args.output_file.name)}')
                 else:
                     sys.stdout.write(parser.json_from_tree(input_tree,

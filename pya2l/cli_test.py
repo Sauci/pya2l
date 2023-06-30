@@ -44,7 +44,6 @@ def mapped_mock_open(file_contents_dict):
 @pytest.mark.parametrize('output_file_name', ['my_output.json'])
 @pytest.mark.parametrize('input_file_content, output_file_content', [
     ('ASAP2_VERSION 1 2 /begin PROJECT _ "" /end PROJECT', OrderedDict({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
             'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}
@@ -81,7 +80,6 @@ def test_a2l_to_json_command(indent_arg,
 @pytest.mark.parametrize('output_file_name', ['my_output.json'])
 @pytest.mark.parametrize('input_file_content, output_file_content', [
     (json.dumps(OrderedDict({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
             'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}
@@ -93,7 +91,6 @@ def test_a2l_to_json_command(indent_arg,
             'LongIdentifier': {}
         }
     })), OrderedDict({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
             'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}
@@ -125,13 +122,11 @@ def test_json_to_json_command(indent_arg,
 @pytest.mark.parametrize('right_input_file_name', ['my_right_input.json'])
 @pytest.mark.parametrize('left_input_file_content, right_input_file_content, output_content', [
     (json.dumps({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
         }
     }), json.dumps({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
@@ -139,13 +134,11 @@ def test_json_to_json_command(indent_arg,
     }),
      ''),
     (json.dumps({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 10, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}
         }
     }), json.dumps({
-        '@type': 'type.googleapis.com/RootNodeType',
         'ASAP2_VERSION': {
             'UpgradeNo': {'Base': 16, 'Size': 1, 'Value': 2},
             'VersionNo': {'Base': 10, 'Size': 1, 'Value': 1}

@@ -91,11 +91,8 @@ class A2lParser(object):
             self._logger.warning(response.error)
         return response.json
 
-    # def dump(self, indent=4, line_ending='\n', indent_char=' '):
-    #     if self.ast and hasattr(self.ast, 'project'):
-    #         result = list()
-    #         for indentation_level, string in self.ast.project.dump():
-    #             result.append(((indent_char * indent) * indentation_level) + string)
-    #         return line_ending.join(result)
-    #     else:
-    #         return ''
+    def a2l_from_tree(self, tree, indent: int = None):
+        response = self._client.GetA2LFromTree(A2LFromTreeRequest(tree=tree, indent=indent))
+        if response.error != '' and self._logger:
+            self._logger.warning(response.error)
+        return response.a2l
