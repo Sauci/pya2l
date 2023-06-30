@@ -46,6 +46,8 @@ def parse_args(args):
                                help='full path to A2L output file')
     a2l_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
                                help='indentation level (in number of leading spaces)')
+    a2l_subparser.add_argument('-p', dest='allow_partial', type=bool, default=False,
+                                help='allow production of JSON output with missing required field(s)')
 
     diff_subparser = subparsers.add_parser(DIFF_CMD, help='shows differences between two A2L/JSON files')
     diff_subparser.add_argument('right_hand_side', type=argparse.FileType('r'),
