@@ -69,7 +69,7 @@ class A2lParser(object):
             self._logger.warning(response.error)
         return response.tree
 
-    def tree_from_json(self, json_string: str, allow_partial: bool = False) -> RootNodeType:
+    def tree_from_json(self, json_string: bytes, allow_partial: bool = False) -> RootNodeType:
         if self._logger:
             self._logger.info('start parsing JSON A2L')
         response = self._client.GetTreeFromJSON(TreeFromJSONRequest(json=json_string, allow_partial=allow_partial))
@@ -82,7 +82,7 @@ class A2lParser(object):
     def json_from_tree(self, tree,
                        indent: int = None,
                        allow_partial: bool = False,
-                       emit_unpopulated: bool = False) -> str:
+                       emit_unpopulated: bool = False) -> bytes:
         response = self._client.GetJSONFromTree(JSONFromTreeRequest(tree=tree,
                                                                     indent=indent,
                                                                     allow_partial=allow_partial,
@@ -91,7 +91,7 @@ class A2lParser(object):
             self._logger.warning(response.error)
         return response.json
 
-    def a2l_from_tree(self, tree, indent: int = None):
+    def a2l_from_tree(self, tree, indent: int = None) -> bytes:
         response = self._client.GetA2LFromTree(A2LFromTreeRequest(tree=tree, indent=indent))
         if response.error != '' and self._logger:
             self._logger.warning(response.error)

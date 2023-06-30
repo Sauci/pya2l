@@ -24,7 +24,7 @@ DIFF_CMD = 'diff'
 
 def parse_args(args):
     parser = argparse.ArgumentParser(prog='pya2l', description='Command line utility for A2L-formatted files.')
-    parser.add_argument('input_file', type=argparse.FileType('r'), help='full path to A2L/JSON input file')
+    parser.add_argument('input_file', type=argparse.FileType('rb'), help='full path to A2L/JSON input file')
     parser.add_argument('-v', dest='verbose', action='store_true', help='enable verbose')
     parser.add_argument('-p', dest='port', type=int, default=3333, nargs='?',
                         help='TCP port used to connect to the backend')
@@ -32,7 +32,7 @@ def parse_args(args):
     subparsers = parser.add_subparsers(dest='sub_command', help='supported commands')
 
     json_subparser = subparsers.add_parser(TO_JSON_CMD, help='converts an A2L/JSON file to JSON')
-    json_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('w'),
+    json_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('wb'),
                                 help='full path to JSON output file')
     json_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
                                 help='indentation level (in number of leading spaces)')
@@ -42,7 +42,7 @@ def parse_args(args):
                                 help='allow production of JSON output with missing required field(s)')
 
     a2l_subparser = subparsers.add_parser(TO_A2L_CMD, help='converts an A2L/JSON file to A2L')
-    a2l_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('w'),
+    a2l_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('wb'),
                                help='full path to A2L output file')
     a2l_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
                                help='indentation level (in number of leading spaces)')
@@ -50,7 +50,7 @@ def parse_args(args):
                                 help='allow production of JSON output with missing required field(s)')
 
     diff_subparser = subparsers.add_parser(DIFF_CMD, help='shows differences between two A2L/JSON files')
-    diff_subparser.add_argument('right_hand_side', type=argparse.FileType('r'),
+    diff_subparser.add_argument('right_hand_side', type=argparse.FileType('rb'),
                                 help='full path to A2L/JSON right hand side input file')
     diff_subparser.add_argument('-p', dest='allow_partial', type=bool, default=False,
                                 help='allow production of JSON output with missing required field(s)')
@@ -104,7 +104,7 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
                     sys.stdout.write(parser.json_from_tree(input_tree,
                                                            indent=args.indent,
                                                            allow_partial=args.allow_partial,
-                                                           emit_unpopulated=args.emit_unpopulated))
+                                                           emit_unpopulated=args.emit_unpopulated).decode())
             elif args.sub_command == TO_A2L_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
