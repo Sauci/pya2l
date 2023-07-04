@@ -43,7 +43,7 @@ def mapped_mock_open(file_contents_dict):
 @pytest.mark.parametrize('in_file_name', ['my_input.a2l'])
 @pytest.mark.parametrize('out_file_name', ['my_output.json'])
 @pytest.mark.parametrize('input_file_content, output_file_content', [
-    ('ASAP2_VERSION 1 2 /begin PROJECT _ "" /end PROJECT', OrderedDict({
+    ('ASAP2_VERSION 1 2 /begin PROJECT _ "" /end PROJECT'.encode(), OrderedDict({
         'ASAP2_VERSION': {
             'VersionNo': {'Value': 1, 'Base': 10, 'Size': 1},
             'UpgradeNo': {'Value': 2, 'Base': 10, 'Size': 1}

@@ -114,7 +114,7 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
                     sys.stdout.write(parser.json_from_tree(input_tree,
                                                            indent=args.indent,
                                                            allow_partial=args.allow_partial,
-                                                           emit_unpopulated=args.emit_unpopulated))
+                                                           emit_unpopulated=args.emit_unpopulated).decode())
             elif args.sub_command == DIFF_CMD:
                 lhs_tree = input_tree
                 rhs_tree = process_input_file(args.right_hand_side, parser, args.allow_partial)

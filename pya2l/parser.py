@@ -59,30 +59,50 @@ class A2lParser(object):
                                 index in range(len(if_data_node.Blob))]
         return None
 
-    def tree_from_a2l(self, a2l_string: str) -> RootNodeType:
+    def tree_from_a2l(self, a2l_data: bytes) -> RootNodeType:
+        """
+        Converts an A2L into gRPC object.
+        :param a2l_data: the A2L data to deserialize
+        :return: a gRPC object
+        """
         if self._logger:
             self._logger.info('start parsing A2L')
-        response = self._client.GetTreeFromA2L(TreeFromA2LRequest(a2l=a2l_string))
+        response = self._client.GetTreeFromA2L(TreeFromA2LRequest(a2l=a2l_data))
         if self._logger:
             self._logger.info('finished parsing A2L')
         if response.error != '' and self._logger:
             self._logger.warning(response.error)
         return response.tree
 
-    def tree_from_json(self, json_string: bytes, allow_partial: bool = False) -> RootNodeType:
+    def tree_from_json(self, json_data: bytes, allow_partial: bool = False) -> RootNodeType:
+        """
+        Converts a JSON-formatted A2L into gRPC object.
+        :param json_data: the JSON to deserialize
+        :param allow_partial: allows elements that have missing required fields to serialize without returning an error
+        :return: a gRPC object
+        """
         if self._logger:
             self._logger.info('start parsing JSON A2L')
-        response = self._client.GetTreeFromJSON(TreeFromJSONRequest(json=json_string, allow_partial=allow_partial))
+        response = self._client.GetTreeFromJSON(TreeFromJSONRequest(json=json_data, allow_partial=allow_partial))
         if self._logger:
             self._logger.info('finished parsing JSON A2L')
         if response.error != '' and self._logger:
             self._logger.warning(response.error)
         return response.tree
 
-    def json_from_tree(self, tree,
+    def json_from_tree(self,
+                       tree: RootNodeType,
                        indent: int = None,
                        allow_partial: bool = False,
                        emit_unpopulated: bool = False) -> bytes:
+        """
+        Converts a gRPC-formatted A2L into JSON.
+        :param tree: the gRPC object to serialize
+        :param indent: number of indentation spaces
+        :param allow_partial: allows elements that have missing required fields to serialize without returning an error
+        :param emit_unpopulated: emits tree's unpopulated value(s) in the JSON output
+        :return: a bytes-encoded JSON
+        """
         response = self._client.GetJSONFromTree(JSONFromTreeRequest(tree=tree,
                                                                     indent=indent,
                                                                     allow_partial=allow_partial,
@@ -91,7 +111,13 @@ class A2lParser(object):
             self._logger.warning(response.error)
         return response.json
 
-    def a2l_from_tree(self, tree, indent: int = None) -> bytes:
+    def a2l_from_tree(self, tree: RootNodeType, indent: int = None) -> bytes:
+        """
+        Converts a gRPC-formatted A2L into A2L.
+        :param tree: the gRPC object to serialize
+        :param indent: number of indentation spaces
+        :return: a byte-encoded A2L
+        """
         response = self._client.GetA2LFromTree(A2LFromTreeRequest(tree=tree, indent=indent))
         if response.error != '' and self._logger:
             self._logger.warning(response.error)

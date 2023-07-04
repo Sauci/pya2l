@@ -285,7 +285,7 @@ def test_issue_15():
     """
 
     with Parser() as p:
-        ast = p.tree_from_a2l(a2l_string)
+        ast = p.tree_from_a2l(a2l_string.encode())
         assert ast.PROJECT.MODULE[0].MOD_PAR.MEMORY_SEGMENT[0].IF_DATA[0].Name.Value == 'XCPplus'
 
 
@@ -307,6 +307,6 @@ def test_issue_17():
     /end PROJECT"""
 
     with Parser() as p:
-        ast = p.tree_from_a2l(a2l_string)
+        ast = p.tree_from_a2l(a2l_string.encode())
         assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].Name.Value == 'SFB_R_FFO_DE.Properties.1.Qly'
         assert 'SYMBOL_LINK' not in ast.PROJECT.MODULE[0].CHARACTERISTIC[0].properties

@@ -23,6 +23,17 @@ or install the most recent version of the package (master branch) by running the
 
 ## Example of usage
 
+### Command line tool
+
+Once the package installed, the `pya2l` command will be available. It provides several different commands:
+
+- Convert an A2L file to JSON with `pya2l -v <source>.a2l to_json -o <output.json> -i 2`
+- Convert an A2L file to A2L with `pya2l -v <source.a2l> to_a2l -o <output.a2l> -i 2`
+- Convert a JSON-formatted A2L file to JSON with `pya2l -v <source>.json to_json -o <output.json> -i 2`
+- Convert a JSON-formatted A2L file to A2L with `pya2l -v <source>.json to_a2l -o <output.a2l> -i 2`
+
+### Python API
+
 the bellow code snippet shows how properties of a node in an a2l string can be retrieved using this package.
 
 ```python
@@ -47,7 +58,7 @@ a2l_string = """/begin PROJECT project_name "example project"
 
 with Parser() as p:
     # get the AST.
-    ast = p.tree_from_a2l(a2l_string)
+    ast = p.tree_from_a2l(a2l_string.encode())
 
     # get a list of available properties for a specific node.
     assert set(ast.PROJECT.properties) == {'Name', 'LongIdentifier', 'HEADER', 'MODULE'}
@@ -65,24 +76,24 @@ a2l_string = """/begin PROJECT project_name "example project"
 
 with Parser() as p:
     # get the AST.
-    ast = p.tree_from_a2l(a2l_string)
+    ast = p.tree_from_a2l(a2l_string.encode())
 
     # convert node to json-formatted string.
-    assert p.json_from_tree(ast, indent=2) == """{
-  "PROJECT":  {
-    "Name":  {
-      "Value":  "project_name"
+    assert p.json_from_tree(ast, indent=2).decode() == """{
+  "PROJECT": {
+    "Name": {
+      "Value": "project_name"
     },
-    "LongIdentifier":  {
-      "Value":  "example project"
+    "LongIdentifier": {
+      "Value": "example project"
     },
-    "MODULE":  [
+    "MODULE": [
       {
-        "Name":  {
-          "Value":  "first_module"
+        "Name": {
+          "Value": "first_module"
         },
-        "LongIdentifier":  {
-          "Value":  "first module long identifier"
+        "LongIdentifier": {
+          "Value": "first module long identifier"
         }
       }
     ]
