@@ -1,9 +1,9 @@
 import json
-
 import platform
-import pytest
 from collections import OrderedDict
 from unittest.mock import Mock, patch, mock_open
+
+import pytest
 
 from .cli import main
 
@@ -67,6 +67,67 @@ def test_a2l_to_json_command(indent_arg,
         assert get_call_args(m, 0) == (in_file_name, 'rb', -1, None, None)
         assert get_call_args(m, 1) == (out_file_name, 'wb', -1, None, None)
         assert get_call_args(m.return_value.write, 0) == (json.dumps(output_file_content, indent=indent).encode(),)
+
+
+@pytest.mark.parametrize('in_file_name', ['my_input.a2l'])
+@pytest.mark.parametrize('out_file_name', ['my_output.a2l'])
+@pytest.mark.parametrize('input_file_content, output_file_content, sorted_arg', [
+    ("""ASAP2_VERSION 1 2 /begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+    /end PROJECT""".encode(),
+     """ASAP2_VERSION 1 2
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+/end PROJECT""",
+     ''),
+    ("""ASAP2_VERSION 1 2 /begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+    /end PROJECT""".encode(),
+     """ASAP2_VERSION 1 2
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+/end PROJECT""",
+     '-s')
+])
+def test_a2l_to_a2l_command(in_file_name,
+                            out_file_name,
+                            input_file_content,
+                            output_file_content,
+                            sorted_arg):
+    with patch("builtins.open", mock_open(read_data=input_file_content)) as m:
+        m.return_value.name = in_file_name
+        main(list(filter(lambda e: e != '', ['-v', in_file_name, 'to_a2l', '-o', out_file_name, '-i', '4', sorted_arg])))
+        assert get_call_args(m, 0) == (in_file_name, 'rb', -1, None, None)
+        assert get_call_args(m, 1) == (out_file_name, 'wb', -1, None, None)
+        assert get_call_args(m.return_value.write, 0)[0].decode() == output_file_content
 
 
 @pytest.mark.parametrize('indent_arg, indent', [

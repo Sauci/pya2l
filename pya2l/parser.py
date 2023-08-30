@@ -111,14 +111,15 @@ class A2lParser(object):
             self._logger.warning(response.error)
         return response.json
 
-    def a2l_from_tree(self, tree: RootNodeType, indent: int = None) -> bytes:
+    def a2l_from_tree(self, tree: RootNodeType, sorted: bool = False, indent: int = None) -> bytes:
         """
         Converts a gRPC-formatted A2L into A2L.
         :param tree: the gRPC object to serialize
+        :param sorted: sort the elements based on their unique identifier within the document
         :param indent: number of indentation spaces
         :return: a byte-encoded A2L
         """
-        response = self._client.GetA2LFromTree(A2LFromTreeRequest(tree=tree, indent=indent))
+        response = self._client.GetA2LFromTree(A2LFromTreeRequest(tree=tree, sorted=sorted, indent=indent))
         if response.error != '' and self._logger:
             self._logger.warning(response.error)
         return response.a2l

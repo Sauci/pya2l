@@ -44,6 +44,8 @@ def parse_args(args):
     a2l_subparser = subparsers.add_parser(TO_A2L_CMD, help='converts an A2L/JSON file to A2L')
     a2l_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('wb'),
                                help='full path to A2L output file')
+    a2l_subparser.add_argument('-s', dest='sorted', action='store_true', default=False,
+                               help='sort elements based on their unique key within the document')
     a2l_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
                                help='indentation level (in number of leading spaces)')
     a2l_subparser.add_argument('-p', dest='allow_partial', type=bool, default=False,
@@ -108,7 +110,7 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
             elif args.sub_command == TO_A2L_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
-                    args.output_file.write(parser.a2l_from_tree(input_tree, indent=args.indent))
+                    args.output_file.write(parser.a2l_from_tree(input_tree, sorted=args.sorted, indent=args.indent))
                     log.info(f'finished writing to file {os.path.abspath(args.output_file.name)}')
                 else:
                     sys.stdout.write(parser.json_from_tree(input_tree,
