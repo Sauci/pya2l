@@ -74,44 +74,48 @@ def test_a2l_to_json_command(indent_arg,
 @pytest.mark.parametrize('input_file_content, output_file_content, sorted_arg', [
     ("""ASAP2_VERSION 1 2 /begin PROJECT _ ""
     /begin MODULE _ ""
-        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC c "a[2]" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC b "a[10]" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
     /end MODULE
     /end PROJECT""".encode(),
      """ASAP2_VERSION 1 2
 /begin PROJECT _ ""
     /begin MODULE _ ""
-        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC c "a[2]" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC b "a[10]" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
     /end MODULE
 /end PROJECT""",
      ''),
     ("""ASAP2_VERSION 1 2 /begin PROJECT _ ""
     /begin MODULE _ ""
-        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC c[0] "c" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a[2] "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a[10] "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a[0] "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
     /end MODULE
     /end PROJECT""".encode(),
      """ASAP2_VERSION 1 2
 /begin PROJECT _ ""
     /begin MODULE _ ""
-        /begin CHARACTERISTIC a "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a[0] "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC b "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a[2] "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
-        /begin CHARACTERISTIC c "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /begin CHARACTERISTIC a[10] "a" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC c[0] "c" VALUE 0x00 DAMOS_KF 0 _ 0 1
         /end CHARACTERISTIC
     /end MODULE
 /end PROJECT""",
