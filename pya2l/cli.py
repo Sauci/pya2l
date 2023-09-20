@@ -72,7 +72,7 @@ def parse_args(args):
 def process_input_file(fp, parser: Parser, allow_partial: bool, encoding: str = None) -> RootNodeType:
     data = fp.read()
     if encoding is not None:
-        data = data.decode(encoding)
+        data = data.decode(encoding).encode()
     if os.path.splitext(fp.name)[1].lower() == '.json':
         result = parser.tree_from_json(data, allow_partial=allow_partial)
     elif os.path.splitext(fp.name)[1].lower() == '.a2l':
