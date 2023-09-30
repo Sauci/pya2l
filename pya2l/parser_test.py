@@ -1118,6 +1118,7 @@ def test_calibration_method(module, s, string_string, string_value, long_string,
     {calibration_access}
     {matrix_dim}
     {ecu_address_extension}
+    {discrete}
     /end CHARACTERISTIC'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
@@ -1157,7 +1158,8 @@ def test_characteristic(s,
             axis_descr=empty_string,
             calibration_access=empty_string,
             matrix_dim=empty_string,
-            ecu_address_extension=empty_string))).encode()).PROJECT.MODULE[0].CHARACTERISTIC[0]
+            ecu_address_extension=empty_string,
+            discrete=empty_string)))).PROJECT.MODULE[0].CHARACTERISTIC[0]
         assert characteristic.Name.Value == ident_value
         assert characteristic.LongIdentifier.Value == string_value
         assert characteristic.Type == enum_type_value
@@ -1187,6 +1189,7 @@ def test_characteristic(s,
         assert characteristic.CALIBRATION_ACCESS.is_none
         assert characteristic.MATRIX_DIM.is_none
         assert characteristic.ECU_ADDRESS_EXTENSION.is_none
+        assert characteristic.DISCRETE.is_none
 
 
 @pytest.mark.parametrize('module', [pytest.param(['COMPU_METHOD', 0, 'COEFFS'], id='COMPU_METHOD')], indirect=True)
@@ -1464,6 +1467,16 @@ def test_deposit(module, e, s, v):
     with Parser() as p:
         deposit = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s)).encode()), module[1])
         assert deposit.Mode == v
+
+
+@pytest.mark.parametrize('module', [
+    pytest.param(['MEASUREMENT', 0, 'DISCRETE'], id='MEASUREMENT'),
+    pytest.param(['CHARACTERISTIC', 0, 'DISCRETE'], id='CHARACTERISTIC')], indirect=True)
+@pytest.mark.parametrize('e, a', [pytest.param('DISCRETE', True), pytest.param('', False)])
+def test_discrete(module, e, a):
+    with Parser() as p:
+        discrete = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
+        assert discrete.is_none is not a
 
 
 @pytest.mark.parametrize('module', [
@@ -2014,6 +2027,7 @@ def test_max_refresh(module, s, int_string, int_value, long_string, long_value):
     {if_data}
     {matrix_dim}
     {ecu_address_extension}
+    {discrete}
     /end MEASUREMENT'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
@@ -2049,7 +2063,8 @@ def test_measurement(s,
             ref_memory_segment=empty_string,
             annotation=empty_string,
             matrix_dim=empty_string,
-            ecu_address_extension=empty_string))).encode()).PROJECT.MODULE[0].MEASUREMENT[0]
+            ecu_address_extension=empty_string,
+            discrete=empty_string)))).PROJECT.MODULE[0].MEASUREMENT[0]
         assert measurement.Name.Value == ident_value
         assert measurement.LongIdentifier.Value == string_value
         assert measurement.DataType.Value == data_type_value
@@ -2074,6 +2089,7 @@ def test_measurement(s,
         assert is_iterable(measurement.ANNOTATION)
         assert measurement.MATRIX_DIM.is_none
         assert measurement.ECU_ADDRESS_EXTENSION.is_none
+        assert measurement.DISCRETE.is_none
 
 
 @pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'MEMORY_LAYOUT', 0], id='MOD_PAR')], indirect=True)
