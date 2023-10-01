@@ -805,6 +805,7 @@ def test_axis_descr(module,
     {if_data}
     {calibration_access}
     {ecu_address_extension}
+    {symbol_link}
     /end AXIS_PTS'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
@@ -836,7 +837,8 @@ def test_axis_pts(s,
             annotation=empty_string,
             extended_limits=empty_string,
             calibration_access=empty_string,
-            ecu_address_extension=empty_string))).encode()).PROJECT.MODULE[0].AXIS_PTS[0]
+            ecu_address_extension=empty_string,
+            symbol_link=empty_string))).encode()).PROJECT.MODULE[0].AXIS_PTS[0]
         assert axis_pts.Name.Value == ident_value
         assert axis_pts.LongIdentifier.Value == string_value
         assert axis_pts.Address.Value == long_value
@@ -859,6 +861,7 @@ def test_axis_pts(s,
         assert axis_pts.EXTENDED_LIMITS.is_none
         assert axis_pts.CALIBRATION_ACCESS.is_none
         assert axis_pts.ECU_ADDRESS_EXTENSION.is_none
+        assert axis_pts.SYMBOL_LINK.is_none
 
 
 @pytest.mark.parametrize('module', [
@@ -1123,6 +1126,7 @@ def test_calibration_method(module, s, string_string, string_value, long_string,
     {matrix_dim}
     {ecu_address_extension}
     {discrete}
+    {symbol_link}
     /end CHARACTERISTIC'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
@@ -1163,7 +1167,8 @@ def test_characteristic(s,
             calibration_access=empty_string,
             matrix_dim=empty_string,
             ecu_address_extension=empty_string,
-            discrete=empty_string))).encode()).PROJECT.MODULE[0].CHARACTERISTIC[0]
+            discrete=empty_string,
+            symbol_link=empty_string))).encode()).PROJECT.MODULE[0].CHARACTERISTIC[0]
         assert characteristic.Name.Value == ident_value
         assert characteristic.LongIdentifier.Value == string_value
         assert characteristic.Type == enum_type_value
@@ -1194,6 +1199,7 @@ def test_characteristic(s,
         assert characteristic.MATRIX_DIM.is_none
         assert characteristic.ECU_ADDRESS_EXTENSION.is_none
         assert characteristic.DISCRETE.is_none
+        assert characteristic.SYMBOL_LINK.is_none
 
 
 @pytest.mark.parametrize('module', [pytest.param(['COMPU_METHOD', 0, 'COEFFS'], id='COMPU_METHOD')], indirect=True)
@@ -1297,6 +1303,20 @@ def test_compu_tab_ref(module, e, s, v):
     with Parser() as p:
         compu_tab_ref = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s)).encode()), module[1])
         assert compu_tab_ref.ConversionTable.Value == v
+
+
+@pytest.mark.parametrize('module', [
+    pytest.param(['CHARACTERISTIC', 0, 'SYMBOL_LINK'], id='CHARACTERISTIC'),
+    pytest.param(['MEASUREMENT', 0, 'SYMBOL_LINK'], id='MEASUREMENT'),
+    pytest.param(['AXIS_PTS', 0, 'SYMBOL_LINK'], id='AXIS_PTS')], indirect=True)
+@pytest.mark.parametrize('e', [pytest.param('SYMBOL_LINK {} {}')])
+@pytest.mark.parametrize('string_string, string_value', strings)
+@pytest.mark.parametrize('long_string, long_value', longs)
+def test_symbol_link(module, e, string_string, string_value, long_string, long_value):
+    with Parser() as p:
+        symbol_link = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(string_string, long_string)).encode()), module[1])
+        assert symbol_link.SymbolName.Value == string_value
+        assert symbol_link.Offset.Value == long_value
 
 
 @pytest.mark.parametrize('s', ['''
@@ -2043,6 +2063,7 @@ def test_layout(module, e, s, v):
     {ecu_address_extension}
     {discrete}
     {layout}
+    {symbol_link}
     /end MEASUREMENT'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
@@ -2080,7 +2101,8 @@ def test_measurement(s,
             matrix_dim=empty_string,
             ecu_address_extension=empty_string,
             discrete=empty_string,
-            layout=empty_string))).encode()).PROJECT.MODULE[0].MEASUREMENT[0]
+            layout=empty_string,
+            symbol_link=empty_string))).encode()).PROJECT.MODULE[0].MEASUREMENT[0]
         assert measurement.Name.Value == ident_value
         assert measurement.LongIdentifier.Value == string_value
         assert measurement.DataType.Value == data_type_value
@@ -2107,6 +2129,7 @@ def test_measurement(s,
         assert measurement.ECU_ADDRESS_EXTENSION.is_none
         assert measurement.DISCRETE.is_none
         assert measurement.LAYOUT.is_none
+        assert measurement.SYMBOL_LINK.is_none
 
 
 @pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'MEMORY_LAYOUT', 0], id='MOD_PAR')], indirect=True)
