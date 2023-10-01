@@ -1163,7 +1163,7 @@ def test_characteristic(s,
             calibration_access=empty_string,
             matrix_dim=empty_string,
             ecu_address_extension=empty_string,
-            discrete=empty_string)))).PROJECT.MODULE[0].CHARACTERISTIC[0]
+            discrete=empty_string))).encode()).PROJECT.MODULE[0].CHARACTERISTIC[0]
         assert characteristic.Name.Value == ident_value
         assert characteristic.LongIdentifier.Value == string_value
         assert characteristic.Type == enum_type_value
@@ -1479,7 +1479,7 @@ def test_deposit(module, e, s, v):
 @pytest.mark.parametrize('e, a', [pytest.param('DISCRETE', True), pytest.param('', False)])
 def test_discrete(module, e, a):
     with Parser() as p:
-        discrete = get_node_from_ast(p.tree_from_a2l(module[0].format(e)), module[1])
+        discrete = get_node_from_ast(p.tree_from_a2l(module[0].format(e).encode()), module[1])
         assert discrete.is_none is not a
 
 
