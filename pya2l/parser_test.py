@@ -52,6 +52,10 @@ data_types = (
     pytest.param('FLOAT32_IEEE', 'FLOAT32_IEEE', id='f32'),
     pytest.param('FLOAT64_IEEE', 'FLOAT64_IEEE', id='f64'))
 
+enum_index_modes = (
+    pytest.param('ROW_DIR', 'ROW_DIR', id='row'),
+    pytest.param('COLUMN_DIR', 'COLUMN_DIR', id='column'))
+
 index_increments = (
     pytest.param('INDEX_INCR', 'INDEX_INCR', id='increasing'),
     pytest.param('INDEX_DECR', 'INDEX_DECR', id='decreasing'))
@@ -2008,6 +2012,16 @@ def test_max_refresh(module, s, int_string, int_value, long_string, long_value):
         assert max_refresh.Rate.Value == long_value
 
 
+@pytest.mark.parametrize('module', [
+    pytest.param(['MEASUREMENT', 0, 'LAYOUT'], id='MEASUREMENT')], indirect=True)
+@pytest.mark.parametrize('e', [pytest.param('LAYOUT {}')])
+@pytest.mark.parametrize('s, v', enum_index_modes)
+def test_layout(module, e, s, v):
+    with Parser() as p:
+        layout = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(s)).encode()), module[1])
+        assert layout.IndexMode == v
+
+
 @pytest.mark.parametrize('s', ['''
     /begin MEASUREMENT {ident} {string} {data_type} {ident} {int} {float} {float} {float}
     {display_identifier}
@@ -2028,6 +2042,7 @@ def test_max_refresh(module, s, int_string, int_value, long_string, long_value):
     {matrix_dim}
     {ecu_address_extension}
     {discrete}
+    {layout}
     /end MEASUREMENT'''])
 @pytest.mark.parametrize('ident_string, ident_value', idents)
 @pytest.mark.parametrize('string_string, string_value', strings)
@@ -2064,7 +2079,8 @@ def test_measurement(s,
             annotation=empty_string,
             matrix_dim=empty_string,
             ecu_address_extension=empty_string,
-            discrete=empty_string)))).PROJECT.MODULE[0].MEASUREMENT[0]
+            discrete=empty_string,
+            layout=empty_string))).encode()).PROJECT.MODULE[0].MEASUREMENT[0]
         assert measurement.Name.Value == ident_value
         assert measurement.LongIdentifier.Value == string_value
         assert measurement.DataType.Value == data_type_value
@@ -2090,6 +2106,7 @@ def test_measurement(s,
         assert measurement.MATRIX_DIM.is_none
         assert measurement.ECU_ADDRESS_EXTENSION.is_none
         assert measurement.DISCRETE.is_none
+        assert measurement.LAYOUT.is_none
 
 
 @pytest.mark.parametrize('module', [pytest.param(['MOD_PAR', 'MEMORY_LAYOUT', 0], id='MOD_PAR')], indirect=True)
