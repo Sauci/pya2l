@@ -309,4 +309,5 @@ def test_issue_17():
     with Parser() as p:
         ast = p.tree_from_a2l(a2l_string.encode())
         assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].Name.Value == 'SFB_R_FFO_DE.Properties.1.Qly'
-        assert 'SYMBOL_LINK' not in ast.PROJECT.MODULE[0].CHARACTERISTIC[0].properties
+        assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].SYMBOL_LINK.SymbolName.Value == 'SFB_R_FFO_DE.Properties.1.Qly'
+        assert ast.PROJECT.MODULE[0].CHARACTERISTIC[0].SYMBOL_LINK.Offset.Value == 0
