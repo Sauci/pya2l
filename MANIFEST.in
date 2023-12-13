@@ -1,3 +1,4 @@
 include pya2l/a2l_grpc/*.h
 include pya2l/a2l_grpc/*.dll
 include pya2l/a2l_grpc/*.so
+include pya2l/a2l_grpc/*.dylib

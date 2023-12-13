@@ -7,6 +7,7 @@
 import ctypes
 import logging
 import os
+import sys
 import typing
 
 from google.protobuf.message import Message
@@ -22,7 +23,10 @@ class A2lParser(object):
         if os.name == 'nt':
             shared_object = 'a2l_grpc_windows_amd64.dll'
         elif os.name == 'posix':
-            shared_object = 'a2l_grpc_linux_amd64.so'
+            if sys.platform == 'darwin':
+                shared_object = 'a2l_grpc_darwin_arm64.dylib'
+            else:
+                shared_object = 'a2l_grpc_linux_amd64.so'
         else:
             raise Exception(f'unsupported operating system {os.name}')
         self._dll = ctypes.cdll.LoadLibrary(
