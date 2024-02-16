@@ -19,7 +19,7 @@ jobs:
       - name: Generate gRPC sources
         run: |
           python -m grpc_tools.protoc -I./pya2l/a2l_grpc --python_out=pya2l --pyi_out=pya2l --grpc_python_out=pya2l ./pya2l/a2l_grpc/protobuf/*.proto
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
@@ -97,7 +97,7 @@ jobs:
           path: pya2l/protobuf
       - run: |
           python -m build --sdist --wheel
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
