@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: 3.11
       - name: Install dependencies
@@ -19,7 +19,7 @@ jobs:
       - name: Generate gRPC sources
         run: |
           python -m grpc_tools.protoc -I./pya2l/a2l_grpc --python_out=pya2l --pyi_out=pya2l --grpc_python_out=pya2l ./pya2l/a2l_grpc/protobuf/*.proto
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
@@ -33,7 +33,7 @@ jobs:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -43,7 +43,7 @@ jobs:
           pip install codecov dictdiffer grpcio-tools mock pytest==7.4.3 pytest-cases pytest-cov
           wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
@@ -61,7 +61,7 @@ jobs:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
@@ -70,7 +70,7 @@ jobs:
           pip install codecov dictdiffer grpcio-tools mock pytest pytest-cases pytest-cov
           powershell.exe -Command "Invoke-WebRequest -OutFile ./a2l_grpc.tar.gz https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz"
           tar -xf a2l_grpc.tar.gz -C pya2l
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
@@ -91,13 +91,13 @@ jobs:
           pip install build
           wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
       - run: |
           python -m build --sdist --wheel
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         with:
           name: dist
           path: dist
@@ -108,6 +108,8 @@ jobs:
     environment:
       name: pypi
       url: https://pypi.org/p/pya2l
+    permissions:
+      id-token: write
     steps:
       - uses: actions/download-artifact@v4
         with:
@@ -124,7 +126,7 @@ jobs:
       matrix:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
     steps:
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
