@@ -43,7 +43,7 @@ jobs:
           pip install codecov dictdiffer grpcio-tools mock pytest==7.4.3 pytest-cases pytest-cov
           wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
@@ -70,7 +70,7 @@ jobs:
           pip install codecov dictdiffer grpcio-tools mock pytest pytest-cases pytest-cov
           powershell.exe -Command "Invoke-WebRequest -OutFile ./a2l_grpc.tar.gz https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz"
           tar -xf a2l_grpc.tar.gz -C pya2l
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
@@ -91,7 +91,7 @@ jobs:
           pip install build
           wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: protobuf
           path: pya2l/protobuf
