@@ -7,6 +7,7 @@
 import ctypes
 import logging
 import os
+import struct
 import sys
 import typing
 
@@ -17,11 +18,20 @@ from pya2l.protobuf.API_pb2_grpc import *
 from pya2l.protobuf.A2L_pb2 import *
 
 
+def get_dll_architecture() -> str:
+    if struct.calcsize('P') == 4:
+        return '386'
+    elif struct.calcsize('P') == 8:
+        return 'amd64'
+    else:
+        raise RuntimeError('Unsupported architecture')
+
+
 class A2lParser(object):
     def __init__(self, port=3333, logger: logging.Logger = None):
         self._logger = logger
         if os.name == 'nt':
-            shared_object = 'a2l_grpc_windows_amd64.dll'
+            shared_object = f'a2l_grpc_windows_{get_dll_architecture()}.dll'
         elif os.name == 'posix':
             if sys.platform == 'darwin':
                 shared_object = 'a2l_grpc_darwin_arm64.dylib'

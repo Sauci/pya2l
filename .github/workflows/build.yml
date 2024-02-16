@@ -6,7 +6,7 @@ jobs:
   generate-grpc-sources:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: 3.11
@@ -14,7 +14,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install grpcio-tools
-          wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.15/a2l_grpc.tar.gz
+          wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
       - name: Generate gRPC sources
         run: |
@@ -32,15 +32,16 @@ jobs:
       matrix:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install codecov dictdiffer grpcio-tools mock pytest pytest-cases pytest-cov
-          wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.15/a2l_grpc.tar.gz
+          # see https://github.com/pytest-dev/pytest/issues/11868
+          pip install codecov dictdiffer grpcio-tools mock pytest==7.4.3 pytest-cases pytest-cov
+          wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
       - uses: actions/download-artifact@v3
         with:
@@ -59,7 +60,7 @@ jobs:
       matrix:
         python-version: [ "3.7", "3.8", "3.9", "3.10", "3.11" ]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
@@ -67,7 +68,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install codecov dictdiffer grpcio-tools mock pytest pytest-cases pytest-cov
-          powershell.exe -Command "Invoke-WebRequest -OutFile ./a2l_grpc.tar.gz https://github.com/Sauci/a2l-grpc/releases/download/v0.1.15/a2l_grpc.tar.gz"
+          powershell.exe -Command "Invoke-WebRequest -OutFile ./a2l_grpc.tar.gz https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz"
           tar -xf a2l_grpc.tar.gz -C pya2l
       - uses: actions/download-artifact@v3
         with:
@@ -83,12 +84,12 @@ jobs:
       - run-pytest-test-linux
       - run-pytest-test-windows
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install build
-          wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.15/a2l_grpc.tar.gz
+          wget https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz
           tar -xf a2l_grpc.tar.gz -C pya2l
       - uses: actions/download-artifact@v3
         with:
@@ -104,17 +105,17 @@ jobs:
     runs-on: ubuntu-22.04
     needs:
       - build-distribution
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pya2l
     steps:
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: dist
           path: dist
       - name: Publish package on Python Package Index
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          user: ${{secrets.PYPI_USERNAME}}
-          password: ${{secrets.PYPI_PASSWORD}}
   test-pip-package:
     runs-on: ubuntu-22.04
     needs:
