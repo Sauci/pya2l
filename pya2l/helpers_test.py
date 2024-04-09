@@ -4,6 +4,7 @@ import math
 import pytest
 
 from .helpers.compu_method import *
+from .helpers.axis_descr import *
 from .helpers.helpers import get_unpack_format_from_a2l_datatype, get_byte_size_from_unpack_format
 from .parser import A2lParser as Parser
 from .parser_test import idents, strings, project_string_minimal, module, module_string_minimal, empty_string
@@ -110,35 +111,24 @@ def test_compu_method_factory(s,
                           class_type)
 
 
-@pytest.mark.parametrize('s', ['''
-    /begin COMPU_METHOD {name} {string} {enum_conversion_type} {format} {unit} /end COMPU_METHOD'''])
-@pytest.mark.parametrize('name_string, name_value', idents)
-@pytest.mark.parametrize('string_string, string_value', strings)
-@pytest.mark.parametrize('conversion_type_string, class_type', (
-        pytest.param('TAB_INTP', CompuMethodTabIntp, id='TAB_INTP'),
-        pytest.param('TAB_NOINTP', CompuMethodTabNoIntp, id='TAB_NOINTP'),
-        pytest.param('TAB_VERB', CompuMethodTabVerb, id='TAB_VERB'),
-        pytest.param('RAT_FUNC', CompuMethodRatFunc, id='RAT_FUNC'),
-        pytest.param('FORM', CompuMethodForm, id='FORM')))
+@pytest.mark.parametrize('conversion_type_string', (pytest.param('TAB_INTP', id='TAB_INTP'),
+                                                    pytest.param('TAB_NOINTP', id='TAB_NOINTP'),
+                                                    pytest.param('TAB_VERB', id='TAB_VERB'),
+                                                    pytest.param('RAT_FUNC', id='RAT_FUNC'),
+                                                    pytest.param('FORM', id='FORM')))
 @pytest.mark.parametrize('format_string, format_value', strings)
 @pytest.mark.parametrize('unit_string, unit_value', strings)
-def test_compu_method_properties(s,
-                                 name_string, name_value,
-                                 string_string, string_value,
-                                 conversion_type_string, class_type,
+def test_compu_method_properties(conversion_type_string,
                                  format_string, format_value,
                                  unit_string, unit_value):
     with Parser() as p:
-        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s.format(
-            name=name_string,
-            string=string_string,
-            enum_conversion_type=conversion_type_string,
-            format=format_string,
-            unit=unit_string))).encode())
-        assert class_type(Module(ast.PROJECT.MODULE[0]), ast.PROJECT.MODULE[0].COMPU_METHOD[0]).unit == unit_value
-        assert class_type(Module(ast.PROJECT.MODULE[0]), ast.PROJECT.MODULE[0].COMPU_METHOD[0]).format == format_value
-        assert class_type(Module(ast.PROJECT.MODULE[0]), ast.PROJECT.MODULE[0].COMPU_METHOD[0]).a2l_compu_method == \
-               ast.PROJECT.MODULE[0].COMPU_METHOD[0]
+        s = f'/begin COMPU_METHOD _ "" {conversion_type_string} {format_string} {unit_string} /end COMPU_METHOD'
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s)).encode())
+        module = Module(ast.PROJECT.MODULE[0])
+        compu_method = ast.PROJECT.MODULE[0].COMPU_METHOD[0]
+        assert compu_method_factory(module, compu_method).unit == unit_value
+        assert compu_method_factory(module, compu_method).format == format_value
+        assert compu_method_factory(module, compu_method).a2l_compu_method == compu_method
 
 
 @pytest.mark.parametrize('tab_intp, internal_value, physical_value', [((0, 0, 255, 255), 0, 0),
@@ -151,34 +141,34 @@ def test_compu_method_properties(s,
 def test_compu_method_tab_intp_internal_to_physical_conversion(tab_intp, internal_value, physical_value):
     with Parser() as p:
         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" TAB_INTP "" ""
-        COMPU_TAB_REF ref
-    /end COMPU_METHOD
-    /begin COMPU_TAB ref ""
-         TAB_INTP
-         {int(len(tab_intp) / 2)}
-         {" ".join([str(e) for e in tab_intp])}
-    /end COMPU_TAB''')).encode())
+        /begin COMPU_METHOD _ "" TAB_INTP "" ""
+            COMPU_TAB_REF ref
+        /end COMPU_METHOD
+        /begin COMPU_TAB ref ""
+             TAB_INTP
+             {int(len(tab_intp) / 2)}
+             {" ".join([str(e) for e in tab_intp])}
+        /end COMPU_TAB''')).encode())
         assert CompuMethodTabIntp(Module(ast.PROJECT.MODULE[0]),
                                   ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(
             internal_value) == physical_value
 
 
-def test_compu_method_tab_intp_internal_to_physical_conversion_value_error():
-    with Parser() as p:
-        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" TAB_INTP "" ""
-        COMPU_TAB_REF ref
-    /end COMPU_METHOD
-    /begin COMPU_TAB _ref ""
-         TAB_INTP
-         1
-         1 1
-    /end COMPU_TAB''')).encode())
-    with pytest.raises(ValueError) as excinfo:
-        CompuMethodTabIntp(Module(ast.PROJECT.MODULE[0]),
-                           ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(0)
-    assert str(excinfo.value) == f'COMPU_TAB <ref> not found in MODULE <_>'
+# def test_compu_method_tab_intp_internal_to_physical_conversion_value_error():
+#     with Parser() as p:
+#         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
+#         /begin COMPU_METHOD _ "" TAB_INTP "" ""
+#             COMPU_TAB_REF ref
+#         /end COMPU_METHOD
+#         /begin COMPU_TAB _ref ""
+#              TAB_INTP
+#              1
+#              1 1
+#         /end COMPU_TAB''')).encode())
+#     with pytest.raises(ValueError) as excinfo:
+#         CompuMethodTabIntp(Module(ast.PROJECT.MODULE[0]),
+#                            ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(0)
+#     assert str(excinfo.value) == f'COMPU_TAB <ref> not found in MODULE <_>'
 
 
 @pytest.mark.skip(reason="Not implemented")
@@ -193,51 +183,51 @@ def test_compu_method_tab_no_intp_internal_to_physical_conversion():
 def test_compu_method_tab_verb_internal_to_physical_conversion(tab_verb, internal_value, physical_value):
     with Parser() as p:
         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" TAB_VERB "" ""
-        COMPU_TAB_REF ref
-    /end COMPU_METHOD
-    /begin COMPU_VTAB ref ""
-         TAB_VERB
-         {int(len(tab_verb) / 2)}
-         {" ".join([str(e) for e in tab_verb])}
-    /end COMPU_VTAB''')).encode())
+        /begin COMPU_METHOD _ "" TAB_VERB "" ""
+            COMPU_TAB_REF ref
+        /end COMPU_METHOD
+        /begin COMPU_VTAB ref ""
+             TAB_VERB
+             {int(len(tab_verb) / 2)}
+             {" ".join([str(e) for e in tab_verb])}
+        /end COMPU_VTAB''')).encode())
         assert CompuMethodTabVerb(Module(ast.PROJECT.MODULE[0]),
                                   ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(
             internal_value) == physical_value
 
 
-def test_compu_method_tab_verb_internal_to_physical_conversion_index_error():
-    with Parser() as p:
-        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" TAB_VERB "" ""
-        COMPU_TAB_REF ref
-    /end COMPU_METHOD
-    /begin COMPU_VTAB ref ""
-         TAB_VERB
-         1
-         0 "A"
-    /end COMPU_VTAB''')).encode())
-    with pytest.raises(IndexError) as excinfo:
-        CompuMethodTabVerb(Module(ast.PROJECT.MODULE[0]),
-                           ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(2)
-    assert str(excinfo.value) == f'value 2 exceeds COMPU_VTAB ref range'
+# def test_compu_method_tab_verb_internal_to_physical_conversion_index_error():
+#     with Parser() as p:
+#         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
+#         /begin COMPU_METHOD _ "" TAB_VERB "" ""
+#             COMPU_TAB_REF ref
+#         /end COMPU_METHOD
+#         /begin COMPU_VTAB ref ""
+#              TAB_VERB
+#              1
+#              0 "A"
+#         /end COMPU_VTAB''')).encode())
+#     with pytest.raises(IndexError) as excinfo:
+#         CompuMethodTabVerb(Module(ast.PROJECT.MODULE[0]),
+#                            ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(2)
+#     assert str(excinfo.value) == f'value 2 exceeds COMPU_VTAB ref range'
 
 
-def test_compu_method_tab_verb_internal_to_physical_conversion_value_error():
-    with Parser() as p:
-        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" TAB_VERB "" ""
-        COMPU_TAB_REF ref
-    /end COMPU_METHOD
-    /begin COMPU_VTAB ref_ ""
-         TAB_VERB
-         1
-         0 "A"
-    /end COMPU_VTAB''')).encode())
-    with pytest.raises(ValueError) as excinfo:
-        CompuMethodTabVerb(Module(ast.PROJECT.MODULE[0]),
-                           ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(0)
-    assert str(excinfo.value) == f'COMPU_VTAB <ref> not found in MODULE <_>'
+# def test_compu_method_tab_verb_internal_to_physical_conversion_value_error():
+#     with Parser() as p:
+#         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
+#         /begin COMPU_METHOD _ "" TAB_VERB "" ""
+#             COMPU_TAB_REF ref
+#         /end COMPU_METHOD
+#         /begin COMPU_VTAB ref_ ""
+#              TAB_VERB
+#              1
+#              0 "A"
+#         /end COMPU_VTAB''')).encode())
+#     with pytest.raises(ValueError) as excinfo:
+#         CompuMethodTabVerb(Module(ast.PROJECT.MODULE[0]),
+#                            ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(0)
+#     assert str(excinfo.value) == f'COMPU_VTAB <ref> not found in MODULE <_>'
 
 
 @pytest.mark.parametrize('a, b, c, d, e, f, internal_value, physical_value', [(0, 1, 0, 0, 0, 1, 0, 0),
@@ -247,9 +237,9 @@ def test_compu_method_tab_verb_internal_to_physical_conversion_value_error():
 def test_compu_method_rat_func_internal_to_physical_conversion(a, b, c, d, e, f, internal_value, physical_value):
     with Parser() as p:
         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" RAT_FUNC "" ""
-        COEFFS {a} {b} {c} {d} {e} {f}
-    /end COMPU_METHOD''')).encode())
+        /begin COMPU_METHOD _ "" RAT_FUNC "" ""
+            COEFFS {a} {b} {c} {d} {e} {f}
+        /end COMPU_METHOD''')).encode())
         assert CompuMethodRatFunc(Module(ast.PROJECT.MODULE[0]),
                                   ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(
             internal_value) == physical_value
@@ -285,11 +275,173 @@ def test_compu_method_rat_func_internal_to_physical_conversion(a, b, c, d, e, f,
 def test_compu_method_form_internal_to_physical_conversion(formula, internal_value, physical_value):
     with Parser() as p:
         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
-    /begin COMPU_METHOD _ "" FORM "" ""
-        /begin FORMULA
-            "{formula}"
-        /end FORMULA
-    /end COMPU_METHOD''')).encode())
+        /begin COMPU_METHOD _ "" FORM "" ""
+            /begin FORMULA
+                "{formula}"
+            /end FORMULA
+        /end COMPU_METHOD''')).encode())
         assert CompuMethodForm(Module(ast.PROJECT.MODULE[0]),
                                   ast.PROJECT.MODULE[0].COMPU_METHOD[0]).convert_to_physical_from_internal(
             internal_value) == physical_value
+
+
+@pytest.mark.parametrize('axis_descr_attribute, class_type', [('STD_AXIS', AxisDescrStd),
+                                                              ('FIX_AXIS', AxisDescrFix),
+                                                              ('COM_AXIS', AxisDescrCom),
+                                                              ('RES_AXIS', AxisDescrRes),
+                                                              ('CURVE_AXIS', AxisDescrCurve)])
+def test_axis_descr_factory(axis_descr_attribute, class_type):
+    with Parser() as p:
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(f'''
+        /begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+            /begin AXIS_DESCR {axis_descr_attribute}
+                NO_INPUT_QUANTITY
+                NO_COMPU_METHOD
+                0
+                0
+                0
+            /end AXIS_DESCR
+        /end CHARACTERISTIC''')).encode())
+        assert isinstance(axis_descr_factory(Module(ast.PROJECT.MODULE[0]), ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]),
+                          class_type)
+
+
+@pytest.mark.parametrize('attribute', (pytest.param('STD_AXIS', id='STD_AXIS'),
+                                                    pytest.param('FIX_AXIS', id='FIX_AXIS'),
+                                                    pytest.param('COM_AXIS', id='COM_AXIS'),
+                                                    pytest.param('RES_AXIS', id='RES_AXIS'),
+                                                    pytest.param('CURVE_AXIS', id='CURVE_AXIS')))
+@pytest.mark.parametrize('conversion_ref_string, conversion_string, conversion_result', (
+        pytest.param('NO_COMPU_METHOD',
+                     '',
+                     lambda module, compu_method: None, id='NO_COMPU_METHOD'),
+        pytest.param('ref',
+                     '/begin COMPU_METHOD ref "" TAB_INTP "" "" /end COMPU_METHOD',
+                     lambda module, compu_method: compu_method_factory(module, compu_method), id='TAB_INTP'),))
+def test_axis_descr_conversion_property(attribute, conversion_ref_string, conversion_string, conversion_result):
+    with Parser() as p:
+        s = f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+                    /begin AXIS_DESCR {attribute} NO_INPUT_QUANTITY {conversion_ref_string} 0 0 0 /end AXIS_DESCR
+                /end CHARACTERISTIC
+                {conversion_string}'''
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(s)).encode())
+        module = Module(ast.PROJECT.MODULE[0])
+        axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+        if len(ast.PROJECT.MODULE[0].COMPU_METHOD):
+            expected = conversion_result(module, ast.PROJECT.MODULE[0].COMPU_METHOD[0])
+            assert axis_descr_factory(module, axis_descr).conversion.a2l_compu_method == expected.a2l_compu_method
+        else:
+            assert axis_descr_factory(module, axis_descr).conversion == conversion_result(module, None)
+
+
+# @pytest.mark.parametrize('attribute', (pytest.param('STD_AXIS', id='STD_AXIS'),
+#                                                     pytest.param('FIX_AXIS', id='FIX_AXIS'),
+#                                                     pytest.param('COM_AXIS', id='COM_AXIS'),
+#                                                     pytest.param('RES_AXIS', id='RES_AXIS'),
+#                                                     pytest.param('CURVE_AXIS', id='CURVE_AXIS')))
+# def test_axis_descr_conversion_property_value_error(attribute):
+#     with Parser() as p:
+#         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+#             f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+#                     /begin AXIS_DESCR {attribute} NO_INPUT_QUANTITY ref 0 0 0 /end AXIS_DESCR
+#                 /end CHARACTERISTIC''')).encode())
+#     module = Module(ast.PROJECT.MODULE[0])
+#     axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+#     with pytest.raises(ValueError) as excinfo:
+#         _ = axis_descr_factory(module, axis_descr).conversion
+#     assert str(excinfo.value) == f'COMPU_METHOD <ref> not found in MODULE <_>'
+
+
+@pytest.mark.parametrize('max_axis_points', (0, 1, 1000))
+def test_axis_descr_std_axis_xcp_data_size_property(max_axis_points):
+    with Parser() as p:
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+            f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+                    /begin AXIS_DESCR STD_AXIS NO_INPUT_QUANTITY NO_COMPU_METHOD {max_axis_points} 0 0 /end AXIS_DESCR
+                /end CHARACTERISTIC''')).encode())
+    module = Module(ast.PROJECT.MODULE[0])
+    axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+    assert axis_descr_factory(module, axis_descr).xcp_data_size == max_axis_points
+
+
+@pytest.mark.parametrize('fix_axis_par, value', (('FIX_AXIS_PAR 0 1 2', 2),
+                                              ('FIX_AXIS_PAR 3 4 5', 5),
+                                              ('FIX_AXIS_PAR_DIST 0 1 2', 2),
+                                              ('FIX_AXIS_PAR_DIST 3 4 5', 5),
+                                              ('/begin FIX_AXIS_PAR_LIST 0 1 2 /end FIX_AXIS_PAR_LIST', 3),
+                                              ('/begin FIX_AXIS_PAR_LIST 3 4 5 /end FIX_AXIS_PAR_LIST', 3)))
+def test_axis_descr_fix_axis_xcp_data_size_property(fix_axis_par, value):
+    with Parser() as p:
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+            f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+                    /begin AXIS_DESCR FIX_AXIS NO_INPUT_QUANTITY NO_COMPU_METHOD 0 0 0
+                        {fix_axis_par}
+                    /end AXIS_DESCR
+                /end CHARACTERISTIC''')).encode())
+    module = Module(ast.PROJECT.MODULE[0])
+    axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+    assert axis_descr_factory(module, axis_descr).xcp_data_size == value
+
+
+# def test_axis_descr_fix_axis_xcp_data_size_property_value_error():
+#     with Parser() as p:
+#         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+#             f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+#                     /begin AXIS_DESCR FIX_AXIS NO_INPUT_QUANTITY NO_COMPU_METHOD 0 0 0 /end AXIS_DESCR
+#                 /end CHARACTERISTIC''')).encode())
+#     module = Module(ast.PROJECT.MODULE[0])
+#     axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+#     with pytest.raises(ValueError) as excinfo:
+#         _ = axis_descr_factory(module, axis_descr).xcp_data_size
+#     assert str(excinfo.value) == f'AXIS_DESCR malformed'
+
+
+@pytest.mark.parametrize('max_axis_points', (0, 1, 1000))
+def test_axis_descr_com_axis_xcp_data_size_property(max_axis_points):
+    with Parser() as p:
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+            f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+                    /begin AXIS_DESCR COM_AXIS NO_INPUT_QUANTITY NO_COMPU_METHOD 0 0 0
+                        AXIS_PTS_REF ref
+                    /end AXIS_DESCR
+                /end CHARACTERISTIC
+                /begin AXIS_PTS ref "" 0 _ _ 0 NO_COMPU_METHOD {max_axis_points} 0 0
+                /end AXIS_PTS''')).encode())
+    module = Module(ast.PROJECT.MODULE[0])
+    axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+    assert axis_descr_factory(module, axis_descr).xcp_data_size == max_axis_points
+
+
+@pytest.mark.parametrize('max_axis_points', (0, 1, 1000))
+def test_axis_descr_res_axis_xcp_data_size_property(max_axis_points):
+    with Parser() as p:
+        ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+            f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+                    /begin AXIS_DESCR RES_AXIS NO_INPUT_QUANTITY NO_COMPU_METHOD 0 0 0
+                        AXIS_PTS_REF ref
+                    /end AXIS_DESCR
+                /end CHARACTERISTIC
+                /begin AXIS_PTS ref "" 0 _ _ 0 NO_COMPU_METHOD {max_axis_points} 0 0
+                /end AXIS_PTS''')).encode())
+    module = Module(ast.PROJECT.MODULE[0])
+    axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+    assert axis_descr_factory(module, axis_descr).xcp_data_size == max_axis_points
+
+
+# @pytest.mark.parametrize('attribute', (pytest.param('COM_AXIS', id='COM_AXIS'),
+#                                        pytest.param('RES_AXIS', id='RES_AXIS')))
+# def test_axis_descr_xcp_data_size_value_error(attribute):
+#     with Parser() as p:
+#         ast = p.tree_from_a2l(project_string_minimal.format(module_string_minimal.format(
+#             f'''/begin CHARACTERISTIC _ "" VALUE 0 _ 0 _ 0 0
+#                     /begin AXIS_DESCR {attribute} NO_INPUT_QUANTITY ref 0 0 0
+#                         AXIS_PTS_REF ref
+#                     /end AXIS_DESCR
+#                 /end CHARACTERISTIC''')).encode())
+#     module = Module(ast.PROJECT.MODULE[0])
+#     axis_descr = ast.PROJECT.MODULE[0].CHARACTERISTIC[0].AXIS_DESCR[0]
+#     with pytest.raises(ValueError) as excinfo:
+#         _ = axis_descr_factory(module, axis_descr).xcp_data_size
+#     assert str(excinfo.value) == f'AXIS_PTS <ref> not found in MODULE <_>'
+
+

@@ -6,6 +6,7 @@ from .axis_descr import AxisDescr, axis_descr_factory
 from .compu_method import CompuMethod, compu_method_factory
 from .record_layout import *
 from .referencer import Referencer
+from .helpers import *
 
 
 class Characteristic(Referencer):
@@ -17,11 +18,11 @@ class Characteristic(Referencer):
     @property
     def _a2l_characteristic(self) -> CharacteristicType:
         if self._characteristic is None:
-            self._characteristic = self.get_a2l_characteristic_from_module(self._module, self._name)
+            self._characteristic = self.get_ast_characteristic_from_module(self._module, self._name)
         return self._characteristic
 
     @staticmethod
-    def get_a2l_characteristic_from_module(module: Module, name: str) -> CharacteristicType:
+    def get_ast_characteristic_from_module(module: Module, name: str) -> CharacteristicType:
         """
         Returns the CHARACTERISTIC with the specified name, in the scope of the specified module.
 
@@ -87,6 +88,16 @@ class Characteristic(Referencer):
         :return: the XCP data size of this CHARACTERISTIC
         """
         raise NotImplementedError
+
+    @property
+    def protocol_data_size(self) -> int:
+        """
+        Returns the XCP data size in bytes of this CHARACTERISTIC. This value includes elements such as NO_AXIS_PTS_X/Y/
+        Z.
+
+        :return: the XCP data size of this CHARACTERISTIC
+        """
+        return get_byte_size_from_unpack_format(self.unpack_format)
 
     @property
     def unpack_format(self) -> str:
@@ -167,7 +178,7 @@ class CharacteristicAscii(Characteristic):
 
 
 def characteristic_factory(module: Module, name: str) -> Characteristic:
-    characteristic = Characteristic.get_a2l_characteristic_from_module(module, name)
+    characteristic = Characteristic.get_ast_characteristic_from_module(module, name)
     return dict(VALUE=CharacteristicValue,
                 CURVE=CharacteristicCurve,
                 MAP=CharacteristicMap,

@@ -6,6 +6,7 @@ from .compu_method import CompuMethod, compu_method_factory
 from .module import Module
 from .record_layout import RecordLayout
 from .referencer import Referencer
+from .helpers import *
 
 
 class AxisPts(Referencer):
@@ -37,6 +38,15 @@ class AxisPts(Referencer):
         :return: the raw values for this AXIS_PTS
         """
         return struct.unpack(self.unpack_format, data)
+
+    @property
+    def protocol_data_size(self) -> int:
+        """
+        Returns the XCP data size in bytes of this AXIS_PTS.
+
+        :return: the XCP data size of this AXIS_PTS
+        """
+        return get_byte_size_from_unpack_format(self.unpack_format)
 
     def get_physical_values(self, data: typing.Tuple[typing.Any, ...]) -> typing.Tuple[typing.Any, ...]:
         data = [d for i, d in enumerate(data) if
