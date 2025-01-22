@@ -220,3 +220,113 @@ def test_diff_command(capsys,
         assert get_call_args(m, 0) == (left_input_file_name, 'rb', -1, None, None)
         assert get_call_args(m, 1) == (right_input_file_name, 'rb', -1, None, None)
         assert capsys.readouterr().out == output_content
+
+
+@pytest.mark.parametrize('input_encoding, output_encoding, input_file_content, expected_output_content', [
+    ('utf-8', 'utf-8',
+     """ASAP2_VERSION 1 2
+         /begin PROJECT _ ""
+             /begin MODULE _ ""
+                 /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+                 /end CHARACTERISTIC
+                 /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+                 /end CHARACTERISTIC
+                 /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+                 /end CHARACTERISTIC
+             /end MODULE
+         /end PROJECT""".encode('utf-8'),
+     """ASAP2_VERSION 1 2
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+/end PROJECT""".encode('utf-8')),
+    ('cp1252', 'utf-8',
+"""ASAP2_VERSION 1 2
+    /begin PROJECT _ ""
+        /begin MODULE _ ""
+            /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+            /end CHARACTERISTIC
+            /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+            /end CHARACTERISTIC
+            /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+            /end CHARACTERISTIC
+        /end MODULE
+    /end PROJECT""".encode('cp1252'),
+    """ASAP2_VERSION 1 2
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+/end PROJECT""".encode('utf-8')),
+    ('utf-8', 'cp1252',
+"""ASAP2_VERSION 1 2
+    /begin PROJECT _ ""
+        /begin MODULE _ ""
+            /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+            /end CHARACTERISTIC
+            /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+            /end CHARACTERISTIC
+            /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+            /end CHARACTERISTIC
+        /end MODULE
+    /end PROJECT""".encode('utf-8'),
+    """ASAP2_VERSION 1 2
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+/end PROJECT""".encode('cp1252')),
+    ('cp1252', 'cp1252',
+     """ASAP2_VERSION 1 2
+         /begin PROJECT _ ""
+             /begin MODULE _ ""
+                 /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+                 /end CHARACTERISTIC
+                 /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+                 /end CHARACTERISTIC
+                 /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+                 /end CHARACTERISTIC
+             /end MODULE
+         /end PROJECT""".encode('cp1252'),
+     """ASAP2_VERSION 1 2
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin CHARACTERISTIC c "a[2]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC b "a[10]°" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+        /begin CHARACTERISTIC a "a[0]" VALUE 0x00 DAMOS_KF 0 _ 0 1
+        /end CHARACTERISTIC
+    /end MODULE
+/end PROJECT""".encode('cp1252')),
+])
+def test_encoding_support(input_encoding,
+                          output_encoding,
+                          input_file_content,
+                          expected_output_content):
+    input_file_name = 'input.a2l'
+    output_file_name = 'output.a2l'
+    with patch("builtins.open", mock_open(read_data=input_file_content)) as m:
+        m.return_value.name = input_file_name
+        main(list(filter(lambda e: e != '', ['-v', '-ie', input_encoding, '-oe', output_encoding, input_file_name, 'to_a2l', '-o', output_file_name, '-i', '4'])))
+
+        assert get_call_args(m, 0) == (input_file_name, 'rb', -1, None, None)
+        assert get_call_args(m, 1) == (output_file_name, 'wb', -1, None, None)
+
+        assert get_call_args(m.return_value.write, 0)[0]  == expected_output_content

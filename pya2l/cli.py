@@ -29,6 +29,8 @@ def parse_args(args):
     parser.add_argument('-v', dest='verbose', action='store_true', help='enable verbose')
     parser.add_argument('-p', dest='port', type=int, default=3333, nargs='?',
                         help='TCP port used to connect to the backend')
+    parser.add_argument('-oe', dest='output_encoding', type=str, help='encoding of the output file',
+                        default='utf-8')
 
     subparsers = parser.add_subparsers(dest='sub_command', help='supported commands')
 
@@ -45,7 +47,6 @@ def parse_args(args):
     a2l_subparser = subparsers.add_parser(TO_A2L_CMD, help='converts an A2L/JSON file to A2L')
     a2l_subparser.add_argument('-o', dest='output_file', type=argparse.FileType('wb'),
                                help='full path to A2L output file')
-    parser.add_argument('-oe', dest='output_encoding', type=str, help='encoding of the output file', default='utf-8')
     a2l_subparser.add_argument('-s', dest='sorted', action='store_true', default=False,
                                help='sort elements based on their unique key within the document')
     a2l_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
