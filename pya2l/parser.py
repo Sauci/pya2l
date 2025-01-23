@@ -18,6 +18,19 @@ from pya2l.protobuf.API_pb2 import *
 from pya2l.protobuf.API_pb2_grpc import *
 from pya2l.protobuf.A2L_pb2 import *
 
+protocol_size_margin = 256
+chunk_size = 4*1024*1024-protocol_size_margin
+
+def chunk_generator(_data: bytes, _chunk_size: int):
+    """
+    Generates chunks of the given size from the input data.
+    :param _data: The data to be chunked.
+    :param _chunk_size: Size of each chunk.
+    :yield: Chunks of the specified size.
+    """
+    for i in range(0, len(_data), _chunk_size):
+        yield _data[i : i + _chunk_size]
+
 
 def get_dll_architecture() -> str:
     if struct.calcsize('P') == 4:
@@ -54,8 +67,8 @@ class A2lParser(object):
             raise Exception(f'unsupported operating system {os.name}')
         self._dll = ctypes.cdll.LoadLibrary(
             os.path.join(os.path.dirname(__file__), 'a2l_grpc', shared_object))
-        options = [('grpc.max_receive_message_length', 200 * 1024 * 1024),
-                   ('grpc.max_send_message_length', 200 * 1024 * 1024)]
+        options = [('grpc.max_receive_message_length',chunk_size+protocol_size_margin),
+                   ('grpc.max_send_message_length', chunk_size+protocol_size_margin)]
         channel = grpc.insecure_channel(f'localhost:{port}', options=options)
         self._client = A2LStub(channel)
         if self._dll.Create(port):
@@ -94,12 +107,31 @@ class A2lParser(object):
         """
         if self._logger:
             self._logger.info('start parsing A2L')
-        response = self._client.GetTreeFromA2L(TreeFromA2LRequest(a2l=a2l_data))
+
+        def request_generator():
+            for chunk in chunk_generator(a2l_data, chunk_size):
+                yield TreeFromA2LRequest(a2l=chunk)
+
+        response_tree_data = bytearray()
+        for response in self._client.GetTreeFromA2L(request_generator()):
+            if response.error:
+                if self._logger:
+                    self._logger.warning(response.error)
+                raise Exception(f"Server error: {response.error}")
+
+            if response.serializedTreeChunk:
+                response_tree_data.extend(response.serializedTreeChunk)
+            else:
+                if self._logger:
+                    self._logger.warning("Received an empty or unexpected response chunk")
+
+        tree = RootNodeType()
+        tree.ParseFromString(bytes(response_tree_data))
+
         if self._logger:
             self._logger.info('finished parsing A2L')
-        if response.error != '' and self._logger:
-            self._logger.warning(response.error)
-        return response.tree
+
+        return tree
 
     def tree_from_json(self, json_data: bytes, allow_partial: bool = False) -> RootNodeType:
         """
@@ -110,12 +142,37 @@ class A2lParser(object):
         """
         if self._logger:
             self._logger.info('start parsing JSON A2L')
-        response = self._client.GetTreeFromJSON(TreeFromJSONRequest(json=json_data, allow_partial=allow_partial))
+
+            # Générateur de requêtes : on envoie les options `allow_partial` dans le premier chunk.
+        def request_generator():
+            first_chunk = True
+            for chunk in chunk_generator(json_data, chunk_size):
+                if first_chunk:
+                    # Envoyer la configuration dans le premier message
+                    yield TreeFromJSONRequest(json=chunk, allow_partial=allow_partial)
+                    first_chunk = False
+                else:
+                    # Envoyer seulement les données dans les messages suivants
+                    yield TreeFromJSONRequest(json=chunk)
+
+        response_tree_data = bytearray()
+
+        for response in self._client.GetTreeFromJSON(request_generator()):
+            if response.error:
+                if self._logger:
+                    self._logger.warning(response.error)
+                raise Exception(f"Server error: {response.error}")
+
+            if response.serializedTreeChunk:
+                response_tree_data.extend(response.serializedTreeChunk)
+
+        tree = RootNodeType()
+        tree.ParseFromString(bytes(response_tree_data))
+
         if self._logger:
             self._logger.info('finished parsing JSON A2L')
-        if response.error != '' and self._logger:
-            self._logger.warning(response.error)
-        return response.tree
+
+        return tree
 
     def json_from_tree(self,
                        tree: RootNodeType,
@@ -130,13 +187,42 @@ class A2lParser(object):
         :param emit_unpopulated: emits tree's unpopulated value(s) in the JSON output
         :return: a bytes-encoded JSON
         """
-        response = self._client.GetJSONFromTree(JSONFromTreeRequest(tree=tree,
-                                                                    indent=indent,
-                                                                    allow_partial=allow_partial,
-                                                                    emit_unpopulated=emit_unpopulated))
-        if response.error != '' and self._logger:
-            self._logger.warning(response.error)
-        return response.json
+
+        if self._logger:
+            self._logger.info("start streaming conversion from tree to JSON")
+
+        tree_bytes = tree.SerializeToString()
+
+        def request_generator():
+            first_chunk = True
+            for chunk in chunk_generator(tree_bytes, chunk_size):
+                if first_chunk:
+                    yield JSONFromTreeRequest(
+                        # premier chunk -> inclure les options
+                        tree=chunk,  # chunk de RootNodeType sérialisé
+                        indent=indent,
+                        allow_partial=allow_partial,
+                        emit_unpopulated=emit_unpopulated
+                    )
+                    first_chunk = False
+                else:
+                    # chunks suivants -> juste le `tree`
+                    yield JSONFromTreeRequest(tree=chunk)
+
+        json_data = bytearray()
+        for response in self._client.GetJSONFromTree(request_generator()):
+            if response.error:
+                if self._logger:
+                    self._logger.warning(response.error)
+                raise Exception(f"Server error: {response.error}")
+
+            if response.json:
+                json_data.extend(response.json)
+
+        if self._logger:
+            self._logger.info("finished streaming conversion from tree to JSON")
+
+        return bytes(json_data)
 
     def a2l_from_tree(self, tree: RootNodeType, sorted: bool = False, indent: int = None) -> bytes:
         """
@@ -146,7 +232,34 @@ class A2lParser(object):
         :param indent: number of indentation spaces
         :return: a byte-encoded A2L
         """
-        response = self._client.GetA2LFromTree(A2LFromTreeRequest(tree=tree, sorted=sorted, indent=indent))
-        if response.error != '' and self._logger:
-            self._logger.warning(response.error)
-        return response.a2l
+        if self._logger:
+            self._logger.info("start streaming conversion from tree to A2L")
+
+        tree_bytes = tree.SerializeToString()
+
+        def request_generator():
+            first_chunk = True
+            for chunk in chunk_generator(tree_bytes, chunk_size):
+                if first_chunk:
+                    yield A2LFromTreeRequest(
+                        tree=chunk,
+                        sorted=sorted,
+                        indent=indent
+                    )
+                    first_chunk = False
+                else:
+                    yield A2LFromTreeRequest(tree=chunk)
+
+        a2l_data = bytearray()
+        for response in self._client.GetA2LFromTree(request_generator()):
+            if response.error:
+                if self._logger:
+                    self._logger.warning(response.error)
+                raise Exception(f"Server error: {response.error}")
+            if response.a2l:
+                a2l_data.extend(response.a2l)
+
+        if self._logger:
+            self._logger.info("finished streaming conversion from tree to A2L")
+
+        return bytes(a2l_data)
