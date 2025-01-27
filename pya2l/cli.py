@@ -25,9 +25,12 @@ DIFF_CMD = 'diff'
 def parse_args(args):
     parser = argparse.ArgumentParser(prog='pya2l', description='Command line utility for A2L-formatted files.')
     parser.add_argument('input_file', type=argparse.FileType('rb'), help='full path to A2L/JSON input file')
+    parser.add_argument('-ie', dest='input_encoding', type=str, help='encoding of the input file', default=None)
     parser.add_argument('-v', dest='verbose', action='store_true', help='enable verbose')
     parser.add_argument('-p', dest='port', type=int, default=3333, nargs='?',
                         help='TCP port used to connect to the backend')
+    parser.add_argument('-oe', dest='output_encoding', type=str, help='encoding of the output file',
+                        default='utf-8')
 
     subparsers = parser.add_subparsers(dest='sub_command', help='supported commands')
 
@@ -49,7 +52,7 @@ def parse_args(args):
     a2l_subparser.add_argument('-i', dest='indent', type=int, default=None, nargs='?',
                                help='indentation level (in number of leading spaces)')
     a2l_subparser.add_argument('-p', dest='allow_partial', type=bool, default=False,
-                                help='allow production of JSON output with missing required field(s)')
+                               help='allow production of JSON output with missing required field(s)')
 
     diff_subparser = subparsers.add_parser(DIFF_CMD, help='shows differences between two A2L/JSON files')
     diff_subparser.add_argument('right_hand_side', type=argparse.FileType('rb'),
@@ -95,7 +98,7 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
 
     try:
         with Parser(port=args.port, logger=log) as parser:
-            input_tree = process_input_file(args.input_file, parser, args.allow_partial)
+            input_tree = process_input_file(args.input_file, parser, args.allow_partial, args.input_encoding)
             if args.sub_command == TO_JSON_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
@@ -112,7 +115,8 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
             elif args.sub_command == TO_A2L_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
-                    args.output_file.write(parser.a2l_from_tree(input_tree, sorted=args.sorted, indent=args.indent))
+                    args.output_file.write(parser.a2l_from_tree(input_tree, sorted=args.sorted, indent=args.indent)
+                                           .decode().encode(args.output_encoding))
                     log.info(f'finished writing to file {os.path.abspath(args.output_file.name)}')
                 else:
                     sys.stdout.write(parser.json_from_tree(input_tree,
