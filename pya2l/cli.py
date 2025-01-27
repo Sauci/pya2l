@@ -25,7 +25,7 @@ DIFF_CMD = 'diff'
 def parse_args(args):
     parser = argparse.ArgumentParser(prog='pya2l', description='Command line utility for A2L-formatted files.')
     parser.add_argument('input_file', type=argparse.FileType('rb'), help='full path to A2L/JSON input file')
-    parser.add_argument('-ie', dest='input_encoding', type=str, help='encoding of the input file', default='None')
+    parser.add_argument('-ie', dest='input_encoding', type=str, help='encoding of the input file', default=None)
     parser.add_argument('-v', dest='verbose', action='store_true', help='enable verbose')
     parser.add_argument('-p', dest='port', type=int, default=3333, nargs='?',
                         help='TCP port used to connect to the backend')
