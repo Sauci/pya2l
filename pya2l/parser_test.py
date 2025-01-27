@@ -1234,6 +1234,16 @@ def test_coeffs(module, s, float_string, float_value):
         assert coeffs.F.Value == float_value
 
 
+@pytest.mark.parametrize('module', [pytest.param(['COMPU_METHOD', 0, 'COEFFS_LINEAR'], id='COMPU_METHOD')], indirect=True)
+@pytest.mark.parametrize('s', ['COEFFS_LINEAR {float} {float}'])
+@pytest.mark.parametrize('float_string, float_value', floats)
+def test_coeffs_linear(module, s, float_string, float_value):
+    with Parser() as p:
+        coeffs = get_node_from_ast(p.tree_from_a2l(module[0].format(s.format(float=float_string)).encode()), module[1])
+        assert coeffs.A.Value == float_value
+        assert coeffs.B.Value == float_value
+
+
 @pytest.mark.parametrize('module', [
     pytest.param(['CHARACTERISTIC', 0, 'COMPARISON_QUANTITY'], id='CHARACTERISTIC')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('COMPARISON_QUANTITY {}')])
