@@ -10,6 +10,7 @@ import os
 import struct
 import sys
 import typing
+import platform
 
 from google.protobuf.message import Message
 
@@ -27,6 +28,18 @@ def get_dll_architecture() -> str:
         raise RuntimeError('Unsupported architecture')
 
 
+def get_linux_architecture() -> str:
+    machine = platform.machine()
+    if machine == 'x86_64':
+        return 'amd64'
+    elif machine == 'aarch64':
+        return 'arm64'
+    elif machine.startswith('arm'):
+        return 'arm'
+    else:
+        raise RuntimeError('Unsupported architecture')
+
+
 class A2lParser(object):
     def __init__(self, port=3333, logger: logging.Logger = None):
         self._logger = logger
@@ -36,7 +49,7 @@ class A2lParser(object):
             if sys.platform == 'darwin':
                 shared_object = 'a2l_grpc_darwin_arm64.dylib'
             else:
-                shared_object = 'a2l_grpc_linux_amd64.so'
+                shared_object = f'a2l_grpc_linux_{get_linux_architecture()}.so'
         else:
             raise Exception(f'unsupported operating system {os.name}')
         self._dll = ctypes.cdll.LoadLibrary(
