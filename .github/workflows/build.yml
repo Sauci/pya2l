@@ -40,7 +40,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           if [[ "${{ matrix.python-version }}" == "3.7" ]]; then
-            pip install protobuf==5.26.1 grpcio-tools==1.62.3
+            pip install grpcio-tools==1.62.3
           else
             pip install grpcio-tools
           fi
@@ -72,11 +72,11 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          if (${{ matrix.python-version }} -eq '3.7') {
-            pip install protobuf==5.26.1 grpcio-tools==1.62.3
-          } else {
+          if [[ "${{ matrix.python-version }}" == "3.7" ]]; then
+            pip install grpcio-tools==1.62.3
+          else
             pip install grpcio-tools
-          }
+          fi
           pip install codecov dictdiffer mktestdocs mock pytest pytest-cases pytest-cov pytest-xdist
           powershell.exe -Command "Invoke-WebRequest -OutFile ./a2l_grpc.tar.gz https://github.com/Sauci/a2l-grpc/releases/download/v0.1.16/a2l_grpc.tar.gz"
           tar -xf a2l_grpc.tar.gz -C pya2l
