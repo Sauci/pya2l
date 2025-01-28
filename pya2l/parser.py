@@ -19,7 +19,6 @@ from pya2l.protobuf.API_pb2_grpc import *
 from pya2l.protobuf.A2L_pb2 import *
 
 protocol_size_margin = 256
-chunk_size = 4*1024*1024-protocol_size_margin
 
 def chunk_generator(_data: bytes, _chunk_size: int):
     """
@@ -54,8 +53,9 @@ def get_linux_architecture() -> str:
 
 
 class A2lParser(object):
-    def __init__(self, port=3333, logger: logging.Logger = None):
+    def __init__(self, port=3333, max_msg_size=4*1024*1024, logger: logging.Logger = None):
         self._logger = logger
+        self.chunk_size = max_msg_size - protocol_size_margin
         if os.name == 'nt':
             shared_object = f'a2l_grpc_windows_{get_dll_architecture()}.dll'
         elif os.name == 'posix':
@@ -67,11 +67,11 @@ class A2lParser(object):
             raise Exception(f'unsupported operating system {os.name}')
         self._dll = ctypes.cdll.LoadLibrary(
             os.path.join(os.path.dirname(__file__), 'a2l_grpc', shared_object))
-        options = [('grpc.max_receive_message_length',chunk_size+protocol_size_margin),
-                   ('grpc.max_send_message_length', chunk_size+protocol_size_margin)]
+        options = [('grpc.max_receive_message_length',max_msg_size),
+                   ('grpc.max_send_message_length', max_msg_size)]
         channel = grpc.insecure_channel(f'localhost:{port}', options=options)
         self._client = A2LStub(channel)
-        if self._dll.Create(port):
+        if self._dll.Create(port, max_msg_size):
             raise Exception('server is already running')
         setattr(Message, 'properties', property(lambda e: [str(f) for f in e.DESCRIPTOR.fields_by_name]))
         setattr(Message, 'is_none',
@@ -109,7 +109,7 @@ class A2lParser(object):
             self._logger.info('start parsing A2L')
 
         def request_generator():
-            for chunk in chunk_generator(a2l_data, chunk_size):
+            for chunk in chunk_generator(a2l_data, self.chunk_size):
                 yield TreeFromA2LRequest(a2l=chunk)
 
         response_tree_data = bytearray()
@@ -145,7 +145,7 @@ class A2lParser(object):
             # Request generator: send the `allow_partial` options in the first chunk.
         def request_generator():
             first_chunk = True
-            for chunk in chunk_generator(json_data, chunk_size):
+            for chunk in chunk_generator(json_data, self.chunk_size):
                 if first_chunk:
                     # Send configuration in first message
                     yield TreeFromJSONRequest(json=chunk, allow_partial=allow_partial)
@@ -193,7 +193,7 @@ class A2lParser(object):
 
         def request_generator():
             first_chunk = True
-            for chunk in chunk_generator(tree_bytes, chunk_size):
+            for chunk in chunk_generator(tree_bytes, self.chunk_size):
                 if first_chunk:
                     yield JSONFromTreeRequest(
                         # premier chunk -> inclure les options
@@ -235,7 +235,7 @@ class A2lParser(object):
 
         def request_generator():
             first_chunk = True
-            for chunk in chunk_generator(tree_bytes, chunk_size):
+            for chunk in chunk_generator(tree_bytes, self.chunk_size):
                 if first_chunk:
                     yield A2LFromTreeRequest(
                         tree=chunk,
