@@ -77,6 +77,23 @@ class A2lParser(object):
         setattr(Message, 'is_none',
                 property(lambda e: not e.Present if 'Present' in e.properties else len(e.ListFields()) == 0))
 
+    def _request_generator(self,
+                           request: typing.Union[TreeFromA2LRequest, JSONFromTreeRequest, A2LFromTreeRequest, TreeFromJSONRequest],
+                           data: bytes,
+                           **kwargs) -> typing.Union[TreeFromA2LRequest, JSONFromTreeRequest, A2LFromTreeRequest, TreeFromJSONRequest]:
+        if not hasattr(request, 'DESCRIPTOR'):
+            raise TypeError(f"Invalid request type: {type(request)}. Expected a gRPC protobuf request class.")
+
+        key = next(
+            (name for name, field in request.DESCRIPTOR.fields_by_name.items() if field.type == field.TYPE_BYTES),
+            None
+        )
+        if not key:
+            raise ValueError(f"No `bytes` field found for request class {request.DESCRIPTOR.name}")
+        for chunk in chunk_generator(data, self.chunk_size):
+            kwargs[key] = chunk
+            yield request(**kwargs)
+
     def __enter__(self):
         return self
 
@@ -108,12 +125,8 @@ class A2lParser(object):
         if self._logger:
             self._logger.info('start parsing A2L')
 
-        def request_generator():
-            for chunk in chunk_generator(a2l_data, self.chunk_size):
-                yield TreeFromA2LRequest(a2l=chunk)
-
         response_tree_data = bytearray()
-        for response in self._client.GetTreeFromA2L(request_generator()):
+        for response in self._client.GetTreeFromA2L(self._request_generator(TreeFromA2LRequest, a2l_data)):
             if response.error and self._logger:
                 self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
@@ -142,21 +155,9 @@ class A2lParser(object):
         if self._logger:
             self._logger.info('start parsing JSON A2L')
 
-            # Request generator: send the `allow_partial` options in the first chunk.
-        def request_generator():
-            first_chunk = True
-            for chunk in chunk_generator(json_data, self.chunk_size):
-                if first_chunk:
-                    # Send configuration in first message
-                    yield TreeFromJSONRequest(json=chunk, allow_partial=allow_partial)
-                    first_chunk = False
-                else:
-                    # Send only data in the following messages
-                    yield TreeFromJSONRequest(json=chunk)
-
         response_tree_data = bytearray()
 
-        for response in self._client.GetTreeFromJSON(request_generator()):
+        for response in self._client.GetTreeFromJSON(self._request_generator(TreeFromJSONRequest, json_data, allow_partial=allow_partial)):
             if response.error and self._logger:
                 self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
@@ -191,23 +192,8 @@ class A2lParser(object):
 
         tree_bytes = tree.SerializeToString()
 
-        def request_generator():
-            first_chunk = True
-            for chunk in chunk_generator(tree_bytes, self.chunk_size):
-                if first_chunk:
-                    yield JSONFromTreeRequest(
-                        # premier chunk -> inclure les options
-                        tree=chunk,  # chunk de RootNodeType sérialisé
-                        indent=indent,
-                        allow_partial=allow_partial,
-                        emit_unpopulated=emit_unpopulated
-                    )
-                    first_chunk = False
-                else:
-                    yield JSONFromTreeRequest(tree=chunk)
-
         json_data = bytearray()
-        for response in self._client.GetJSONFromTree(request_generator()):
+        for response in self._client.GetJSONFromTree(self._request_generator(JSONFromTreeRequest, tree_bytes, indent=indent, allow_partial=allow_partial, emit_unpopulated=emit_unpopulated)):
             if response.error and self._logger:
                 self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
@@ -233,21 +219,8 @@ class A2lParser(object):
 
         tree_bytes = tree.SerializeToString()
 
-        def request_generator():
-            first_chunk = True
-            for chunk in chunk_generator(tree_bytes, self.chunk_size):
-                if first_chunk:
-                    yield A2LFromTreeRequest(
-                        tree=chunk,
-                        sorted=sorted,
-                        indent=indent
-                    )
-                    first_chunk = False
-                else:
-                    yield A2LFromTreeRequest(tree=chunk)
-
         a2l_data = bytearray()
-        for response in self._client.GetA2LFromTree(request_generator()):
+        for response in self._client.GetA2LFromTree(self._request_generator(A2LFromTreeRequest, tree_bytes, sorted=sorted, indent=indent)):
             if response.error and self._logger:
                 self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
