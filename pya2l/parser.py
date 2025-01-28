@@ -114,9 +114,8 @@ class A2lParser(object):
 
         response_tree_data = bytearray()
         for response in self._client.GetTreeFromA2L(request_generator()):
-            if response.error:
-                if self._logger:
-                    self._logger.warning(response.error)
+            if response.error and self._logger:
+                self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
 
             if response.serializedTreeChunk:
@@ -143,24 +142,23 @@ class A2lParser(object):
         if self._logger:
             self._logger.info('start parsing JSON A2L')
 
-            # Générateur de requêtes : on envoie les options `allow_partial` dans le premier chunk.
+            # Request generator: send the `allow_partial` options in the first chunk.
         def request_generator():
             first_chunk = True
             for chunk in chunk_generator(json_data, chunk_size):
                 if first_chunk:
-                    # Envoyer la configuration dans le premier message
+                    # Send configuration in first message
                     yield TreeFromJSONRequest(json=chunk, allow_partial=allow_partial)
                     first_chunk = False
                 else:
-                    # Envoyer seulement les données dans les messages suivants
+                    # Send only data in the following messages
                     yield TreeFromJSONRequest(json=chunk)
 
         response_tree_data = bytearray()
 
         for response in self._client.GetTreeFromJSON(request_generator()):
-            if response.error:
-                if self._logger:
-                    self._logger.warning(response.error)
+            if response.error and self._logger:
+                self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
 
             if response.serializedTreeChunk:
@@ -206,14 +204,12 @@ class A2lParser(object):
                     )
                     first_chunk = False
                 else:
-                    # chunks suivants -> juste le `tree`
                     yield JSONFromTreeRequest(tree=chunk)
 
         json_data = bytearray()
         for response in self._client.GetJSONFromTree(request_generator()):
-            if response.error:
-                if self._logger:
-                    self._logger.warning(response.error)
+            if response.error and self._logger:
+                self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
 
             if response.json:
@@ -252,9 +248,8 @@ class A2lParser(object):
 
         a2l_data = bytearray()
         for response in self._client.GetA2LFromTree(request_generator()):
-            if response.error:
-                if self._logger:
-                    self._logger.warning(response.error)
+            if response.error and self._logger:
+                self._logger.warning(response.error)
                 raise Exception(f"Server error: {response.error}")
             if response.a2l:
                 a2l_data.extend(response.a2l)
