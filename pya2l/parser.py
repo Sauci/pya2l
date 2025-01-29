@@ -128,8 +128,7 @@ class A2lParser(object):
         response_tree_data = bytearray()
         for response in self._client.GetTreeFromA2L(self._request_generator(TreeFromA2LRequest, a2l_data)):
             if response.error and self._logger:
-                self._logger.warning(response.error)
-                raise Exception(f"Server error: {response.error}")
+                self._logger.error(response.error)
 
             if response.serializedTreeChunk:
                 response_tree_data.extend(response.serializedTreeChunk)
@@ -159,8 +158,7 @@ class A2lParser(object):
 
         for response in self._client.GetTreeFromJSON(self._request_generator(TreeFromJSONRequest, json_data, allow_partial=allow_partial)):
             if response.error and self._logger:
-                self._logger.warning(response.error)
-                raise Exception(f"Server error: {response.error}")
+                self._logger.error(response.error)
 
             if response.serializedTreeChunk:
                 response_tree_data.extend(response.serializedTreeChunk)
@@ -195,8 +193,7 @@ class A2lParser(object):
         json_data = bytearray()
         for response in self._client.GetJSONFromTree(self._request_generator(JSONFromTreeRequest, tree_bytes, indent=indent, allow_partial=allow_partial, emit_unpopulated=emit_unpopulated)):
             if response.error and self._logger:
-                self._logger.warning(response.error)
-                raise Exception(f"Server error: {response.error}")
+                self._logger.error(response.error)
 
             if response.json:
                 json_data.extend(response.json)
@@ -222,8 +219,7 @@ class A2lParser(object):
         a2l_data = bytearray()
         for response in self._client.GetA2LFromTree(self._request_generator(A2LFromTreeRequest, tree_bytes, sorted=sorted, indent=indent)):
             if response.error and self._logger:
-                self._logger.warning(response.error)
-                raise Exception(f"Server error: {response.error}")
+                self._logger.error(response.error)
             if response.a2l:
                 a2l_data.extend(response.a2l)
 
