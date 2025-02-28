@@ -43,7 +43,10 @@ def get_dll_architecture() -> str:
 def get_linux_architecture() -> str:
     machine = platform.machine()
     if machine == 'x86_64':
-        return 'amd64'
+        if struct.calcsize("P") == 8:
+            return 'amd64'
+        else:
+            return 'i386'
     elif machine == 'aarch64':
         return 'arm64'
     elif machine.startswith('arm'):
