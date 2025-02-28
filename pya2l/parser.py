@@ -31,22 +31,15 @@ def chunk_generator(_data: bytes, _chunk_size: int):
         yield _data[i : i + _chunk_size]
 
 
-def get_dll_architecture() -> str:
-    if struct.calcsize('P') == 4:
-        return '386'
-    elif struct.calcsize('P') == 8:
-        return 'amd64'
-    else:
-        raise RuntimeError('Unsupported architecture')
-
-
-def get_linux_architecture() -> str:
+def get_architecture() -> str:
     machine = platform.machine()
     if machine == 'x86_64':
-        if struct.calcsize("P") == 8:
+        if struct.calcsize('P') == 4:
+            return '386'
+        elif struct.calcsize('P') == 8:
             return 'amd64'
         else:
-            return 'i386'
+            raise RuntimeError('Unsupported architecture')
     elif machine == 'aarch64':
         return 'arm64'
     elif machine.startswith('arm'):
@@ -60,12 +53,12 @@ class A2lParser(object):
         self._logger = logger
         self.chunk_size = max_msg_size - protocol_size_margin
         if os.name == 'nt':
-            shared_object = f'a2l_grpc_windows_{get_dll_architecture()}.dll'
+            shared_object = f'a2l_grpc_windows_{get_architecture()}.dll'
         elif os.name == 'posix':
             if sys.platform == 'darwin':
                 shared_object = 'a2l_grpc_darwin_arm64.dylib'
             else:
-                shared_object = f'a2l_grpc_linux_{get_linux_architecture()}.so'
+                shared_object = f'a2l_grpc_linux_{get_architecture()}.so'
         else:
             raise Exception(f'unsupported operating system {os.name}')
         self._dll = ctypes.cdll.LoadLibrary(
