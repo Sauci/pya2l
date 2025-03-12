@@ -32,8 +32,8 @@ def chunk_generator(_data: bytes, _chunk_size: int):
 
 
 def get_architecture() -> str:
-    machine = platform.machine()
-    if machine == 'x86_64':
+    machine = platform.machine().lower()
+    if machine in ('x86_64', 'amd64'):
         if struct.calcsize('P') == 4:
             return '386'
         elif struct.calcsize('P') == 8:
