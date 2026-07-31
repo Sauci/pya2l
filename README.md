@@ -32,6 +32,10 @@ Once the package installed, the `pya2l` command will be available. It provides s
 - Convert a JSON-formatted A2L file to JSON with `pya2l -v <source>.json to_json -o <output.json> -i 2`
 - Convert a JSON-formatted A2L file to A2L with `pya2l -v <source>.json to_a2l -o <output.a2l> -i 2`
 
+Adding the `-c` option to any of the above commands rejects files using keywords which require a newer ASAP2 version
+than the one declared by the file itself. Without this option, such keywords are reported as warnings (visible with the
+`-v` option).
+
 ### Python API
 
 the bellow code snippet shows how properties of a node in an a2l string can be retrieved using this package.
@@ -99,4 +103,39 @@ with Parser() as p:
     ]
   }
 }"""
+```
+
+### Error handling and ASAP2 version check
+
+when the backend is unable to convert a document, an `A2lError` exception is raised, containing the reason of the
+failure.
+
+keywords requiring a more recent ASAP2 version than the one declared by the file are reported in the `warnings`
+property of the parser. they can be treated as errors by setting the `enforce_version_check` argument.
+
+```python
+from pya2l.parser import A2lError, A2lParser as Parser
+
+a2l_string = """ASAP2_VERSION 1 50
+/begin PROJECT project_name "example project"
+    /begin MODULE first_module "first module long identifier"
+        /begin MOD_COMMON "example of mod common"
+            ALIGNMENT_INT64 8
+        /end MOD_COMMON
+    /end MODULE
+/end PROJECT
+"""
+
+with Parser() as p:
+    # ALIGNMENT_INT64 requires ASAP2 version 1.60, it is only reported as a warning.
+    ast = p.tree_from_a2l(a2l_string.encode())
+    assert len(p.warnings) == 1
+    assert 'ALIGNMENT_INT64' in p.warnings[0]
+
+    # the same content is rejected when the version check is enforced.
+    try:
+        p.tree_from_a2l(a2l_string.encode(), enforce_version_check=True)
+        raise AssertionError('the above call should have raised an A2lError exception')
+    except A2lError as e:
+        assert 'ALIGNMENT_INT64' in str(e)
 ```

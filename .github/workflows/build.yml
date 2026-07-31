@@ -3,7 +3,7 @@ name: Python package
 on: [ push, pull_request ]
 
 env:
-  A2L_GRPC_VERSION: v0.1.21
+  A2L_GRPC_VERSION: v0.2.0
 
 jobs:
   generate-grpc-sources:
@@ -55,7 +55,7 @@ jobs:
           pytest -n 1 --cov-report html --cov pya2l --verbose
           codecov
   run-pytest-test-windows:
-    runs-on: windows-2019
+    runs-on: windows-2022
     needs:
       - generate-grpc-sources
     strategy:

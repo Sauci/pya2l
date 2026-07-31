@@ -20,6 +20,11 @@ from pya2l.protobuf.A2L_pb2 import *
 
 protocol_size_margin = 256
 
+
+class A2lError(Exception):
+    """raised when the backend reports an error while converting a document."""
+
+
 def chunk_generator(_data: bytes, _chunk_size: int):
     """
     Generates chunks of the given size from the input data.
@@ -52,11 +57,12 @@ class A2lParser(object):
     def __init__(self, port=3333, max_msg_size=4*1024*1024, logger: logging.Logger = None):
         self._logger = logger
         self.chunk_size = max_msg_size - protocol_size_margin
+        self.warnings: typing.List[str] = []
         if os.name == 'nt':
             shared_object = f'a2l_grpc_windows_{get_architecture()}.dll'
         elif os.name == 'posix':
             if sys.platform == 'darwin':
-                shared_object = 'a2l_grpc_darwin_arm64.dylib'
+                shared_object = f'a2l_grpc_darwin_{get_architecture()}.dylib'
             else:
                 shared_object = f'a2l_grpc_linux_{get_architecture()}.so'
         else:
@@ -90,6 +96,12 @@ class A2lParser(object):
             kwargs[key] = chunk
             yield request(**kwargs)
 
+    def _add_warnings(self, warnings: typing.Iterable[str]) -> None:
+        for warning in warnings:
+            self.warnings.append(warning)
+            if self._logger:
+                self._logger.warning(warning)
+
     def __enter__(self):
         return self
 
@@ -112,19 +124,25 @@ class A2lParser(object):
                                 index in range(len(if_data_node.Blob))]
         return None
 
-    def tree_from_a2l(self, a2l_data: bytes) -> RootNodeType:
+    def tree_from_a2l(self, a2l_data: bytes, enforce_version_check: bool = False) -> RootNodeType:
         """
         Converts an A2L into gRPC object.
         :param a2l_data: the A2L data to deserialize
+        :param enforce_version_check: rejects keywords requiring a newer ASAP2 version than the one declared by the
+            file with ASAP2_VERSION. When disabled, such keywords are reported in the warnings property
         :return: a gRPC object
         """
         if self._logger:
             self._logger.info('start parsing A2L')
 
+        self.warnings = []
         response_tree_data = bytearray()
-        for response in self._client.GetTreeFromA2L(self._request_generator(TreeFromA2LRequest, a2l_data)):
-            if response.error and self._logger:
-                self._logger.error(response.error)
+        for response in self._client.GetTreeFromA2L(
+                self._request_generator(TreeFromA2LRequest, a2l_data, enforce_version_check=enforce_version_check)):
+            if response.HasField('error'):
+                raise A2lError(response.error)
+
+            self._add_warnings(response.warnings)
 
             if response.serializedTreeChunk:
                 response_tree_data.extend(response.serializedTreeChunk)
@@ -150,11 +168,14 @@ class A2lParser(object):
         if self._logger:
             self._logger.info('start parsing JSON A2L')
 
+        self.warnings = []
         response_tree_data = bytearray()
 
         for response in self._client.GetTreeFromJSON(self._request_generator(TreeFromJSONRequest, json_data, allow_partial=allow_partial)):
-            if response.error and self._logger:
-                self._logger.error(response.error)
+            if response.HasField('error'):
+                raise A2lError(response.error)
+
+            self._add_warnings(response.warnings)
 
             if response.serializedTreeChunk:
                 response_tree_data.extend(response.serializedTreeChunk)
@@ -188,8 +209,8 @@ class A2lParser(object):
 
         json_data = bytearray()
         for response in self._client.GetJSONFromTree(self._request_generator(JSONFromTreeRequest, tree_bytes, indent=indent, allow_partial=allow_partial, emit_unpopulated=emit_unpopulated)):
-            if response.error and self._logger:
-                self._logger.error(response.error)
+            if response.HasField('error'):
+                raise A2lError(response.error)
 
             if response.json:
                 json_data.extend(response.json)
@@ -214,8 +235,8 @@ class A2lParser(object):
 
         a2l_data = bytearray()
         for response in self._client.GetA2LFromTree(self._request_generator(A2LFromTreeRequest, tree_bytes, sorted=sorted, indent=indent)):
-            if response.error and self._logger:
-                self._logger.error(response.error)
+            if response.HasField('error'):
+                raise A2lError(response.error)
             if response.a2l:
                 a2l_data.extend(response.a2l)
 
