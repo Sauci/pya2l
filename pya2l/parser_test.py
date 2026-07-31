@@ -5,9 +5,11 @@
 @date: 06.04.2018
 """
 
+from unittest.mock import patch
+
 import pytest
 
-from .parser import A2lError, A2lParser as Parser
+from .parser import A2lError, A2lParser as Parser, get_architecture
 
 
 def is_iterable(e):
@@ -3413,6 +3415,27 @@ def test_float_value_is_dumped_as_defined():
         assert characteristic.LowerLimit.Source == '-4.50'
         assert characteristic.UpperLimit.Value == 1200.0
         assert characteristic.UpperLimit.Source == '1.2E+3'
+
+
+@pytest.mark.parametrize('machine, pointer_size, architecture', [
+    # note that on windows, platform.machine() reports the architecture of the machine, not the one of the process,
+    # which is why the pointer size is used to detect a 32 bits process running on a 64 bits machine.
+    pytest.param('AMD64', 8, 'amd64', id='windows amd64'),
+    pytest.param('AMD64', 4, '386', id='windows 386'),
+    pytest.param('ARM64', 8, 'arm64', id='windows arm64'),
+    pytest.param('x86_64', 8, 'amd64', id='linux/darwin amd64'),
+    pytest.param('aarch64', 8, 'arm64', id='linux arm64'),
+    pytest.param('armv7l', 4, 'arm', id='linux arm'),
+    pytest.param('arm64', 8, 'arm64', id='darwin arm64')])
+def test_get_architecture(machine, pointer_size, architecture):
+    with patch('platform.machine', return_value=machine), patch('struct.calcsize', return_value=pointer_size):
+        assert get_architecture() == architecture
+
+
+def test_get_architecture_unsupported():
+    with patch('platform.machine', return_value='unsupported'):
+        with pytest.raises(RuntimeError):
+            get_architecture()
 
 
 def test_get_properties():

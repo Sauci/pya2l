@@ -45,7 +45,8 @@ def get_architecture() -> str:
             return 'amd64'
         else:
             raise RuntimeError('Unsupported architecture')
-    elif machine == 'aarch64':
+    elif machine in ('aarch64', 'arm64'):
+        # 'aarch64' is reported on Linux, 'arm64' on macOS and Windows
         return 'arm64'
     elif machine.startswith('arm'):
         return 'arm'
