@@ -5,9 +5,11 @@
 @date: 06.04.2018
 """
 
+from unittest.mock import patch
+
 import pytest
 
-from .parser import A2lParser as Parser
+from .parser import A2lError, A2lParser as Parser, get_architecture
 
 
 def is_iterable(e):
@@ -339,7 +341,9 @@ out_measurement_strings = [
 ]
 
 project_strings = [
-    pytest.param('/begin PROJECT {ident} {string} {header} {module} /end PROJECT', id='PROJECT HEADER MODULE'),
+    pytest.param('/begin PROJECT {ident} {string} {header} {module} /end PROJECT', id='PROJECT HEADER MODULE')
+]
+project_invalid_strings = [
     pytest.param('/begin PROJECT {ident} {string} {module} {header} /end PROJECT', id='PROJECT MODULE HEADER'),
     pytest.param('/begin PROJECT {ident} {string} {module} {header} {module} /end PROJECT', id='PROJECT MODULE HEADER MODULE')
 ]
@@ -2606,6 +2610,18 @@ def test_project(s, ident_string, ident_value, string_string, string_value, head
         assert ast.PROJECT.LongIdentifier.Value == string_value
 
 
+@pytest.mark.parametrize('s', project_invalid_strings)
+@pytest.mark.parametrize('header_string', [pytest.param(1, id='one HEADER')], indirect=True)
+@pytest.mark.parametrize('module_string', [pytest.param(1, id='one MODULE')], indirect=True)
+def test_project_header_after_module(s, header_string, module_string):
+    with Parser() as p:
+        with pytest.raises(A2lError):
+            p.tree_from_a2l(s.format(ident='name',
+                                     string='""',
+                                     header=header_string,
+                                     module=module_string).encode())
+
+
 @pytest.mark.parametrize('project', [pytest.param(['HEADER', 'PROJECT_NO'], id='HEADER')], indirect=True)
 @pytest.mark.parametrize('e', [pytest.param('PROJECT_NO {}')])
 @pytest.mark.parametrize('s, v', idents)
@@ -3336,6 +3352,98 @@ def test_system_constant(module, e, s, v):
         system_constant = get_node_from_ast(p.tree_from_a2l(module[0].format(e.format(string=s)).encode()), module[1])
         assert system_constant.Name.Value == v
         assert system_constant.Value.Value == v
+
+
+version_check_a2l_string = """
+    ASAP2_VERSION 1 50
+    /begin PROJECT project_name "project long identifier"
+        /begin MODULE module_name "module long identifier"
+            /begin MOD_COMMON "mod common long identifier"
+                ALIGNMENT_INT64 8
+            /end MOD_COMMON
+        /end MODULE
+    /end PROJECT"""
+
+
+def test_version_check_disabled():
+    with Parser() as p:
+        ast = p.tree_from_a2l(version_check_a2l_string.encode())
+        assert ast.PROJECT.MODULE[0].MOD_COMMON.ALIGNMENT_INT64.AlignmentBorder.Value == 8
+        assert len(p.warnings) == 1
+        assert 'ALIGNMENT_INT64' in p.warnings[0]
+
+
+def test_version_check_enabled():
+    with Parser() as p:
+        with pytest.raises(A2lError, match='ALIGNMENT_INT64'):
+            p.tree_from_a2l(version_check_a2l_string.encode(), enforce_version_check=True)
+
+
+def test_invalid_a2l_string():
+    with Parser() as p:
+        with pytest.raises(A2lError):
+            p.tree_from_a2l(b'this is not an a2l file')
+        assert p.warnings == []
+
+
+def test_invalid_json_string():
+    with Parser() as p:
+        with pytest.raises(A2lError):
+            p.tree_from_json(b'this is not a json file')
+
+
+def test_float_value_is_dumped_as_defined():
+    a2l_string = """
+        /begin PROJECT project_name "project long identifier"
+            /begin MODULE module_name "module long identifier"
+                /begin CHARACTERISTIC
+                    characteristic_name
+                    "characteristic long identifier"
+                    VALUE
+                    0
+                    DAMOS_SST
+                    0
+                    characteristic_conversion
+                    -4.50
+                    1.2E+3
+                /end CHARACTERISTIC
+            /end MODULE
+        /end PROJECT"""
+    with Parser() as p:
+        characteristic = p.tree_from_a2l(a2l_string.encode()).PROJECT.MODULE[0].CHARACTERISTIC[0]
+        assert characteristic.LowerLimit.Value == -4.5
+        assert characteristic.LowerLimit.Source == '-4.50'
+        assert characteristic.UpperLimit.Value == 1200.0
+        assert characteristic.UpperLimit.Source == '1.2E+3'
+
+
+@pytest.mark.parametrize('build_platform, machine, pointer_size, architecture', [
+    # note that on windows, platform.machine() reports the architecture of the machine, not the one of the process,
+    # which is why the platform the interpreter was built for is used instead. the machine reported below is the one
+    # an interpreter running under emulation sees.
+    pytest.param('win-amd64', 'AMD64', 8, 'amd64', id='windows amd64'),
+    pytest.param('win32', 'AMD64', 4, '386', id='windows 386'),
+    pytest.param('win-arm64', 'ARM64', 8, 'arm64', id='windows arm64'),
+    pytest.param('win-amd64', 'ARM64', 8, 'amd64', id='windows amd64 emulated on arm64'),
+    pytest.param('win32', 'ARM64', 4, '386', id='windows 386 emulated on arm64'),
+    pytest.param('linux-x86_64', 'x86_64', 8, 'amd64', id='linux amd64'),
+    pytest.param('linux-x86_64', 'x86_64', 4, '386', id='linux 386'),
+    pytest.param('linux-aarch64', 'aarch64', 8, 'arm64', id='linux arm64'),
+    pytest.param('linux-armv7l', 'armv7l', 4, 'arm', id='linux arm'),
+    pytest.param('macosx-10.9-x86_64', 'x86_64', 8, 'amd64', id='darwin amd64'),
+    pytest.param('macosx-11.0-arm64', 'arm64', 8, 'arm64', id='darwin arm64')])
+def test_get_architecture(build_platform, machine, pointer_size, architecture):
+    with patch('sysconfig.get_platform', return_value=build_platform), \
+            patch('platform.machine', return_value=machine), \
+            patch('struct.calcsize', return_value=pointer_size):
+        assert get_architecture() == architecture
+
+
+def test_get_architecture_unsupported():
+    with patch('sysconfig.get_platform', return_value='unsupported'), \
+            patch('platform.machine', return_value='unsupported'):
+        with pytest.raises(RuntimeError):
+            get_architecture()
 
 
 def test_get_properties():

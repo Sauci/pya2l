@@ -330,3 +330,21 @@ def test_encoding_support(input_encoding,
         assert get_call_args(m, 1) == (output_file_name, 'wb', -1, None, None)
 
         assert get_call_args(m.return_value.write, 0)[0]  == expected_output_content
+
+
+@pytest.mark.parametrize('version_check_arg, returned_value', [
+    pytest.param([], 0, id='version check disabled'),
+    pytest.param(['-c'], 1, id='version check enabled')])
+@pytest.mark.parametrize('input_file_content', [
+    """ASAP2_VERSION 1 50
+/begin PROJECT _ ""
+    /begin MODULE _ ""
+        /begin MOD_COMMON "" ALIGNMENT_INT64 8
+        /end MOD_COMMON
+    /end MODULE
+/end PROJECT""".encode()])
+def test_version_check_command(version_check_arg, input_file_content, returned_value):
+    input_file_name = 'input.a2l'
+    with patch("builtins.open", mock_open(read_data=input_file_content)) as m:
+        m.return_value.name = input_file_name
+        assert main([*version_check_arg, input_file_name, 'to_json']) == returned_value

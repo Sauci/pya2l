@@ -31,6 +31,8 @@ def parse_args(args):
                         help='TCP port used to connect to the backend')
     parser.add_argument('-oe', dest='output_encoding', type=str, help='encoding of the output file',
                         default='utf-8')
+    parser.add_argument('-c', dest='enforce_version_check', action='store_true',
+                        help='reject keywords requiring a newer ASAP2 version than the one declared by the file')
 
     subparsers = parser.add_subparsers(dest='sub_command', help='supported commands')
 
@@ -72,14 +74,15 @@ def parse_args(args):
     return parser.parse_args(args)
 
 
-def process_input_file(fp, parser: Parser, allow_partial: bool, encoding: str = None) -> RootNodeType:
+def process_input_file(fp, parser: Parser, allow_partial: bool, encoding: str = None,
+                       enforce_version_check: bool = False) -> RootNodeType:
     data = fp.read()
     if encoding is not None:
         data = data.decode(encoding).encode()
     if os.path.splitext(fp.name)[1].lower() == '.json':
         result = parser.tree_from_json(data, allow_partial=allow_partial)
     elif os.path.splitext(fp.name)[1].lower() == '.a2l':
-        result = parser.tree_from_a2l(data)
+        result = parser.tree_from_a2l(data, enforce_version_check=enforce_version_check)
     else:
         raise TypeError(f'unsupported file extension "{os.path.splitext(fp.name)[1]}"')
     return result
@@ -98,7 +101,8 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
 
     try:
         with Parser(port=args.port, logger=log) as parser:
-            input_tree = process_input_file(args.input_file, parser, args.allow_partial, args.input_encoding)
+            input_tree = process_input_file(args.input_file, parser, args.allow_partial, args.input_encoding,
+                                            args.enforce_version_check)
             if args.sub_command == TO_JSON_CMD:
                 if args.output_file:
                     log.info(f'start writing to file {os.path.abspath(args.output_file.name)}')
@@ -125,7 +129,8 @@ def main(args: typing.List[str] = tuple(sys.argv[1:])):
                                                            emit_unpopulated=args.emit_unpopulated).decode())
             elif args.sub_command == DIFF_CMD:
                 lhs_tree = input_tree
-                rhs_tree = process_input_file(args.right_hand_side, parser, args.allow_partial)
+                rhs_tree = process_input_file(args.right_hand_side, parser, args.allow_partial,
+                                              enforce_version_check=args.enforce_version_check)
 
                 lhs_string = parser.json_from_tree(lhs_tree)
                 rhs_string = parser.json_from_tree(rhs_tree)
