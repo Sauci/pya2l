@@ -3417,23 +3417,31 @@ def test_float_value_is_dumped_as_defined():
         assert characteristic.UpperLimit.Source == '1.2E+3'
 
 
-@pytest.mark.parametrize('machine, pointer_size, architecture', [
+@pytest.mark.parametrize('build_platform, machine, pointer_size, architecture', [
     # note that on windows, platform.machine() reports the architecture of the machine, not the one of the process,
-    # which is why the pointer size is used to detect a 32 bits process running on a 64 bits machine.
-    pytest.param('AMD64', 8, 'amd64', id='windows amd64'),
-    pytest.param('AMD64', 4, '386', id='windows 386'),
-    pytest.param('ARM64', 8, 'arm64', id='windows arm64'),
-    pytest.param('x86_64', 8, 'amd64', id='linux/darwin amd64'),
-    pytest.param('aarch64', 8, 'arm64', id='linux arm64'),
-    pytest.param('armv7l', 4, 'arm', id='linux arm'),
-    pytest.param('arm64', 8, 'arm64', id='darwin arm64')])
-def test_get_architecture(machine, pointer_size, architecture):
-    with patch('platform.machine', return_value=machine), patch('struct.calcsize', return_value=pointer_size):
+    # which is why the platform the interpreter was built for is used instead. the machine reported below is the one
+    # an interpreter running under emulation sees.
+    pytest.param('win-amd64', 'AMD64', 8, 'amd64', id='windows amd64'),
+    pytest.param('win32', 'AMD64', 4, '386', id='windows 386'),
+    pytest.param('win-arm64', 'ARM64', 8, 'arm64', id='windows arm64'),
+    pytest.param('win-amd64', 'ARM64', 8, 'amd64', id='windows amd64 emulated on arm64'),
+    pytest.param('win32', 'ARM64', 4, '386', id='windows 386 emulated on arm64'),
+    pytest.param('linux-x86_64', 'x86_64', 8, 'amd64', id='linux amd64'),
+    pytest.param('linux-x86_64', 'x86_64', 4, '386', id='linux 386'),
+    pytest.param('linux-aarch64', 'aarch64', 8, 'arm64', id='linux arm64'),
+    pytest.param('linux-armv7l', 'armv7l', 4, 'arm', id='linux arm'),
+    pytest.param('macosx-10.9-x86_64', 'x86_64', 8, 'amd64', id='darwin amd64'),
+    pytest.param('macosx-11.0-arm64', 'arm64', 8, 'arm64', id='darwin arm64')])
+def test_get_architecture(build_platform, machine, pointer_size, architecture):
+    with patch('sysconfig.get_platform', return_value=build_platform), \
+            patch('platform.machine', return_value=machine), \
+            patch('struct.calcsize', return_value=pointer_size):
         assert get_architecture() == architecture
 
 
 def test_get_architecture_unsupported():
-    with patch('platform.machine', return_value='unsupported'):
+    with patch('sysconfig.get_platform', return_value='unsupported'), \
+            patch('platform.machine', return_value='unsupported'):
         with pytest.raises(RuntimeError):
             get_architecture()
 

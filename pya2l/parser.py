@@ -9,6 +9,7 @@ import logging
 import os
 import struct
 import sys
+import sysconfig
 import typing
 import platform
 
@@ -37,6 +38,14 @@ def chunk_generator(_data: bytes, _chunk_size: int):
 
 
 def get_architecture() -> str:
+    # the shared object is loaded in the process of the interpreter, which means that the architecture of the
+    # interpreter is the relevant one. on Windows, platform.machine() reports the architecture of the machine instead,
+    # which differs from the one of the interpreter when the latter runs under emulation, as an x86-64 interpreter
+    # does on an ARM64 machine. the platform the interpreter was built for is therefore used on that operating system.
+    windows_architecture = {'win32': '386', 'win-amd64': 'amd64', 'win-arm32': 'arm', 'win-arm64': 'arm64'}
+    build_platform = sysconfig.get_platform()
+    if build_platform in windows_architecture:
+        return windows_architecture[build_platform]
     machine = platform.machine().lower()
     if machine in ('x86_64', 'amd64'):
         if struct.calcsize('P') == 4:

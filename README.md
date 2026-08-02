@@ -26,8 +26,9 @@ or install the most recent version of the package (master branch) by running the
 ## Supported platforms
 
 The A2L document itself is processed by the [a2l-grpc](https://github.com/Sauci/a2l-grpc) backend, whose shared objects
-are distributed with this package. The one matching the host is selected at runtime, which means that a 32-bit
-interpreter running on a 64-bit machine loads the 32-bit shared object.
+are distributed with this package. The one matching the interpreter is selected at runtime, which means that a 32-bit
+interpreter running on a 64-bit machine loads the 32-bit shared object, and that an x86-64 interpreter running under
+emulation on an ARM64 machine loads the x86-64 shared object.
 
 | operating system | architecture | shared object                 | tested in CI        |
 |:-----------------|:-------------|:------------------------------|:--------------------|
