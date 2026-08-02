@@ -37,13 +37,19 @@ interpreter running on a 64-bit machine loads the 32-bit shared object.
 | Linux            | ARM (32-bit) | `a2l_grpc_linux_arm.so`       | no runner available |
 | Windows          | x86-64       | `a2l_grpc_windows_amd64.dll`  | Python 3.9 to 3.13  |
 | Windows          | x86 (32-bit) | `a2l_grpc_windows_386.dll`    | Python 3.9 to 3.13  |
-| Windows          | ARM64        | `a2l_grpc_windows_arm64.dll`  | Python 3.11 to 3.13 |
+| Windows          | ARM64        | `a2l_grpc_windows_arm64.dll`  | no wheel available  |
 | macOS            | x86-64       | `a2l_grpc_darwin_amd64.dylib` | Python 3.9 to 3.13  |
 | macOS            | ARM64        | `a2l_grpc_darwin_arm64.dylib` | Python 3.9 to 3.13  |
 
-The two platforms which are not covered by the continuous integration are supported, but no GitHub-hosted runner is
-available to test them. On Windows ARM64, the tests start at Python 3.11 because no build of the interpreter is
-available for that platform below this version.
+The two Linux platforms which are not covered by the continuous integration are supported, but no GitHub-hosted runner
+is available to test them.
+
+On Windows ARM64, the `grpcio` dependency of this package provides no wheel for the ARM64 interpreter, and its build
+from source currently fails on that platform (see [grpc#39064](https://github.com/grpc/grpc/issues/39064)). Until such
+a wheel is published, this package can only be used with an x86-64 interpreter, which runs under emulation and
+therefore loads the `a2l_grpc_windows_amd64.dll` shared object. This is what the continuous integration does on the
+Windows ARM64 runner, which means that the `a2l_grpc_windows_arm64.dll` shared object is currently not covered by any
+test.
 
 ## Example of usage
 

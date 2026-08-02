@@ -47,14 +47,15 @@ jobs:
           - { name: linux_arm64, runner: ubuntu-22.04-arm, architecture: arm64 }
           - { name: windows_amd64, runner: windows-2022, architecture: x64 }
           - { name: windows_386, runner: windows-2022, architecture: x86 }
-          - { name: windows_arm64, runner: windows-11-arm, architecture: arm64 }
+          # the x64 interpreter is used on the windows/arm64 runner on purpose: grpcio publishes no windows/arm64
+          # wheel (see https://github.com/grpc/grpc/issues/39064) and its source build is currently broken on that
+          # platform (see https://github.com/grpc/grpc/issues/23310). the x64 interpreter runs under emulation, and
+          # therefore loads the windows/amd64 shared object. this can be switched back to arm64 as soon as a
+          # windows/arm64 grpcio wheel is published.
+          - { name: windows_arm64, runner: windows-11-arm, architecture: x64 }
           - { name: darwin_arm64, runner: macos-15, architecture: arm64 }
           - { name: darwin_amd64, runner: macos-15-intel, architecture: x64 }
         python-version: ['3.13', '3.12', '3.11', '3.10', '3.9']
-        exclude:
-          # no windows/arm64 build of the Python interpreter is available below 3.11
-          - { target: { name: windows_arm64, runner: windows-11-arm, architecture: arm64 }, python-version: '3.10' }
-          - { target: { name: windows_arm64, runner: windows-11-arm, architecture: arm64 }, python-version: '3.9' }
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-python@v7
@@ -129,14 +130,11 @@ jobs:
           - { name: linux_arm64, runner: ubuntu-22.04-arm, architecture: arm64 }
           - { name: windows_amd64, runner: windows-2022, architecture: x64 }
           - { name: windows_386, runner: windows-2022, architecture: x86 }
-          - { name: windows_arm64, runner: windows-11-arm, architecture: arm64 }
+          # see the comment in the run-pytest-test job about the interpreter architecture used on this runner.
+          - { name: windows_arm64, runner: windows-11-arm, architecture: x64 }
           - { name: darwin_arm64, runner: macos-15, architecture: arm64 }
           - { name: darwin_amd64, runner: macos-15-intel, architecture: x64 }
         python-version: ['3.13', '3.12', '3.11', '3.10', '3.9']
-        exclude:
-          # no windows/arm64 build of the Python interpreter is available below 3.11
-          - { target: { name: windows_arm64, runner: windows-11-arm, architecture: arm64 }, python-version: '3.10' }
-          - { target: { name: windows_arm64, runner: windows-11-arm, architecture: arm64 }, python-version: '3.9' }
     steps:
       - uses: actions/setup-python@v7
         with:
