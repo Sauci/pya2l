@@ -146,7 +146,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pya2l
+          # the version matching the tag is requested explicitly, and the installation is retried until the package
+          # index serves it: it takes a few tens of seconds for a freshly published release to become available, during
+          # which pip would otherwise silently install the previously released version.
+          version=${GITHUB_REF_NAME#v}
+          attempt=0
+          until pip install "pya2l==$version"; do
+            attempt=$((attempt + 1))
+            if [ $attempt -ge 12 ]; then
+              echo "pya2l $version is not available on the package index"
+              exit 1
+            fi
+            sleep 10
+          done
+          pip show pya2l | grep "^Version: $version$"
           echo "/begin PROJECT _ \"\" /begin MODULE _ \"\" /end MODULE /end PROJECT" > test.a2l
           pya2l test.a2l to_json
           pya2l test.a2l to_json -o test.json
