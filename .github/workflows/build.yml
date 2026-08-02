@@ -120,10 +120,13 @@ jobs:
     runs-on: ${{ matrix.target.runner }}
     needs:
       - publish-package
+    # this job installs the package published on the Python package index, which is only updated when a tag is pushed.
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
     defaults:
       run:
         shell: bash
     strategy:
+      fail-fast: false
       matrix:
         target:
           - { name: linux_amd64, runner: ubuntu-22.04, architecture: x64 }
