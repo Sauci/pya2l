@@ -42,7 +42,7 @@ emulation on an ARM64 machine loads the x86-64 shared object.
 | macOS            | x86-64       | `a2l_grpc_darwin_amd64.dylib` | Python 3.9 to 3.13  |
 | macOS            | ARM64        | `a2l_grpc_darwin_arm64.dylib` | Python 3.9 to 3.13  |
 
-The two Linux platforms which are not covered by the continuous integration are supported, but no GitHub-hosted runner
+The two Linux platforms that are not covered by the continuous integration are supported, but no GitHub-hosted runner
 is available to test them.
 
 On Windows ARM64, the `grpcio` dependency of this package provides no wheel for the ARM64 interpreter, and its build
@@ -56,16 +56,28 @@ test.
 
 ### Command line tool
 
-Once the package is installed, the `pya2l` command is available. It provides several different commands:
+Once the package is installed, the `pya2l` command is available. It takes the input file first, then the command to
+apply to it:
 
 - Convert an A2L file to JSON with `pya2l -v <source>.a2l to_json -o <output>.json -i 2`
 - Convert an A2L file to A2L with `pya2l -v <source>.a2l to_a2l -o <output>.a2l -i 2`
 - Convert a JSON-formatted A2L file to JSON with `pya2l -v <source>.json to_json -o <output>.json -i 2`
 - Convert a JSON-formatted A2L file to A2L with `pya2l -v <source>.json to_a2l -o <output>.a2l -i 2`
+- Show the differences between two A2L or JSON files with `pya2l <left_hand_side>.a2l diff <right_hand_side>.a2l`
 
-Adding the `-c` option to any of the above commands rejects files which use keywords requiring a newer ASAP2 version
-than the one declared by the file itself. Without this option, such keywords are reported as warnings, which are
-displayed with the `-v` option.
+Both conversion commands take `-o` for the output file and `-i` for the number of leading spaces of one indentation
+level. In addition, `to_json` takes `-e` to emit the fields which are not populated, and `to_a2l` takes `-s` to sort
+the elements on their unique key within the document.
+
+The options below apply to every command:
+
+- `-v` displays the progress of the conversion, as well as the warnings reported by the backend.
+- `-c` rejects a file which uses a keyword requiring a newer ASAP2 version than the one it declares with
+  `ASAP2_VERSION`, and a file which declares no version at all, since without it no such keyword can be checked.
+  Without this option, both are reported as warnings.
+- `-ie` and `-oe` set the encoding of the input and of the output file.
+- `-p` sets the TCP port the backend listens on. It matters when several parsers run at the same time, as only one of
+  them can use a given port.
 
 ### Python API
 
@@ -136,13 +148,19 @@ with Parser() as p:
 }"""
 ```
 
-### Error handling and ASAP2 version check
+### Error handling and warnings
 
 When the backend is unable to convert a document, an `A2lError` exception is raised, containing the reason for the
-failure.
+failure. An error too long to be reported in one message is shortened to its first lines, which name the cause, and
+says how many of them were left out.
 
-Keywords requiring a more recent ASAP2 version than the one declared by the file are reported in the `warnings`
-property of the parser. They can be treated as errors by setting the `enforce_version_check` argument.
+Everything the backend accepts but considers questionable is reported in the `warnings` property of the parser: a
+keyword requiring a more recent ASAP2 version than the one the file declares, a keyword used more often than the
+specification allows a single occurrence of, and a keyword the specification has withdrawn. The property is filled
+whether the document could be converted or not, so it is worth reading after an `A2lError` as well.
+
+Keywords requiring a more recent ASAP2 version than the one declared by the file can be treated as errors by setting
+the `enforce_version_check` argument. A file which declares no version at all is then rejected too.
 
 ```python
 from pya2l.parser import A2lError, A2lParser as Parser
