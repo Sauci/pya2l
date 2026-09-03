@@ -3,7 +3,7 @@ name: Python package
 on: [ push, pull_request ]
 
 env:
-  A2L_GRPC_VERSION: v0.2.1
+  A2L_GRPC_VERSION: v0.3.0
 
 jobs:
   generate-grpc-sources:

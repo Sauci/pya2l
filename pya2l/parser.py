@@ -156,7 +156,8 @@ class A2lParser(object):
 
             if response.serializedTreeChunk:
                 response_tree_data.extend(response.serializedTreeChunk)
-            else:
+            elif not response.warnings:
+                # the warnings come in responses of their own, ahead of the chunks of the tree
                 if self._logger:
                     self._logger.warning("Received an empty or unexpected response chunk")
 

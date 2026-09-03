@@ -343,9 +343,17 @@ out_measurement_strings = [
 project_strings = [
     pytest.param('/begin PROJECT {ident} {string} {header} {module} /end PROJECT', id='PROJECT HEADER MODULE')
 ]
-project_invalid_strings = [
-    pytest.param('/begin PROJECT {ident} {string} {module} {header} /end PROJECT', id='PROJECT MODULE HEADER'),
-    pytest.param('/begin PROJECT {ident} {string} {module} {header} {module} /end PROJECT', id='PROJECT MODULE HEADER MODULE')
+# neither ASAP2 1.51 (chapter 6.3.101) nor ASAM MCD-2 MC 1.6.1 (chapter 3.5.99) prescribes an order for the optional
+# elements of PROJECT: both list [-> HEADER] and the MODULE blocks, and the order of a listing is not a syntax rule.
+# The header may therefore sit anywhere among the modules. The expected number of MODULE blocks is given along with
+# each order, as the module fixture is inserted for every occurrence of the placeholder.
+project_header_position_strings = [
+    pytest.param('/begin PROJECT {ident} {string} {header} {module} /end PROJECT', 1,
+                 id='PROJECT HEADER MODULE'),
+    pytest.param('/begin PROJECT {ident} {string} {module} {header} /end PROJECT', 1,
+                 id='PROJECT MODULE HEADER'),
+    pytest.param('/begin PROJECT {ident} {string} {module} {header} {module} /end PROJECT', 2,
+                 id='PROJECT MODULE HEADER MODULE')
 ]
 project_string_minimal = '/begin PROJECT _ "" {} /end PROJECT'
 project_no_strings = [pytest.param('PROJECT_NO _', '_', id='valid PROJECT_NO')]
@@ -2610,10 +2618,28 @@ def test_project(s, ident_string, ident_value, string_string, string_value, head
         assert ast.PROJECT.LongIdentifier.Value == string_value
 
 
-@pytest.mark.parametrize('s', project_invalid_strings)
+@pytest.mark.parametrize('s, module_count', project_header_position_strings)
 @pytest.mark.parametrize('header_string', [pytest.param(1, id='one HEADER')], indirect=True)
 @pytest.mark.parametrize('module_string', [pytest.param(1, id='one MODULE')], indirect=True)
-def test_project_header_after_module(s, header_string, module_string):
+def test_project_header_position(s, module_count, header_string, module_string):
+    with Parser() as p:
+        ast = p.tree_from_a2l(s.format(ident='name',
+                                       string='""',
+                                       header=header_string,
+                                       module=module_string).encode())
+        assert not ast.PROJECT.HEADER.is_none
+        assert len(ast.PROJECT.MODULE) == module_count
+
+
+# chapter 3.5.99 declares [-> HEADER] without the asterisk which marks a keyword usable several times, so at most one
+# HEADER may be used, wherever it sits.
+@pytest.mark.parametrize('s', [
+    pytest.param('/begin PROJECT {ident} {string} {header} {module} /end PROJECT', id='PROJECT HEADER MODULE'),
+    pytest.param('/begin PROJECT {ident} {string} {module} {header} /end PROJECT', id='PROJECT MODULE HEADER')
+])
+@pytest.mark.parametrize('header_string', [pytest.param(2, id='two HEADER')], indirect=True)
+@pytest.mark.parametrize('module_string', [pytest.param(1, id='one MODULE')], indirect=True)
+def test_project_several_header(s, header_string, module_string):
     with Parser() as p:
         with pytest.raises(A2lError):
             p.tree_from_a2l(s.format(ident='name',
