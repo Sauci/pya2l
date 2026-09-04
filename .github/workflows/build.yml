@@ -3,7 +3,7 @@ name: Python package
 on: [ push, pull_request ]
 
 env:
-  A2L_GRPC_VERSION: v0.3.0
+  A2L_GRPC_VERSION: v0.4.0
 
 jobs:
   generate-grpc-sources:
@@ -75,7 +75,7 @@ jobs:
           path: pya2l/protobuf
       - name: Test with pytest
         run: |
-          pytest -n 1 --cov-report html --cov pya2l --verbose
+          pytest -n auto --cov-report html --cov pya2l --verbose
           codecov
   build-distribution:
     runs-on: ubuntu-22.04

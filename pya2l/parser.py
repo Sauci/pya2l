@@ -64,7 +64,7 @@ def get_architecture() -> str:
 
 
 class A2lParser(object):
-    def __init__(self, port=3333, max_msg_size=4*1024*1024, logger: logging.Logger = None):
+    def __init__(self, port=0, max_msg_size=4*1024*1024, logger: logging.Logger = None):
         self._logger = logger
         self.chunk_size = max_msg_size - protocol_size_margin
         self.warnings: typing.List[str] = []
@@ -79,12 +79,15 @@ class A2lParser(object):
             raise Exception(f'unsupported operating system {os.name}')
         self._dll = ctypes.cdll.LoadLibrary(
             os.path.join(os.path.dirname(__file__), 'a2l_grpc', shared_object))
-        options = [('grpc.max_receive_message_length',max_msg_size),
-                   ('grpc.max_send_message_length', max_msg_size)]
-        channel = grpc.insecure_channel(f'localhost:{port}', options=options)
-        self._client = A2LStub(channel)
         if self._dll.Create(port, max_msg_size):
             raise Exception('server is already running')
+        # with a port of 0 the operating system chooses a free one, which the backend reports; this is what lets
+        # several processes run a parser each without agreeing on a port
+        self.port = self._dll.GetPort()
+        options = [('grpc.max_receive_message_length', max_msg_size),
+                   ('grpc.max_send_message_length', max_msg_size)]
+        channel = grpc.insecure_channel(f'127.0.0.1:{self.port}', options=options)
+        self._client = A2LStub(channel)
         setattr(Message, 'properties', property(lambda e: [str(f) for f in e.DESCRIPTOR.fields_by_name]))
         setattr(Message, 'is_none',
                 property(lambda e: not e.Present if 'Present' in e.properties else len(e.ListFields()) == 0))

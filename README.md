@@ -76,8 +76,8 @@ The options below apply to every command:
   `ASAP2_VERSION`, and a file which declares no version at all, since without it no such keyword can be checked.
   Without this option, both are reported as warnings.
 - `-ie` and `-oe` set the encoding of the input and of the output file.
-- `-p` sets the TCP port the backend listens on. It matters when several parsers run at the same time, as only one of
-  them can use a given port.
+- `-p` sets the TCP port the backend listens on. By default the operating system chooses a free one, so several
+  processes can run a parser each at the same time.
 
 ### Python API
 

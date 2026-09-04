@@ -27,8 +27,8 @@ def parse_args(args):
     parser.add_argument('input_file', type=argparse.FileType('rb'), help='full path to A2L/JSON input file')
     parser.add_argument('-ie', dest='input_encoding', type=str, help='encoding of the input file', default=None)
     parser.add_argument('-v', dest='verbose', action='store_true', help='enable verbose')
-    parser.add_argument('-p', dest='port', type=int, default=3333, nargs='?',
-                        help='TCP port used to connect to the backend')
+    parser.add_argument('-p', dest='port', type=int, default=0, nargs='?',
+                        help='TCP port the backend listens on, 0 lets the operating system choose a free one')
     parser.add_argument('-oe', dest='output_encoding', type=str, help='encoding of the output file',
                         default='utf-8')
     parser.add_argument('-c', dest='enforce_version_check', action='store_true',

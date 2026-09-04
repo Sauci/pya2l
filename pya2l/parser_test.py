@@ -7,6 +7,10 @@
 
 from unittest.mock import patch
 
+import os
+import subprocess
+import sys
+
 import pytest
 
 from .parser import A2lError, A2lParser as Parser, get_architecture
@@ -3478,3 +3482,15 @@ def test_get_properties():
         /end PROJECT"""
     with Parser() as p:
         assert set(p.tree_from_a2l(a2l_string.encode()).PROJECT.properties) == {'Name', 'MODULE', 'HEADER', 'LongIdentifier'}
+
+
+# the backend of a process is a singleton, but with a port of 0 the operating system chooses a free one, so another
+# process runs its own parser at the same time without the two having to agree on a port
+def test_default_port_lets_another_process_run_a_parser():
+    with Parser() as p:
+        assert p.port != 0
+        other = subprocess.run(
+            [sys.executable, '-c', 'from pya2l.parser import A2lParser; p = A2lParser(); print(p.port); p.close()'],
+            cwd=os.path.dirname(os.path.dirname(os.path.abspath(__file__))), capture_output=True, text=True, timeout=120)
+        assert other.returncode == 0, other.stderr
+        assert int(other.stdout) not in (0, p.port)
